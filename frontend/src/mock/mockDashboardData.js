@@ -1,0 +1,147 @@
+export const MOCK_DASHBOARD_STATUS = [
+  {
+    id: 'mock-homework',
+    label: "Today's Homework",
+    value: 'Done',
+    valueTone: 'success',
+    iconSrc: '/04_status_homework_done_check.png',
+    iconAlt: 'Homework completed',
+  },
+  {
+    id: 'mock-days',
+    label: 'Days at YICI',
+    value: '48',
+    unit: 'days',
+    valueTone: 'primary',
+    iconSrc: '/05_status_days_calendar.png',
+    iconAlt: 'Calendar',
+  },
+  {
+    id: 'mock-streak',
+    label: 'Homework Streak',
+    value: '12',
+    unit: 'days',
+    valueTone: 'learning',
+    iconSrc: '/06_status_homework_streak_flame.png',
+    iconAlt: 'Homework streak',
+  },
+  {
+    id: 'mock-attendance',
+    label: 'Attendance Rate',
+    value: '92%',
+    valueTone: 'success',
+    iconSrc: '/07_status_attendance_star.png',
+    iconAlt: 'Attendance rate',
+  },
+];
+
+export const MOCK_CALENDAR_DAYS = [
+  { date: 27, muted: true },
+  { date: 28, muted: true },
+  { date: 29, muted: true },
+  { date: 30, muted: true },
+  { date: 1 },
+  { date: 2 },
+  { date: 3 },
+  { date: 4 },
+  { date: 5, events: ['class', 'homework'] },
+  { date: 6 },
+  { date: 7, events: ['class'] },
+  { date: 8 },
+  { date: 9, events: ['class', 'homework'] },
+  { date: 10 },
+  { date: 11 },
+  { date: 12, events: ['class'] },
+  { date: 13 },
+  { date: 14, events: ['homework', 'homework'] },
+  { date: 15 },
+  { date: 16, events: ['completed', 'completed'] },
+  { date: 17 },
+  { date: 18 },
+  { date: 19 },
+  { date: 20, selected: 'class', events: ['completed'] },
+  { date: 21, selected: 'homework', events: ['completed'] },
+  { date: 22 },
+  { date: 23, events: ['homework'] },
+  { date: 24, selected: 'class' },
+  { date: 25 },
+  { date: 26 },
+  { date: 27 },
+  { date: 28 },
+  { date: 29 },
+  { date: 30 },
+  { date: 31 },
+];
+
+export const MOCK_UPCOMING_SCHEDULE = [
+  {
+    id: 'mock-speaking-class',
+    type: 'class',
+    day: 'Mon 20',
+    time: '1:00 PM - 2:30 PM',
+    title: 'Speaking Class',
+  },
+  {
+    id: 'mock-homework-review',
+    type: 'homework',
+    day: 'Tue 21',
+    time: '10:00 AM - 11:00 AM',
+    title: 'Homework Review',
+  },
+  {
+    id: 'mock-interview',
+    type: 'class',
+    day: 'Fri 24',
+    time: '3:00 PM - 4:30 PM',
+    title: 'Mock Interview',
+  },
+];
+
+export const MOCK_BOTTOM_NAV_ITEMS = [
+  {
+    id: 'mock-nav-homework',
+    tab: 'homework',
+    label: 'Homework',
+    iconSrc: '/08_nav_homework_note.png',
+    iconAlt: 'Homework',
+  },
+  {
+    id: 'mock-nav-vocabulary',
+    tab: 'vocabulary',
+    label: 'Vocabulary',
+    iconSrc: '/09_nav_vocabulary_book_aa.png',
+    iconAlt: 'Vocabulary',
+  },
+  {
+    id: 'mock-nav-dashboard',
+    tab: 'dashboard',
+    label: 'Dashboard',
+    lucide: 'dashboard',
+    active: true,
+  },
+  {
+    id: 'mock-nav-game',
+    tab: 'game',
+    label: 'Game',
+    lucide: 'game',
+  },
+  {
+    id: 'mock-nav-settings',
+    tab: 'settings',
+    label: 'Settings',
+    iconSrc: '/10_nav_settings_gear.png',
+    iconAlt: 'Settings',
+  },
+];
+
+export function getMockDashboardData() {
+  return {
+    profileInitial: 'H',
+    currentMonth: 'May 2025',
+    koreaTripCountdown: 'D-87',
+    statusItems: MOCK_DASHBOARD_STATUS,
+    calendarDays: MOCK_CALENDAR_DAYS,
+    upcomingSchedule: MOCK_UPCOMING_SCHEDULE,
+    bottomNavItems: MOCK_BOTTOM_NAV_ITEMS,
+  };
+}

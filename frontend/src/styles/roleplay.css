@@ -1,0 +1,311 @@
+.roleplay-shell {
+  isolation: isolate;
+  background: #111827;
+}
+
+.roleplay-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.roleplay-bg-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(180deg, rgba(13, 19, 31, 0.04) 0%, rgba(13, 19, 31, 0) 42%, rgba(3, 7, 18, 0.72) 100%),
+    linear-gradient(90deg, rgba(3, 7, 18, 0.16), transparent 26%, transparent 74%, rgba(3, 7, 18, 0.14));
+}
+
+.roleplay-notch {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  z-index: 4;
+  width: 132px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #050505;
+  transform: translateX(-50%);
+}
+
+.roleplay-notch span {
+  width: 9px;
+  height: 9px;
+  margin-left: 64px;
+  border-radius: 50%;
+  background: #0d5d9d;
+  box-shadow: inset 0 0 0 3px rgba(4, 20, 39, 0.7);
+}
+
+.roleplay-top-bar {
+  position: relative;
+  z-index: 3;
+  height: 66px;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto 36px 40px;
+  align-items: center;
+  gap: 6px;
+  margin: 72px 14px 0;
+  padding: 0 8px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(12px);
+}
+
+.roleplay-top-bar h1 {
+  overflow: hidden;
+  margin: 0;
+  color: var(--color-navy);
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roleplay-circle-button,
+.roleplay-small-button {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 50%;
+  background: #ffffff;
+  color: #0e4f9a;
+  box-shadow: 0 5px 14px rgba(51, 107, 142, 0.12);
+}
+
+.roleplay-circle-button {
+  width: 40px;
+  height: 40px;
+}
+
+.roleplay-small-button {
+  width: 36px;
+  height: 36px;
+}
+
+.menu-button {
+  color: #0d4e95;
+}
+
+.roleplay-level-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 33px;
+  min-width: 58px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.roleplay-level-pill.tone-easy {
+  background: #e6f8ec;
+  color: #159344;
+}
+
+.conversation-stack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 118px;
+  z-index: 2;
+  display: grid;
+  gap: 14px;
+  padding: 0 32px;
+}
+
+.conversation-row {
+  display: flex;
+}
+
+.conversation-row.is-clerk {
+  justify-content: flex-start;
+}
+
+.conversation-row.is-student {
+  justify-content: flex-end;
+}
+
+.conversation-bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  max-width: 72%;
+  min-height: 70px;
+  padding: 17px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 22px;
+  box-shadow: 0 12px 34px rgba(3, 7, 18, 0.22);
+  backdrop-filter: blur(14px);
+}
+
+.is-clerk .conversation-bubble {
+  background: rgba(31, 43, 63, 0.84);
+  color: #ffffff;
+}
+
+.is-student .conversation-bubble {
+  max-width: 76%;
+  border: 1.5px solid #2585ff;
+  background: rgba(255, 255, 255, 0.98);
+  color: var(--color-navy);
+}
+
+.conversation-bubble p {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.45;
+  font-weight: 500;
+  white-space: pre-line;
+}
+
+.audio-button {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e5f0ff;
+  color: #1670dd;
+}
+
+.roleplay-response-dock {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 24px;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) 58px;
+  align-items: center;
+  gap: 13px;
+  min-height: 76px;
+  padding: 11px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 36px rgba(3, 7, 18, 0.25);
+  backdrop-filter: blur(14px);
+}
+
+.favorite-response-button,
+.send-response-button {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #ffffff;
+}
+
+.favorite-response-button {
+  background: var(--color-learning);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.08);
+}
+
+.send-response-button {
+  background: #0751aa;
+}
+
+.response-input-button {
+  min-width: 0;
+  height: 56px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px 0 24px;
+  border: 1px solid #d8e3ef;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #506582;
+  box-shadow: inset 0 0 0 1px rgba(51, 107, 142, 0.03);
+}
+
+.response-input-button span {
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.response-input-button svg {
+  color: #0751aa;
+}
+
+.roleplay-hidden-marker {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 390px) {
+  .roleplay-top-bar {
+    grid-template-columns: 38px minmax(0, 1fr) auto 34px 38px;
+    gap: 5px;
+    margin-inline: 10px;
+  }
+
+  .roleplay-top-bar h1 {
+    font-size: 16px;
+  }
+
+  .roleplay-level-pill {
+    min-width: 56px;
+    padding-inline: 11px;
+    font-size: 13px;
+  }
+
+  .conversation-stack {
+    bottom: 112px;
+    gap: 12px;
+    padding-inline: 22px;
+  }
+
+  .conversation-bubble {
+    max-width: 78%;
+    min-height: 64px;
+    padding: 14px 16px;
+    gap: 10px;
+  }
+
+  .is-student .conversation-bubble {
+    max-width: 78%;
+  }
+
+  .conversation-bubble p {
+    font-size: 16px;
+  }
+
+  .roleplay-response-dock {
+    left: 12px;
+    right: 12px;
+    grid-template-columns: 52px minmax(0, 1fr) 52px;
+    gap: 9px;
+  }
+
+  .favorite-response-button,
+  .send-response-button {
+    width: 52px;
+    height: 52px;
+  }
+
+  .response-input-button {
+    height: 52px;
+    padding-inline: 18px 14px;
+  }
+}
