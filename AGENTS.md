@@ -9,7 +9,6 @@
 - REACT를 사용해서 마치 MOBILE인 것 처럼 구현하여야 한다.
 
 ## 2. 기술 스택
-
 ### Frontend
 - React 18
 - Vite
@@ -100,6 +99,7 @@ backend/
     │   └── models.py
     ├── api/
     │   └── v1/
+    │       ├── router.py
     │       └── ...
     ├── schemas/
     ├── repositories/
