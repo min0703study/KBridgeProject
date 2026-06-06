@@ -16,7 +16,6 @@ export const MOCK_ROLEPLAY_GAMES = [
     difficulty: 'Easy',
     difficultyTone: 'easy',
     duration: '5 min',
-    playableMockScene: 'roleplay-convenience-store',
     imageSrc: '/roleplay_title_image/roleplay_convenience_store_customer.png',
     imageAlt: 'Student buying snacks at a convenience store',
   },
@@ -116,37 +115,4 @@ export function getMockGameData() {
     roleplayGames: MOCK_ROLEPLAY_GAMES,
     bottomNavItems: MOCK_GAME_BOTTOM_NAV_ITEMS,
   };
-}
-
-export const MOCK_CONVENIENCE_STORE_INGAME = {
-  id: 'mock-ingame-convenience-store',
-  title: 'Convenience Store',
-  difficulty: 'Easy',
-  difficultyTone: 'easy',
-  backgroundImageSrc: '/roleplay_ingame_image/roleplay_convenience_store_customer.png',
-  backgroundImageAlt: 'Convenience store customer at the checkout counter',
-  messages: [
-    {
-      id: 'mock-message-clerk-greeting',
-      speaker: 'clerk',
-      hasAudio: true,
-      text: 'Hi there! 👋\nWelcome! What can I get for you today?',
-    },
-    {
-      id: 'mock-message-student-order',
-      speaker: 'student',
-      text: "I'd like a bag of chips and a bottle of water, please.",
-    },
-    {
-      id: 'mock-message-clerk-payment',
-      speaker: 'clerk',
-      hasAudio: true,
-      text: "Sure thing! That'll be ₱85.00.\nCash or card?",
-    },
-  ],
-  responsePlaceholder: 'Tap to respond...',
-};
-
-export function getMockConvenienceStoreInGameData() {
-  return MOCK_CONVENIENCE_STORE_INGAME;
 }

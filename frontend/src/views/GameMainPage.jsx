@@ -91,7 +91,7 @@ function MockGameFilters({ filters }) {
   );
 }
 
-function MockRoleplayCard({ game, onMockStartRoleplay }) {
+function MockRoleplayCard({ game }) {
   const categoryIcon = {
     'Convenience Store': ShoppingBag,
     Restaurant: Utensils,
@@ -103,14 +103,7 @@ function MockRoleplayCard({ game, onMockStartRoleplay }) {
   const CategoryIcon = categoryIcon || Gamepad2;
 
   return (
-    <article
-      className={`roleplay-card ${game.playableMockScene ? 'is-playable' : ''}`}
-      onClick={() => {
-        if (game.playableMockScene) {
-          onMockStartRoleplay(game.playableMockScene);
-        }
-      }}
-    >
+    <article className="roleplay-card">
       <img className="roleplay-image" src={game.imageSrc} alt={game.imageAlt} />
       <div className="roleplay-body">
         <div>
@@ -124,17 +117,7 @@ function MockRoleplayCard({ game, onMockStartRoleplay }) {
             {game.duration}
           </span>
         </div>
-        <button
-          className="roleplay-start-button"
-          type="button"
-          aria-label={`Start ${game.title} mock roleplay`}
-          onClick={(event) => {
-            event.stopPropagation();
-            if (game.playableMockScene) {
-              onMockStartRoleplay(game.playableMockScene);
-            }
-          }}
-        >
+        <button className="roleplay-start-button" type="button" aria-label={`Start ${game.title} mock roleplay`}>
           <CategoryIcon className="roleplay-start-icon" size={18} strokeWidth={2} aria-hidden="true" />
           <ChevronRight size={23} strokeWidth={2.8} aria-hidden="true" />
         </button>
@@ -183,11 +166,7 @@ export default function GameMainPage({ onMockNavigate }) {
           <MockGameFilters filters={mockGameData.filters} />
           <section className="roleplay-grid" aria-label="Mock roleplay game list">
             {mockGameData.roleplayGames.map((game) => (
-              <MockRoleplayCard
-                game={game}
-                key={game.id}
-                onMockStartRoleplay={onMockNavigate}
-              />
+              <MockRoleplayCard game={game} key={game.id} />
             ))}
           </section>
         </div>
