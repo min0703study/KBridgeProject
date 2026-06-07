@@ -72,7 +72,7 @@ async def run_convenience_store_turn(
         raise InvalidAudioError("Uploaded audio is empty.")
 
     settings = get_settings()
-    if not settings.gemini_api_key:
+    if not settings.resolved_gemini_api_key:
         raise MissingProviderKeyError("GEMINI_API_KEY or GOOGLE_API_KEY is required.")
     if not settings.elevenlabs_api_key:
         raise MissingProviderKeyError("ELEVENLABS_API_KEY is required.")
@@ -176,7 +176,7 @@ def _transcribe_wav(audio_bytes: bytes) -> str:
 def _generate_response_pack(transcript: str) -> dict:
     settings = get_settings()
     prompt = f'Learner transcript: "{transcript}"'
-    client = genai.Client(api_key=settings.gemini_api_key)
+    client = genai.Client(api_key=settings.resolved_gemini_api_key)
     response = client.models.generate_content(
         model=settings.gemini_model,
         contents=prompt,

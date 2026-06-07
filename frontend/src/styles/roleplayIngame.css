@@ -184,6 +184,24 @@
   color: #ffffff;
 }
 
+.roleplay-state-card {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: 142px;
+  z-index: 3;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 8px;
+  background: rgba(20, 24, 27, 0.84);
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.35;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
 .roleplay-content-stack {
   position: absolute;
   left: 18px;

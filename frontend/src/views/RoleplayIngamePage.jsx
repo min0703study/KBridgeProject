@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowUp,
   BookOpen,
@@ -15,28 +15,31 @@ import {
   Volume2,
   X,
 } from 'lucide-react';
-import { sendConvenienceStoreTurn } from '../api/roleplayApi.js';
+import { getConvenienceStoreIngame, sendConvenienceStoreTurn } from '../api/roleplayApi.js';
 import { createWavRecorder } from '../utils/wavRecorder.js';
 
-const INITIAL_USER_MESSAGE = {
-  id: 'sample-user-message',
-  tone: 'learner',
-  ko: '죄송하지만, 신분증 확인 부탁드립니다.',
-  en: "I'm sorry, may I check your ID?",
-  hasFeedback: true,
-};
-
-const DEFAULT_FEEDBACK = {
-  previous_text: '신분증 줘요',
-  better_way: '죄송하지만, 신분증 확인 부탁드립니다.',
-  politeness_note:
-    'To sound more polite, avoid a direct command and add a softener with a respectful request.',
-  grammar_note:
-    'Use “신분증 확인” to say “ID check” instead of asking the listener to hand over the ID directly.',
-};
+const FALLBACK_BACKGROUND_IMAGE = '/roleplay_ingame_image/roleplay_convenience_store_customer.png';
 
 function formatSeconds(seconds) {
   return `00:${String(seconds).padStart(2, '0')}`;
+}
+
+function getTranslationText(translationJson, preferredLanguage = 'en') {
+  if (!translationJson || typeof translationJson !== 'object') {
+    return '';
+  }
+
+  return (
+    translationJson[preferredLanguage] ||
+    translationJson[preferredLanguage?.toLowerCase?.()] ||
+    translationJson.en ||
+    translationJson.EN ||
+    ''
+  );
+}
+
+function formatStepNumber(stepOrder) {
+  return String(stepOrder || 1).padStart(2, '0');
 }
 
 function Waveform() {
@@ -56,8 +59,12 @@ function DialogueBubble({ tone, ko, en, onFeedbackClick, active }) {
         <Volume2 size={22} strokeWidth={2.4} aria-hidden="true" />
       </button>
       <p lang="ko">{ko}</p>
-      <span aria-hidden="true" />
-      <p>{en}</p>
+      {en ? (
+        <>
+          <span aria-hidden="true" />
+          <p>{en}</p>
+        </>
+      ) : null}
       <button className="dialogue-collapse-button" type="button" aria-label="Collapse dialogue">
         <ChevronDown size={20} strokeWidth={2.6} aria-hidden="true" />
       </button>
@@ -118,17 +125,74 @@ function FeedbackPanel({ feedback, onClose }) {
   );
 }
 
-export default function RoleplayIngamePage({ onBack }) {
+function LoadingState({ message }) {
+  return <div className="roleplay-state-card">{message}</div>;
+}
+
+export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
+  const [ingameData, setIngameData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
-  const [messages, setMessages] = useState([INITIAL_USER_MESSAGE]);
-  const [feedback, setFeedback] = useState(DEFAULT_FEEDBACK);
+  const [messages, setMessages] = useState([]);
+  const [feedback, setFeedback] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const recorderRef = useRef(null);
   const timerRef = useRef(null);
   const audioRef = useRef(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadIngameData() {
+      setIsLoading(true);
+      setErrorMessage('');
+
+      try {
+        const payload = await getConvenienceStoreIngame();
+        if (!isMounted) {
+          return;
+        }
+
+        setIngameData(payload);
+        const initialDialogue = payload.current_step?.character_dialogue_text;
+        const initialDialogueTranslation = getTranslationText(
+          payload.current_step?.character_dialogue_translation_json,
+          payload.version?.default_system_language,
+        );
+
+        setMessages(
+          initialDialogue
+            ? [
+                {
+                  id: `${payload.current_step.step_id}-initial-character-dialogue`,
+                  tone: 'customer',
+                  ko: initialDialogue,
+                  en: initialDialogueTranslation,
+                  hasFeedback: false,
+                },
+              ]
+            : [],
+        );
+      } catch (error) {
+        if (isMounted) {
+          setErrorMessage(error.message || 'Roleplay ingame data could not be loaded.');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadIngameData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -140,6 +204,11 @@ export default function RoleplayIngamePage({ onBack }) {
   }, []);
 
   async function startRecording() {
+    if (!ingameData) {
+      setErrorMessage('Roleplay data is still loading.');
+      return;
+    }
+
     setErrorMessage('');
     try {
       recorderRef.current = await createWavRecorder();
@@ -165,7 +234,7 @@ export default function RoleplayIngamePage({ onBack }) {
   }
 
   async function sendRecording() {
-    if (!recorderRef.current) {
+    if (!recorderRef.current || !ingameData) {
       return;
     }
 
@@ -181,6 +250,8 @@ export default function RoleplayIngamePage({ onBack }) {
       const payload = await sendConvenienceStoreTurn({
         audioBlob,
         clientTurnId: crypto.randomUUID(),
+        scenarioId: ingameData.scenario.scenario_id,
+        stepId: ingameData.current_step.step_id,
       });
 
       setMessages((current) => [
@@ -222,24 +293,28 @@ export default function RoleplayIngamePage({ onBack }) {
   }
 
   const latestFeedbackMessage = [...messages].reverse().find((message) => message.hasFeedback);
+  const backgroundImage = ingameData?.location?.background_image_url || FALLBACK_BACKGROUND_IMAGE;
+  const step = ingameData?.current_step;
+  const totalChances = ingameData?.ui_state?.total_chances || 5;
+  const remainingChances = ingameData?.ui_state?.remaining_chances || totalChances;
+  const scoreCount = ingameData?.ui_state?.score_count || 0;
+  const progressWidth = useMemo(
+    () => `${Math.max(3, Math.min(100, (scoreCount / Math.max(totalChances, 1)) * 100))}%`,
+    [scoreCount, totalChances],
+  );
 
   return (
     <main className="app-stage roleplay-stage">
       <div className="mobile-shell roleplay-ingame-shell">
-        <img
-          className="roleplay-scene-bg"
-          src="/roleplay_ingame_image/roleplay_convenience_store_customer.png"
-          alt=""
-          aria-hidden="true"
-        />
+        <img className="roleplay-scene-bg" src={backgroundImage} alt="" aria-hidden="true" />
         <div className="roleplay-scene-scrim" aria-hidden="true" />
 
         <header className="roleplay-topbar">
           <button type="button" aria-label="Back to roleplay list" onClick={onBack}>
             <ChevronLeft size={34} strokeWidth={2.5} aria-hidden="true" />
           </button>
-          <h1>Convenience Store</h1>
-          <span className="roleplay-difficulty">Easy</span>
+          <h1>{ingameData?.scenario?.title || 'Convenience Store'}</h1>
+          <span className="roleplay-difficulty">{ingameData?.scenario?.difficulty || 'Easy'}</span>
           <button type="button" aria-label="Settings">
             <Settings size={31} strokeWidth={2.8} aria-hidden="true" />
           </button>
@@ -248,65 +323,78 @@ export default function RoleplayIngamePage({ onBack }) {
           </button>
         </header>
 
-        <section className="roleplay-step-card" aria-label="Current step">
-          <div className="step-title-row">
-            <span className="step-number">01</span>
-            <strong>Step 1: Check your ID.</strong>
-          </div>
-          <div className="step-progress-row">
-            <span className="step-progress-track">
-              <span />
-            </span>
-            <b>0 / 5</b>
-            <div className="step-hearts" aria-label="5 chances remaining">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <span key={index}>♥</span>
+        {isLoading ? <LoadingState message="Loading roleplay..." /> : null}
+        {!isLoading && !ingameData ? <LoadingState message={errorMessage} /> : null}
+
+        {ingameData ? (
+          <>
+            <section className="roleplay-step-card" aria-label="Current step">
+              <div className="step-title-row">
+                <span className="step-number">{formatStepNumber(step.step_order)}</span>
+                <strong>{`Step ${step.step_order}: ${step.step_title}`}</strong>
+              </div>
+              <div className="step-progress-row">
+                <span className="step-progress-track">
+                  <span style={{ width: progressWidth }} />
+                </span>
+                <b>{`${scoreCount} / ${totalChances}`}</b>
+                <div className="step-hearts" aria-label={`${remainingChances} chances remaining`}>
+                  {Array.from({ length: remainingChances }).map((_, index) => (
+                    <span key={index}>{'\u2665'}</span>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {step.guidance_text ? (
+              <div className="roleplay-tip">
+                <span>
+                  <Lightbulb size={22} strokeWidth={2.4} aria-hidden="true" />
+                </span>
+                {step.guidance_text}
+              </div>
+            ) : null}
+
+            <section className="roleplay-content-stack" aria-label="Conversation">
+              {step.scene_text ? (
+                <article className="roleplay-info-card">
+                  <BookOpen size={30} fill="currentColor" strokeWidth={1.8} aria-hidden="true" />
+                  <p>{step.scene_text}</p>
+                </article>
+              ) : null}
+
+              {step.character_action_text ? (
+                <article className="roleplay-action-card">
+                  <Sparkles size={26} aria-hidden="true" />
+                  <p>{step.character_action_text}</p>
+                </article>
+              ) : null}
+
+              {messages.map((message) => (
+                <DialogueBubble
+                  tone={message.tone}
+                  ko={message.ko}
+                  en={message.en}
+                  key={message.id}
+                  active={showFeedback && latestFeedbackMessage?.id === message.id}
+                  onFeedbackClick={
+                    message.hasFeedback
+                      ? () => {
+                          setShowFeedback((value) => !value);
+                        }
+                      : null
+                  }
+                />
               ))}
-            </div>
-          </div>
-        </section>
+            </section>
+          </>
+        ) : null}
 
-        <div className="roleplay-tip">
-          <span>
-            <Lightbulb size={22} strokeWidth={2.4} aria-hidden="true" />
-          </span>
-          You must check your ID for alcoholic beverages!
-        </div>
+        {showFeedback && feedback ? (
+          <FeedbackPanel feedback={feedback} onClose={() => setShowFeedback(false)} />
+        ) : null}
 
-        <section className="roleplay-content-stack" aria-label="Conversation">
-          <article className="roleplay-info-card">
-            <BookOpen size={30} fill="currentColor" strokeWidth={1.8} aria-hidden="true" />
-            <p>Among the items the customer wants to purchase is beer, which requires age verification.</p>
-          </article>
-
-          <article className="roleplay-action-card">
-            <Sparkles size={26} aria-hidden="true" />
-            <p>The customer places a beer on the counter.</p>
-          </article>
-
-          <DialogueBubble tone="customer" ko="계산해 주세요." en="Please check out." />
-
-          {messages.map((message) => (
-            <DialogueBubble
-              tone={message.tone}
-              ko={message.ko}
-              en={message.en}
-              key={message.id}
-              active={showFeedback && latestFeedbackMessage?.id === message.id}
-              onFeedbackClick={
-                message.hasFeedback
-                  ? () => {
-                      setShowFeedback((value) => !value);
-                    }
-                  : null
-              }
-            />
-          ))}
-        </section>
-
-        {showFeedback ? <FeedbackPanel feedback={feedback} onClose={() => setShowFeedback(false)} /> : null}
-
-        {errorMessage ? <p className="roleplay-error">{errorMessage}</p> : null}
+        {errorMessage && ingameData ? <p className="roleplay-error">{errorMessage}</p> : null}
 
         <footer className={`roleplay-composer ${isRecording ? 'is-recording' : ''}`}>
           {isRecording ? (
@@ -328,7 +416,7 @@ export default function RoleplayIngamePage({ onBack }) {
                   type="button"
                   aria-label="Start voice recording"
                   onClick={startRecording}
-                  disabled={isSending}
+                  disabled={isSending || isLoading}
                 >
                   <Mic size={30} strokeWidth={2.8} aria-hidden="true" />
                 </button>
@@ -340,7 +428,7 @@ export default function RoleplayIngamePage({ onBack }) {
             type="button"
             aria-label={isRecording ? 'Send voice recording' : 'Send message'}
             onClick={isRecording ? sendRecording : undefined}
-            disabled={isSending}
+            disabled={isSending || isLoading}
           >
             {isSending ? (
               <Speaker size={29} strokeWidth={2.4} aria-hidden="true" />

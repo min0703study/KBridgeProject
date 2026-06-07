@@ -48,3 +48,86 @@ class RoleplayTurnResponse(BaseModel):
     evaluation: Evaluation
     feedback: CorrectionFeedback | None = None
     ui_state: RoleplayUiState
+
+
+class RoleplayScenarioSummary(BaseModel):
+    scenario_id: str
+    title: str
+    description: str
+    difficulty: str
+
+
+class RoleplayVersionSummary(BaseModel):
+    scenario_version_id: str
+    learning_language: str
+    default_system_language: str
+    default_total_chances: int
+
+
+class RoleplayLocationSummary(BaseModel):
+    scenario_location_id: str
+    roleplay_location_id: str
+    name: str
+    description: str
+    background_image_url: str | None = None
+
+
+class RoleplayCharacterSummary(BaseModel):
+    scenario_roleplay_character_id: str
+    roleplay_character_id: str
+    role_name: str
+    name: str
+    description: str
+    image_url: str | None = None
+
+
+class StepSampleAnswerSummary(BaseModel):
+    step_sample_answer_id: str
+    text: str
+    language_code: str
+    display_order: int
+
+
+class CurrentRoleplayStep(BaseModel):
+    step_id: str
+    step_order: int
+    step_title: str
+    step_goal: str
+    guidance_text: str | None = None
+    scene_text: str | None = None
+    character_action_text: str | None = None
+    character_dialogue_text: str | None = None
+    character_dialogue_language: str
+    character_dialogue_translation_json: dict | None = None
+    sample_answers: list[StepSampleAnswerSummary] = Field(default_factory=list)
+
+
+class RoleplayIngameUiState(BaseModel):
+    total_chances: int
+    remaining_chances: int
+    score_count: int = 0
+
+
+class RoleplayIngameResponse(BaseModel):
+    scenario: RoleplayScenarioSummary
+    version: RoleplayVersionSummary
+    location: RoleplayLocationSummary
+    character: RoleplayCharacterSummary
+    current_step: CurrentRoleplayStep
+    ui_state: RoleplayIngameUiState
+
+
+class RoleplaySessionCreateRequest(BaseModel):
+    learner_id: str
+    scenario_version_id: str | None = None
+
+
+class RoleplaySessionCreateResponse(BaseModel):
+    roleplay_session_id: str
+    learner_id: str
+    scenario_version_id: str
+    current_step_id: str
+    total_chances: int
+    remaining_chances: int
+    end_status: str
+    current_step_fail_count: int
