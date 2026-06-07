@@ -19,6 +19,21 @@ import { getConvenienceStoreIngame, sendRoleplaySessionTurn } from '../api/rolep
 import { createWavRecorder } from '../utils/wavRecorder.js';
 
 const FALLBACK_BACKGROUND_IMAGE = '/roleplay_ingame_image/roleplay_convenience_store_customer.png';
+const FALLBACK_TOTAL_STEPS = 5;
+
+const FINAL_FEEDBACK = {
+  summary:
+    'You kept the conversation moving with natural, accurate expressions. Your answer matched the situation well, and your confidence made the exchange feel smooth.',
+  strengths:
+    'You used practical phrases clearly, and the sentence structure was easy to understand. The listener would know exactly what you wanted to say.',
+  strengthExample: '"I would like to buy a prepaid SIM card."',
+  improvement:
+    'Some responses were a little simple. Adding connectors and more specific vocabulary will make your conversation richer.',
+  improvementExample: '"That is good." -> "That sounds like a great idea."',
+  nextStudy:
+    'Practice asking and answering opinions in everyday topics. Try adding short reasons and emotion words to sound more natural.',
+  recommendedPhrases: ['What do you think?', 'I think so too.'],
+};
 
 function formatSeconds(seconds) {
   return `00:${String(seconds).padStart(2, '0')}`;
@@ -40,6 +55,20 @@ function getTranslationText(translationJson, preferredLanguage = 'en') {
 
 function formatStepNumber(stepOrder) {
   return String(stepOrder || 1).padStart(2, '0');
+}
+
+function toPositiveInteger(value) {
+  const number = Number(value);
+  return Number.isInteger(number) && number > 0 ? number : null;
+}
+
+function getStepOrderFromLabel(label) {
+  if (typeof label !== 'string') {
+    return null;
+  }
+
+  const match = label.match(/\bStep\s+(\d+)\s*:/i);
+  return match ? toPositiveInteger(match[1]) : null;
 }
 
 function Waveform() {
@@ -221,6 +250,80 @@ function FeedbackPanel({ feedback, onClose }) {
   );
 }
 
+function FinalFeedbackPopup({ onClose }) {
+  return (
+    <section className="final-feedback-overlay" aria-label="Final roleplay feedback" role="dialog" aria-modal="true">
+      <div className="final-feedback-dialog">
+        <button className="final-feedback-close" type="button" aria-label="Back to roleplay list" onClick={onClose}>
+          <img src="/icons_svg/close_circle.svg" alt="" aria-hidden="true" />
+        </button>
+
+        <div className="final-feedback-hero">
+          <div className="final-confetti" aria-hidden="true">
+            <img className="confetti-cluster" src="/icons_svg/confetti_cluster.svg" alt="" />
+            <img className="diamond-gold diamond-one" src="/icons_svg/deco_diamond_gold.svg" alt="" />
+            <img className="diamond-blue diamond-two" src="/icons_svg/deco_diamond_blue.svg" alt="" />
+            <img className="diamond-gold diamond-three" src="/icons_svg/deco_diamond_gold.svg" alt="" />
+          </div>
+          <img className="final-trophy" src="/icons_svg/trophy_success.svg" alt="" aria-hidden="true" />
+          <h2>Conversation Mission Complete!</h2>
+          <p>Great work today. Review your feedback and use it in your next practice.</p>
+        </div>
+
+        <div className="final-feedback-content">
+          <section className="final-summary-card">
+            <div className="final-section-heading">
+              <img src="/icons_svg/section_summary_star.svg" alt="" aria-hidden="true" />
+              <h3>Overall Feedback</h3>
+            </div>
+            <p>{FINAL_FEEDBACK.summary}</p>
+          </section>
+
+          <section className="final-feedback-section is-good">
+            <img className="final-section-icon" src="/icons_svg/section_good_thumb.svg" alt="" aria-hidden="true" />
+            <div className="final-section-body">
+              <h3>What Went Well</h3>
+              <p>{FINAL_FEEDBACK.strengths}</p>
+              <div className="final-feedback-example">
+                <span className="example-badge is-good">Example</span>
+                <strong>{FINAL_FEEDBACK.strengthExample}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="final-feedback-section is-improve">
+            <img className="final-section-icon" src="/icons_svg/section_improve_chart.svg" alt="" aria-hidden="true" />
+            <div className="final-section-body">
+              <h3>Area to Improve</h3>
+              <p>{FINAL_FEEDBACK.improvement}</p>
+              <div className="final-feedback-example">
+                <span className="example-badge is-improve">Example</span>
+                <strong>{FINAL_FEEDBACK.improvementExample}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="final-feedback-section is-next">
+            <img className="final-section-icon" src="/icons_svg/section_next_book.svg" alt="" aria-hidden="true" />
+            <div className="final-section-body">
+              <h3>Next Study Suggestion</h3>
+              <p>{FINAL_FEEDBACK.nextStudy}</p>
+              <div className="final-feedback-example phrase-list">
+                <span className="example-badge is-next">Try</span>
+                <ul>
+                  {FINAL_FEEDBACK.recommendedPhrases.map((phrase) => (
+                    <li key={phrase}>{phrase}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function LoadingState({ message }) {
   return <div className="roleplay-state-card">{message}</div>;
 }
@@ -237,6 +340,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [turnUiState, setTurnUiState] = useState(null);
   const [sessionStatus, setSessionStatus] = useState(null);
+  const [showFinalFeedback, setShowFinalFeedback] = useState(false);
   const recorderRef = useRef(null);
   const timerRef = useRef(null);
   const audioRef = useRef(null);
@@ -425,16 +529,36 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
   const step = ingameData?.current_step;
   const totalChances = ingameData?.ui_state?.total_chances || 5;
   const remainingChances = turnUiState?.remaining_chances ?? ingameData?.ui_state?.remaining_chances ?? totalChances;
-  const scoreCount = turnUiState?.score_count ?? ingameData?.ui_state?.score_count ?? 0;
-  const totalSteps = turnUiState?.total_steps ?? ingameData?.ui_state?.total_steps ?? 1;
+  const stepOrderFromLabel = getStepOrderFromLabel(turnUiState?.current_step_label);
   const currentStepOrder =
-    turnUiState?.current_step_order ?? ingameData?.ui_state?.current_step_order ?? step?.step_order ?? 1;
-  const stepLabel = turnUiState?.current_step_label || `Step ${step?.step_order || 1}: ${step?.step_title || ''}`;
+    stepOrderFromLabel ??
+    toPositiveInteger(turnUiState?.current_step_order) ??
+    toPositiveInteger(ingameData?.ui_state?.current_step_order) ??
+    toPositiveInteger(step?.step_order) ??
+    1;
+  const rawTotalSteps =
+    toPositiveInteger(turnUiState?.total_steps) ?? toPositiveInteger(ingameData?.ui_state?.total_steps);
+  const totalSteps = Math.max(rawTotalSteps ?? 0, FALLBACK_TOTAL_STEPS, currentStepOrder);
+  const stepLabel = turnUiState?.current_step_label || `Step ${currentStepOrder}: ${step?.step_title || ''}`;
   const isSessionEnded = Boolean(sessionStatus?.is_ended);
   const progressWidth = useMemo(
     () => `${Math.max(3, Math.min(100, (currentStepOrder / Math.max(totalSteps, 1)) * 100))}%`,
     [currentStepOrder, totalSteps],
   );
+
+  useEffect(() => {
+    if (!isSessionEnded) {
+      return;
+    }
+
+    setShowFeedback(false);
+    setShowFinalFeedback(true);
+  }, [isSessionEnded]);
+
+  function handleCloseFinalFeedback() {
+    setShowFinalFeedback(false);
+    onBack();
+  }
 
   return (
     <main className="app-stage roleplay-stage">
@@ -460,14 +584,14 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
           <>
             <section className="roleplay-step-card" aria-label="Current step">
               <div className="step-title-row">
-                <span className="step-number">{formatStepNumber(step.step_order)}</span>
+                <span className="step-number">{formatStepNumber(currentStepOrder)}</span>
                 <strong>{stepLabel}</strong>
               </div>
               <div className="step-progress-row">
                 <span className="step-progress-track">
                   <span style={{ width: progressWidth }} />
                 </span>
-                <b>{`${scoreCount} / ${totalChances}`}</b>
+                <b>{`${currentStepOrder} / ${totalSteps}`}</b>
                 <div className="step-hearts" aria-label={`${remainingChances} chances remaining`}>
                   {Array.from({ length: remainingChances }).map((_, index) => (
                     <span key={index}>
@@ -529,6 +653,8 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
         {showFeedback && feedback ? (
           <FeedbackPanel feedback={feedback} onClose={() => setShowFeedback(false)} />
         ) : null}
+
+        {showFinalFeedback ? <FinalFeedbackPopup onClose={handleCloseFinalFeedback} /> : null}
 
         {errorMessage && ingameData ? <p className="roleplay-error">{errorMessage}</p> : null}
 

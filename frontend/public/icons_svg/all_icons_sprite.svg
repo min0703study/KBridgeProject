@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="icon-close-circle" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="31" fill="#EEF0F2"/><path d="M22.5 22.5L41.5 41.5M41.5 22.5L22.5 41.5" stroke="#70757D" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="icon-summary-star" viewBox="0 0 96 96"><path d="M48 11C52.7 32.5 63.5 43.3 85 48C63.5 52.7 52.7 63.5 48 85C43.3 63.5 32.5 52.7 11 48C32.5 43.3 43.3 32.5 48 11Z" fill="#F5A400"/></symbol>
+  <symbol id="icon-deco-diamond-blue" viewBox="0 0 32 32"><path d="M16 3L29 16L16 29L3 16L16 3Z" fill="#4DA3FF"/></symbol>
+  <symbol id="icon-deco-diamond-gold" viewBox="0 0 32 32"><path d="M16 3L29 16L16 29L3 16L16 3Z" fill="#FFC107"/></symbol>
+</svg>

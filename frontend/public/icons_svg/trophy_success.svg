@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none">
+  <defs>
+    <linearGradient id="cup" x1="52" y1="31" x2="107" y2="105" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFE071"/>
+      <stop offset="0.48" stop-color="#FFC034"/>
+      <stop offset="1" stop-color="#F39B10"/>
+    </linearGradient>
+    <linearGradient id="cupSide" x1="30" y1="47" x2="129" y2="91" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F6A214"/>
+      <stop offset="0.5" stop-color="#FFD254"/>
+      <stop offset="1" stop-color="#EF8F00"/>
+    </linearGradient>
+    <linearGradient id="base" x1="55" y1="106" x2="105" y2="139" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8B4D17"/>
+      <stop offset="1" stop-color="#593211"/>
+    </linearGradient>
+    <filter id="shadow" x="30" y="20" width="100" height="126" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="4" flood-color="#9C6A16" flood-opacity="0.28"/>
+    </filter>
+    <radialGradient id="shine" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(65 40) rotate(56) scale(47 16)">
+      <stop stop-color="#FFF7C1" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFF7C1" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="80" cy="139" rx="35" ry="7" fill="#6B3E11" opacity="0.16"/>
+  <g filter="url(#shadow)">
+    <path d="M48 45H36C27.7 45 21 51.7 21 60C21 77.5 34.2 90.6 52.6 91.7L54.6 80.4C41.7 80.2 33 71.4 33 60.5C33 58.6 34.6 57 36.5 57H50L48 45Z" stroke="url(#cupSide)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M112 45H124C132.3 45 139 51.7 139 60C139 77.5 125.8 90.6 107.4 91.7L105.4 80.4C118.3 80.2 127 71.4 127 60.5C127 58.6 125.4 57 123.5 57H110L112 45Z" stroke="url(#cupSide)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M48 33H112V63.2C112 82.7 98.3 99.2 80 103.1C61.7 99.2 48 82.7 48 63.2V33Z" fill="url(#cup)"/>
+    <path d="M48 33H112V43H48V33Z" fill="#FFD958"/>
+    <path d="M63 33H79V89C69.5 83.7 63 73.2 63 61.1V33Z" fill="url(#shine)"/>
+    <path d="M80 54.4L85.1 64.6L96.4 66.2L88.2 74.2L90.2 85.5L80 80.2L69.8 85.5L71.8 74.2L63.6 66.2L74.9 64.6L80 54.4Z" fill="#FFF5A6" opacity="0.9"/>
+    <rect x="72" y="98" width="16" height="22" rx="3" fill="#C97917"/>
+    <path d="M59 118H101C105.4 118 109 121.6 109 126V130H51V126C51 121.6 54.6 118 59 118Z" fill="url(#base)"/>
+    <rect x="46" y="130" width="68" height="10" rx="3" fill="#3F2A1D"/>
+    <rect x="55" y="123" width="50" height="5" rx="2.5" fill="#F0B65A" opacity="0.5"/>
+  </g>
+</svg>
