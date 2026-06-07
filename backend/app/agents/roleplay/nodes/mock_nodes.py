@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from backend.app.agents.roleplay.logging import log_node_completed
 from backend.app.agents.roleplay.schemas import CorrectionItem, ResponsePack
 from backend.app.agents.roleplay.state import AgentState
 
@@ -24,10 +25,12 @@ def response_pack_mock_node(state: AgentState) -> AgentState:
             else "It's okay. Let's wrap up here.",
             hint_text=hint_text,
         )
-        print(
-            "[RoleplayAgent] node=response_pack_mock completed "
-            f"outcome={rule_decision.progress_outcome} "
-            f"hint_level={rule_decision.hint_level} corrections=0"
+        log_node_completed(
+            "response_pack_mock",
+            {
+                "response_pack": state["response_pack"],
+                "rule_decision": rule_decision,
+            },
         )
         return state
 
@@ -36,9 +39,12 @@ def response_pack_mock_node(state: AgentState) -> AgentState:
             character_dialogue_text="좋아요, 감사합니다.",
             character_dialogue_translation_text="Great, thank you.",
         )
-        print(
-            "[RoleplayAgent] node=response_pack_mock completed "
-            "outcome=complete_session hint=False corrections=0"
+        log_node_completed(
+            "response_pack_mock",
+            {
+                "response_pack": state["response_pack"],
+                "rule_decision": rule_decision,
+            },
         )
         return state
 
@@ -47,10 +53,12 @@ def response_pack_mock_node(state: AgentState) -> AgentState:
             character_dialogue_text="네, 알겠습니다.",
             character_dialogue_translation_text="Okay, I understand.",
         )
-        print(
-            "[RoleplayAgent] node=response_pack_mock completed "
-            f"outcome={rule_decision.progress_outcome if rule_decision else None} "
-            "hint=False corrections=0"
+        log_node_completed(
+            "response_pack_mock",
+            {
+                "response_pack": state["response_pack"],
+                "rule_decision": rule_decision,
+            },
         )
         return state
 
@@ -66,11 +74,12 @@ def response_pack_mock_node(state: AgentState) -> AgentState:
             )
         ],
     )
-    print(
-        "[RoleplayAgent] node=response_pack_mock completed "
-        f"outcome={rule_decision.progress_outcome if rule_decision else None} "
-        f"hint={bool(state['response_pack'].hint_text)} "
-        f"corrections={len(state['response_pack'].correction_items)}"
+    log_node_completed(
+        "response_pack_mock",
+        {
+            "response_pack": state["response_pack"],
+            "rule_decision": rule_decision,
+        },
     )
     return state
 
@@ -82,9 +91,11 @@ def response_validator_mock_node(state: AgentState) -> AgentState:
             character_dialogue_text="네, 알겠습니다.",
             character_dialogue_translation_text="Okay, I understand.",
         )
-    print(
-        "[RoleplayAgent] node=response_validator_mock completed "
-        f"dialogue={bool(state['response_pack'].character_dialogue_text)}"
+    log_node_completed(
+        "response_validator_mock",
+        {
+            "response_pack": state["response_pack"],
+        },
     )
     return state
 
@@ -92,8 +103,11 @@ def response_validator_mock_node(state: AgentState) -> AgentState:
 def domain_persistence_mock_node(state: AgentState) -> AgentState:
     state["created_turn_id"] = None
     state["created_message_ids"] = []
-    print(
-        "[RoleplayAgent] node=domain_persistence_mock completed "
-        "created_turn_id=None created_message_ids=0"
+    log_node_completed(
+        "domain_persistence_mock",
+        {
+            "created_turn_id": state["created_turn_id"],
+            "created_message_ids": state["created_message_ids"],
+        },
     )
     return state

@@ -5,6 +5,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.app.agents.roleplay.logging import log_node_completed
 from backend.app.agents.roleplay.schemas import EvaluationResult, RuleDecision
 from backend.app.agents.roleplay.state import AgentState
 from backend.app.db.models import Step
@@ -60,14 +61,11 @@ def make_game_rule_engine_node(session: AsyncSession):
         )
         state["rule_decision"] = rule_decision
 
-        print(
-            "[RoleplayAgent] node=game_rule_engine completed "
-            f"evaluation_result={rule_decision.evaluation_result} "
-            f"progress_outcome={rule_decision.progress_outcome} "
-            f"next_step_id={rule_decision.next_step_id} "
-            f"remaining_chances={rule_decision.remaining_chances_before}->{rule_decision.remaining_chances_after} "
-            f"fail_count={rule_decision.current_step_fail_count_before}->{rule_decision.current_step_fail_count_after} "
-            f"hint_level={rule_decision.hint_level}"
+        log_node_completed(
+            "game_rule_engine",
+            {
+                "rule_decision": rule_decision,
+            },
         )
         return state
 

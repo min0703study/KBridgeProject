@@ -6,6 +6,7 @@ from google import genai
 from google.genai import types
 from pydantic import ValidationError
 
+from backend.app.agents.roleplay.logging import log_node_completed
 from backend.app.agents.roleplay.schemas import JudgeResult
 from backend.app.agents.roleplay.state import AgentState
 from backend.app.core.config import get_settings
@@ -81,12 +82,12 @@ def judge_node(state: AgentState) -> AgentState:
     normalized_result = normalize_judge_result(result)
     state["judge_result"] = normalized_result
 
-    print(
-        "[RoleplayAgent] node=judge completed "
-        f"evaluation_result={normalized_result.evaluation_result} "
-        f"confidence={normalized_result.confidence:.2f} "
-        f"correction_needed={normalized_result.correction_needed} "
-        f"selected_knowledge={len(state.get('selected_knowledge') or [])}"
+    log_node_completed(
+        "judge",
+        {
+            "judge_result": normalized_result,
+            "selected_knowledge_count": len(state.get("selected_knowledge") or []),
+        },
     )
     return state
 

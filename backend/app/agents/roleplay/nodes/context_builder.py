@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from backend.app.agents.roleplay.logging import log_node_completed
 from backend.app.agents.roleplay.state import AgentState
 from backend.app.db.models import (
     Message,
@@ -95,12 +96,20 @@ def make_context_builder_node(session: AsyncSession):
             sender_type="learner",
         )
 
-        print(
-            "[RoleplayAgent] node=context_builder completed "
-            f"session_id={state['session']['roleplay_session_id']} "
-            f"step_id={state['current_step']['step_id']} "
-            f"recent_messages={len(state['recent_messages'])} "
-            f"sample_answers={len(state['step_sample_answers'])}"
+        log_node_completed(
+            "context_builder",
+            {
+                "session": state["session"],
+                "scenario_version": state["scenario_version"],
+                "scenario": state["scenario"],
+                "current_step": state["current_step"],
+                "character": state["character"],
+                "location": state["location"],
+                "recent_messages": state["recent_messages"],
+                "step_sample_answers": state["step_sample_answers"],
+                "last_character_message_text": state["last_character_message_text"],
+                "last_learner_message_text": state["last_learner_message_text"],
+            },
         )
         return state
 

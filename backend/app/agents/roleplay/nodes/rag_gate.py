@@ -9,6 +9,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from backend.app.agents.roleplay.logging import log_node_completed
 from backend.app.agents.roleplay.schemas import RetrievedKnowledge
 from backend.app.agents.roleplay.state import AgentState
 
@@ -76,12 +77,15 @@ def rag_gate_node(state: AgentState) -> AgentState:
 
     state["retrieved_candidates"] = retrieved_candidates
     state["selected_knowledge"] = selected_knowledge
-    print(
-        "[RoleplayAgent] node=rag_gate completed "
-        f"keyword_candidates={len(keyword_candidates)} "
-        f"vector_candidates={len(vector_candidates)} "
-        f"retrieved={len(retrieved_candidates)} "
-        f"selected={len(selected_knowledge)}"
+    log_node_completed(
+        "rag_gate",
+        {
+            "query_text": rag_query_text,
+            "keyword_candidate_count": len(keyword_candidates),
+            "vector_candidate_count": len(vector_candidates),
+            "retrieved_candidates": retrieved_candidates,
+            "selected_knowledge": selected_knowledge,
+        },
     )
     return state
 
