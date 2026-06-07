@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from backend.app.agents.roleplay.logging import log_node_completed
 from backend.app.agents.roleplay.nodes.response_pack import ensure_minimum_response_pack
 from backend.app.agents.roleplay.schemas import (
@@ -25,6 +27,7 @@ def response_validator_node(state: AgentState) -> AgentState:
     errors.extend(_validate_correction_rules(state, response_pack))
     errors.extend(_validate_step_ids(state, response_pack))
     warnings.extend(_validate_lengths(response_pack))
+    warnings.extend(_validate_role_confusion_risk(state, response_pack))
 
     fallback_used = bool(errors)
     fallback_errors: list[str] = []
@@ -164,3 +167,28 @@ def _validate_lengths(response_pack: ResponsePack) -> list[str]:
         if len(draft.text_content) > 500:
             warnings.append(f"message_drafts[{index}].text_content is long.")
     return warnings
+
+
+def _validate_role_confusion_risk(state: AgentState, response_pack: ResponsePack) -> list[str]:
+    learner_texts = [state.get("learner_input_text") or ""]
+    learner_texts.extend(state.get("step_sample_answers") or [])
+    normalized_learner_texts = {
+        normalized for text in learner_texts if (normalized := _normalize_role_text(text))
+    }
+
+    warnings: list[str] = []
+    for index, draft in enumerate(response_pack.message_drafts):
+        if draft.message_type != "roleplay_character_dialogue_text":
+            continue
+
+        normalized_dialogue = _normalize_role_text(draft.text_content)
+        if normalized_dialogue and normalized_dialogue in normalized_learner_texts:
+            warnings.append(
+                f"message_drafts[{index}].text_content may repeat learner-role text."
+            )
+
+    return warnings
+
+
+def _normalize_role_text(value: str) -> str:
+    return re.sub(r"\s+", "", value or "").casefold()

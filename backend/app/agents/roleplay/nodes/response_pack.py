@@ -47,6 +47,10 @@ Do not generate final overall learning feedback.
 Use rule_decision as the source of truth for progress.
 Use judge_result as the source of truth for evaluation and correction need.
 Keep character dialogue short, natural, and in persona.
+Never confuse the roles in the roleplay.
+The roleplay_character must speak and act only as the assigned character, using character.role_name, character.description, and character.persona_prompt.
+The roleplay_character must not speak as the learner/user, must not perform the learner's task, and must not say what the learner should say.
+If the learner/user successfully performs their role, respond naturally from the roleplay_character's own role.
 Do not reveal the exact answer the learner should say next.
 
 Return only valid JSON with exactly these top-level fields:
@@ -171,6 +175,11 @@ def build_response_pack_prompt(state: AgentState) -> str:
         "current_step": current_step,
         "next_step": next_step,
         "character": state["character"],
+        "role_contract": {
+            "learner": "The learner/user is the person practicing the target role for the current scenario.",
+            "roleplay_character": "The AI-generated roleplay_character is only the assigned character in this scenario.",
+            "rule": "Never swap, merge, or imitate these roles. Generate roleplay_character dialogue only from the assigned character's perspective.",
+        },
         "location": state["location"],
         "recent_messages": state.get("recent_messages", []),
         "learner_input_text": state["learner_input_text"],
@@ -194,6 +203,9 @@ def _generation_rules_for_state(state: AgentState) -> list[str]:
         "message_type values must use snake_case DB enum values.",
         "hint_level may appear only on hint messages.",
         "Do not include message_order, roleplay_turn_id, message_id, created_at, audio_file_id, or generated_by.",
+        "Never confuse the learner/user role with the roleplay_character role.",
+        "roleplay_character_dialogue_text must be something the assigned roleplay character would naturally say, not what the learner/user should say.",
+        "roleplay_character_action_text must describe only the assigned roleplay character's action, not the learner/user's action.",
     ]
 
     if rule_decision.progress_outcome in {"stay_current_step", "fail_session"}:
@@ -202,17 +214,27 @@ def _generation_rules_for_state(state: AgentState) -> list[str]:
                 "Generate a hint message because the learner failed and stays or ends.",
                 f"The hint message hint_level must be {rule_decision.hint_level}.",
                 "Use current_step.step_id for every generated message.",
-                "Generate a short character dialogue that re-guides the learner without giving the exact answer.",
+                "Generate a short character dialogue from the assigned roleplay character's perspective that re-guides the learner without giving the exact answer.",
             ]
         )
     elif rule_decision.progress_outcome == "advance_to_next_step":
+        next_step = state.get("next_step") or {}
+        authored_dialogue = next_step.get("initial_roleplay_character_dialogue_text")
         rules.extend(
             [
                 "Do not generate a hint.",
                 "Use next_step.step_id for next-step scene/action/dialogue messages.",
-                "Generate a short character dialogue that naturally enters the next step.",
+                "Generate a short character dialogue from the assigned roleplay character's perspective that naturally enters the next step.",
+                (
+                    "If next_step.initial_roleplay_character_dialogue_text exists, use it exactly as the "
+                    "roleplay_character_dialogue_text because it is authored for the assigned character role."
+                ),
             ]
         )
+        if authored_dialogue:
+            rules.append(
+                f"Required next-step roleplay_character_dialogue_text: {authored_dialogue}"
+            )
     elif rule_decision.progress_outcome == "complete_session":
         rules.extend(
             [
@@ -334,6 +356,28 @@ def _fallback_correction_feedback_draft(state: AgentState) -> ResponseMessageDra
 def _fallback_dialogue_draft(state: AgentState) -> ResponseMessageDraft:
     rule_decision = state["rule_decision"]
     step_id = _target_step_id_for_dialogue(state)
+    next_step = state.get("next_step") or {}
+    next_step_dialogue = next_step.get("initial_roleplay_character_dialogue_text")
+    next_step_translation_json = next_step.get("initial_roleplay_character_dialogue_translation_json")
+
+    if (
+        rule_decision
+        and rule_decision.progress_outcome == "advance_to_next_step"
+        and next_step_dialogue
+    ):
+        translation = (
+            next_step_translation_json.get(_system_language(state))
+            if isinstance(next_step_translation_json, dict)
+            else None
+        )
+        return ResponseMessageDraft(
+            message_type="roleplay_character_dialogue_text",
+            text_content=next_step_dialogue,
+            text_language=_learning_language(state),
+            translation_json={_system_language(state): translation} if translation else None,
+            step_id=step_id,
+            scenario_roleplay_character_id=state["character"].get("scenario_roleplay_character_id"),
+        )
     if rule_decision and rule_decision.progress_outcome == "complete_session":
         text = "좋아요. 역할극을 마쳤습니다."
         translation = "Good. The roleplay is complete."
