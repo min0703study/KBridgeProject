@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.db.session import get_db_session
 from backend.app.schemas.roleplay import (
+    RoleplayDevPerfectAnswerRequest,
     RoleplaySessionCreateRequest,
     RoleplaySessionCreateResponse,
     RoleplayTextTurnRequest,
@@ -22,6 +23,7 @@ from backend.app.services.roleplay_session_turn_service import (
     MissingProviderKeyError,
     ResponsePackNodeError,
     RoleplaySessionTurnError,
+    run_roleplay_session_dev_perfect_answer_turn,
     run_roleplay_session_text_turn,
     run_roleplay_session_turn,
 )
@@ -102,6 +104,29 @@ async def create_session_text_turn(
         JudgeNodeError,
         GameRuleEngineError,
         ResponsePackNodeError,
+        DomainPersistenceError,
+    ) as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+
+
+@router.post("/{roleplay_session_id}/turns/dev-perfect-answer", response_model=RoleplayTurnResponse)
+async def create_session_dev_perfect_answer_turn(
+    roleplay_session_id: str,
+    payload: RoleplayDevPerfectAnswerRequest | None = None,
+    session: AsyncSession = Depends(get_db_session),
+) -> RoleplayTurnResponse:
+    try:
+        return await run_roleplay_session_dev_perfect_answer_turn(
+            session=session,
+            roleplay_session_id=roleplay_session_id,
+            client_turn_id=payload.client_turn_id if payload else None,
+        )
+    except EmptyTranscriptError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except (
+        RoleplaySessionTurnError,
+        ContextBuilderError,
+        GameRuleEngineError,
         DomainPersistenceError,
     ) as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc

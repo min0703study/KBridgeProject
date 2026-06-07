@@ -98,3 +98,31 @@ export async function sendRoleplaySessionTextTurn({ roleplaySessionId, textConte
 
   return response.json();
 }
+
+export async function sendRoleplaySessionDevPerfectAnswerTurn({ roleplaySessionId, clientTurnId }) {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/roleplay-sessions/${roleplaySessionId}/turns/dev-perfect-answer`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        client_turn_id: clientTurnId || crypto.randomUUID(),
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    let detail = 'Roleplay developer perfect-answer turn failed.';
+    try {
+      const payload = await response.json();
+      detail = payload.detail || detail;
+    } catch {
+      detail = response.statusText || detail;
+    }
+    throw new Error(detail);
+  }
+
+  return response.json();
+}

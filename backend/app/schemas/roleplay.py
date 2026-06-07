@@ -160,6 +160,10 @@ class RoleplayTextTurnRequest(BaseModel):
     client_turn_id: str | None = None
 
 
+class RoleplayDevPerfectAnswerRequest(BaseModel):
+    client_turn_id: str | None = None
+
+
 class RoleplaySessionCreateResponse(BaseModel):
     roleplay_session_id: str
     learner_id: str

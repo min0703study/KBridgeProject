@@ -15,12 +15,19 @@ import {
   Volume2,
   X,
 } from 'lucide-react';
-import { getConvenienceStoreIngame, sendRoleplaySessionTextTurn, sendRoleplaySessionTurn } from '../api/roleplayApi.js';
+import {
+  getConvenienceStoreIngame,
+  sendRoleplaySessionDevPerfectAnswerTurn,
+  sendRoleplaySessionTextTurn,
+  sendRoleplaySessionTurn,
+} from '../api/roleplayApi.js';
 import { createWavRecorder } from '../utils/wavRecorder.js';
 
 const FALLBACK_BACKGROUND_IMAGE = '/roleplay_ingame_image/roleplay_convenience_store_customer.png';
 const FALLBACK_TOTAL_STEPS = 5;
 const TRANSLATION_PENDING_TEXT = 'English translation coming soon.';
+const ENABLE_DEV_MAGIC_ANSWER =
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_ROLEPLAY_DEV_TOOLS === 'true';
 
 const FINAL_FEEDBACK = {
   summary:
@@ -577,6 +584,31 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
     }
   }
 
+  async function sendDevPerfectAnswer() {
+    if (!ingameData || isSending || isLoading || isRecording || isSessionEnded) {
+      return;
+    }
+    if (!roleplaySessionId) {
+      setErrorMessage('Roleplay session is not ready.');
+      return;
+    }
+
+    setIsSending(true);
+    setErrorMessage('');
+
+    try {
+      const payload = await sendRoleplaySessionDevPerfectAnswerTurn({
+        roleplaySessionId,
+        clientTurnId: crypto.randomUUID(),
+      });
+      applyTurnPayload(payload);
+    } catch (error) {
+      setErrorMessage(error.message || 'Could not send the developer perfect answer.');
+    } finally {
+      setIsSending(false);
+    }
+  }
+
   function handleDraftKeyDown(event) {
     if (event.key !== 'Enter' || event.shiftKey) {
       return;
@@ -605,6 +637,8 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
   const guidanceText = turnUiState?.current_step_guidance_text || step?.guidance_text || '';
   const isSessionEnded = Boolean(sessionStatus?.is_ended);
   const canSendText = Boolean(draftMessage.trim()) && !isSending && !isLoading && !isSessionEnded;
+  const canUseDevMagicAnswer =
+    ENABLE_DEV_MAGIC_ANSWER && !isSending && !isLoading && !isRecording && !isSessionEnded;
   const progressWidth = useMemo(
     () => `${Math.max(3, Math.min(100, (currentStepOrder / Math.max(totalSteps, 1)) * 100))}%`,
     [currentStepOrder, totalSteps],
@@ -667,11 +701,25 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
             </section>
 
             {guidanceText ? (
-              <div className="roleplay-tip">
-                <span>
-                  <Lightbulb size={22} strokeWidth={2.4} aria-hidden="true" />
-                </span>
-                {guidanceText}
+              <div className="roleplay-guide-row">
+                <div className="roleplay-tip">
+                  <span>
+                    <Lightbulb size={22} strokeWidth={2.4} aria-hidden="true" />
+                  </span>
+                  {guidanceText}
+                </div>
+                {ENABLE_DEV_MAGIC_ANSWER ? (
+                  <button
+                    className="roleplay-dev-magic-button"
+                    type="button"
+                    aria-label="Use developer perfect answer"
+                    title="Use developer perfect answer"
+                    onClick={sendDevPerfectAnswer}
+                    disabled={!canUseDevMagicAnswer}
+                  >
+                    <img src="/ai_icon.png" alt="" aria-hidden="true" />
+                  </button>
+                ) : null}
               </div>
             ) : null}
 

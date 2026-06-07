@@ -38,6 +38,7 @@
 
 .roleplay-topbar,
 .roleplay-step-card,
+.roleplay-guide-row,
 .roleplay-tip {
   position: relative;
   z-index: 3;
@@ -188,6 +189,14 @@
   flex: 0 0 auto;
 }
 
+.roleplay-guide-row {
+  width: min(92%, 394px);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 8px 14px 0;
+}
+
 .roleplay-tip {
   width: min(86%, 336px);
   min-height: 38px;
@@ -196,7 +205,8 @@
   grid-template-columns: 34px 1fr;
   align-items: center;
   gap: 11px;
-  margin: 8px 14px 0;
+  flex: 1 1 auto;
+  margin: 0;
   padding: 6px 12px;
   border: 1.3px solid #f1ad2e;
   border-radius: 8px;
@@ -217,6 +227,34 @@
   border-radius: 50%;
   background: #ffab1a;
   color: #ffffff;
+}
+
+.roleplay-dev-magic-button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1.4px solid rgba(255, 214, 92, 0.9);
+  border-radius: 50%;
+  background: #ffc52b;
+  box-shadow:
+    0 8px 16px rgba(71, 44, 6, 0.24),
+    inset 0 -3px 0 rgba(152, 91, 4, 0.2),
+    inset 0 2px 0 rgba(255, 255, 255, 0.42);
+}
+
+.roleplay-dev-magic-button img {
+  width: 31px;
+  height: 31px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 2px rgba(70, 42, 0, 0.2));
+}
+
+.roleplay-dev-magic-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
 }
 
 .roleplay-state-card {

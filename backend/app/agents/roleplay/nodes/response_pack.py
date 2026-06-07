@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.agents.roleplay.logging import log_node_completed
+from backend.app.agents.roleplay.logging import log_node_completed, log_node_failed
 from backend.app.agents.roleplay.schemas import (
     CorrectionItem,
     ResponseMessageDraft,
@@ -108,7 +108,23 @@ def make_response_pack_node(session: AsyncSession):
         except Exception as exc:
             raise ResponsePackProviderError(f"Gemini Response Pack Node failed: {exc}") from exc
 
-        response_pack = parse_response_pack_response(response.text or "")
+        raw_response_text = response.text or ""
+        try:
+            response_pack = parse_response_pack_response(raw_response_text)
+        except ResponsePackOutputError as exc:
+            log_node_failed(
+                "response_pack",
+                {
+                    "error": str(exc),
+                    "raw_response_preview": raw_response_text[:4000],
+                    "raw_response_length": len(raw_response_text),
+                    "rule_decision": rule_decision,
+                    "next_step": state.get("next_step"),
+                    "fallback": "using generated minimum response pack",
+                },
+            )
+            response_pack = ResponsePack()
+
         response_pack = ensure_minimum_response_pack(state, response_pack)
         state["response_pack"] = response_pack
 

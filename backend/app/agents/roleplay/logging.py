@@ -17,9 +17,17 @@ BACKUP_COUNT = 5
 
 
 def log_node_completed(node_name: str, payload: dict[str, Any]) -> None:
+    log_node_event("node_completed", node_name, payload)
+
+
+def log_node_failed(node_name: str, payload: dict[str, Any]) -> None:
+    log_node_event("node_failed", node_name, payload)
+
+
+def log_node_event(event_name: str, node_name: str, payload: dict[str, Any]) -> None:
     event = {
         "timestamp": datetime.now(UTC).isoformat(),
-        "event": "node_completed",
+        "event": event_name,
         "node": node_name,
         "payload": _to_jsonable(payload),
     }
