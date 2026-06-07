@@ -69,3 +69,32 @@ export async function sendRoleplaySessionTurn({ roleplaySessionId, audioBlob, cl
 
   return response.json();
 }
+
+export async function sendRoleplaySessionTextTurn({ roleplaySessionId, textContent, clientTurnId }) {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/roleplay-sessions/${roleplaySessionId}/turns/text`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text_content: textContent,
+        client_turn_id: clientTurnId || crypto.randomUUID(),
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    let detail = 'Roleplay text turn failed.';
+    try {
+      const payload = await response.json();
+      detail = payload.detail || detail;
+    } catch {
+      detail = response.statusText || detail;
+    }
+    throw new Error(detail);
+  }
+
+  return response.json();
+}

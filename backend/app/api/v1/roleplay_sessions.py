@@ -5,6 +5,7 @@ from backend.app.db.session import get_db_session
 from backend.app.schemas.roleplay import (
     RoleplaySessionCreateRequest,
     RoleplaySessionCreateResponse,
+    RoleplayTextTurnRequest,
 )
 from backend.app.services.roleplay_session_service import (
     RoleplaySessionCreateError,
@@ -21,6 +22,7 @@ from backend.app.services.roleplay_session_turn_service import (
     MissingProviderKeyError,
     ResponsePackNodeError,
     RoleplaySessionTurnError,
+    run_roleplay_session_text_turn,
     run_roleplay_session_turn,
 )
 
@@ -62,6 +64,34 @@ async def create_session_turn(
         )
     except InvalidAudioError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except EmptyTranscriptError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except (MissingProviderKeyError, TypeError) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except (
+        RoleplaySessionTurnError,
+        ContextBuilderError,
+        JudgeNodeError,
+        GameRuleEngineError,
+        ResponsePackNodeError,
+        DomainPersistenceError,
+    ) as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+
+
+@router.post("/{roleplay_session_id}/turns/text", response_model=RoleplayTurnResponse)
+async def create_session_text_turn(
+    roleplay_session_id: str,
+    payload: RoleplayTextTurnRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> RoleplayTurnResponse:
+    try:
+        return await run_roleplay_session_text_turn(
+            session=session,
+            roleplay_session_id=roleplay_session_id,
+            text_content=payload.text_content,
+            client_turn_id=payload.client_turn_id,
+        )
     except EmptyTranscriptError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except (MissingProviderKeyError, TypeError) as exc:

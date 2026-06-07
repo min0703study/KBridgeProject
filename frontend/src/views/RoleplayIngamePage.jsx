@@ -15,7 +15,7 @@ import {
   Volume2,
   X,
 } from 'lucide-react';
-import { getConvenienceStoreIngame, sendRoleplaySessionTurn } from '../api/roleplayApi.js';
+import { getConvenienceStoreIngame, sendRoleplaySessionTextTurn, sendRoleplaySessionTurn } from '../api/roleplayApi.js';
 import { createWavRecorder } from '../utils/wavRecorder.js';
 
 const FALLBACK_BACKGROUND_IMAGE = '/roleplay_ingame_image/roleplay_convenience_store_customer.png';
@@ -353,6 +353,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [draftMessage, setDraftMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -472,6 +473,49 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
     setRecordingSeconds(0);
   }
 
+  function applyTurnPayload(payload) {
+    const turnMessages = mapTurnMessages(payload);
+
+    setMessages((current) => [
+      ...current,
+      ...(turnMessages.length
+        ? turnMessages
+        : [
+            {
+              id: crypto.randomUUID(),
+              type: 'dialogue',
+              tone: 'learner',
+              ko: payload.transcript,
+              en: TRANSLATION_PENDING_TEXT,
+              hasFeedback: Boolean(payload.feedback),
+            },
+            {
+              id: crypto.randomUUID(),
+              type: 'dialogue',
+              tone: 'customer',
+              ko: payload.assistant_message.ko,
+              en: payload.assistant_message.en,
+              hasFeedback: false,
+            },
+          ]),
+    ]);
+    setTurnUiState(payload.ui_state || null);
+    setSessionStatus(payload.session_status || null);
+
+    if (payload.feedback) {
+      setFeedback(payload.feedback);
+      setShowFeedback(Boolean(payload.ui_state?.should_show_feedback));
+    }
+
+    if (payload.assistant_message?.audio_base64) {
+      const audio = new Audio(
+        `data:${payload.assistant_message.audio_mime_type};base64,${payload.assistant_message.audio_base64}`,
+      );
+      audioRef.current = audio;
+      audio.play().catch(() => {});
+    }
+  }
+
   async function sendRecording() {
     if (!recorderRef.current || !ingameData) {
       return;
@@ -495,52 +539,51 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
         audioBlob,
         clientTurnId: crypto.randomUUID(),
       });
-      const turnMessages = mapTurnMessages(payload);
-
-      setMessages((current) => [
-        ...current,
-        ...(turnMessages.length
-          ? turnMessages
-          : [
-              {
-                id: crypto.randomUUID(),
-                type: 'dialogue',
-                tone: 'learner',
-                ko: payload.transcript,
-                en: TRANSLATION_PENDING_TEXT,
-                hasFeedback: Boolean(payload.feedback),
-              },
-              {
-                id: crypto.randomUUID(),
-                type: 'dialogue',
-                tone: 'customer',
-                ko: payload.assistant_message.ko,
-                en: payload.assistant_message.en,
-                hasFeedback: false,
-              },
-            ]),
-      ]);
-      setTurnUiState(payload.ui_state || null);
-      setSessionStatus(payload.session_status || null);
-
-      if (payload.feedback) {
-        setFeedback(payload.feedback);
-        setShowFeedback(Boolean(payload.ui_state?.should_show_feedback));
-      }
-
-      if (payload.assistant_message?.audio_base64) {
-        const audio = new Audio(
-          `data:${payload.assistant_message.audio_mime_type};base64,${payload.assistant_message.audio_base64}`,
-        );
-        audioRef.current = audio;
-        audio.play().catch(() => {});
-      }
+      applyTurnPayload(payload);
     } catch (error) {
       setErrorMessage(error.message || 'Could not send this voice turn.');
     } finally {
       setIsSending(false);
       setRecordingSeconds(0);
     }
+  }
+
+  async function sendTextMessage() {
+    const textContent = draftMessage.trim();
+    if (!textContent || !ingameData || isSending || isLoading || isRecording || isSessionEnded) {
+      return;
+    }
+    if (!roleplaySessionId) {
+      setErrorMessage('Roleplay session is not ready.');
+      return;
+    }
+
+    setDraftMessage('');
+    setIsSending(true);
+    setErrorMessage('');
+
+    try {
+      const payload = await sendRoleplaySessionTextTurn({
+        roleplaySessionId,
+        textContent,
+        clientTurnId: crypto.randomUUID(),
+      });
+      applyTurnPayload(payload);
+    } catch (error) {
+      setDraftMessage(textContent);
+      setErrorMessage(error.message || 'Could not send this text turn.');
+    } finally {
+      setIsSending(false);
+    }
+  }
+
+  function handleDraftKeyDown(event) {
+    if (event.key !== 'Enter' || event.shiftKey) {
+      return;
+    }
+
+    event.preventDefault();
+    sendTextMessage();
   }
 
   const latestFeedbackMessage = [...messages].reverse().find((message) => message.hasFeedback);
@@ -561,6 +604,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
   const stepLabel = turnUiState?.current_step_label || `Step ${currentStepOrder}: ${step?.step_title || ''}`;
   const guidanceText = turnUiState?.current_step_guidance_text || step?.guidance_text || '';
   const isSessionEnded = Boolean(sessionStatus?.is_ended);
+  const canSendText = Boolean(draftMessage.trim()) && !isSending && !isLoading && !isSessionEnded;
   const progressWidth = useMemo(
     () => `${Math.max(3, Math.min(100, (currentStepOrder / Math.max(totalSteps, 1)) * 100))}%`,
     [currentStepOrder, totalSteps],
@@ -695,15 +739,23 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
                 <Star size={28} fill="currentColor" strokeWidth={2.5} aria-hidden="true" />
               </button>
               <div className="composer-input">
-                <span>
-                  {isSessionEnded
+                <input
+                  type="text"
+                  value={draftMessage}
+                  placeholder={
+                    isSessionEnded
                     ? sessionStatus.end_status === 'completed'
                       ? 'Roleplay complete'
                       : 'Roleplay ended'
                     : isSending
-                      ? 'Sending voice...'
-                      : 'Type a message...'}
-                </span>
+                      ? 'Sending message...'
+                      : 'Type a message...'
+                  }
+                  aria-label="Type a roleplay message"
+                  onChange={(event) => setDraftMessage(event.target.value)}
+                  onKeyDown={handleDraftKeyDown}
+                  disabled={isSending || isLoading || isSessionEnded}
+                />
                 <button
                   type="button"
                   aria-label="Start voice recording"
@@ -719,8 +771,8 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
             className="composer-send"
             type="button"
             aria-label={isRecording ? 'Send voice recording' : 'Send message'}
-            onClick={isRecording ? sendRecording : undefined}
-            disabled={isSending || isLoading || isSessionEnded}
+            onClick={isRecording ? sendRecording : sendTextMessage}
+            disabled={isRecording ? isSending || isLoading || isSessionEnded : !canSendText}
           >
             {isSending ? (
               <Speaker size={24} strokeWidth={2.4} aria-hidden="true" />

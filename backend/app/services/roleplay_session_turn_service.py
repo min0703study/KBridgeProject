@@ -54,13 +54,55 @@ async def run_roleplay_session_turn(
     learner_id = await _get_session_learner_id(session, parsed_session_id)
 
     transcript = transcribe_wav_audio(audio_bytes)
+    return await _run_roleplay_turn_with_transcript(
+        session=session,
+        roleplay_session_id=parsed_session_id,
+        learner_id=learner_id,
+        transcript=transcript,
+        input_method="voice",
+    )
+
+
+async def run_roleplay_session_text_turn(
+    *,
+    session: AsyncSession,
+    roleplay_session_id: str,
+    text_content: str,
+    client_turn_id: str | None,
+) -> RoleplayTurnResponse:
+    del client_turn_id
+
+    transcript = text_content.strip()
+    if not transcript:
+        raise EmptyTranscriptError("Text input must not be empty.")
+
+    parsed_session_id = _parse_uuid(roleplay_session_id, "roleplay_session_id")
+    learner_id = await _get_session_learner_id(session, parsed_session_id)
+
+    return await _run_roleplay_turn_with_transcript(
+        session=session,
+        roleplay_session_id=parsed_session_id,
+        learner_id=learner_id,
+        transcript=transcript,
+        input_method="text",
+    )
+
+
+async def _run_roleplay_turn_with_transcript(
+    *,
+    session: AsyncSession,
+    roleplay_session_id: UUID,
+    learner_id: UUID,
+    transcript: str,
+    input_method: str,
+) -> RoleplayTurnResponse:
     graph = build_roleplay_turn_graph(session)
     final_state = await graph.ainvoke(
         build_initial_state(
-            roleplay_session_id=str(parsed_session_id),
+            roleplay_session_id=str(roleplay_session_id),
             learner_id=str(learner_id),
             learner_input_text=transcript,
-            input_method="voice",
+            input_method=input_method,
         )
     )
 
@@ -225,4 +267,5 @@ __all__ = [
     "RoleplaySessionTurnError",
     "ResponsePackNodeError",
     "run_roleplay_session_turn",
+    "run_roleplay_session_text_turn",
 ]

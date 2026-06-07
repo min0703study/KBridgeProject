@@ -155,6 +155,11 @@ class RoleplaySessionCreateRequest(BaseModel):
     scenario_version_id: str | None = None
 
 
+class RoleplayTextTurnRequest(BaseModel):
+    text_content: str
+    client_turn_id: str | None = None
+
+
 class RoleplaySessionCreateResponse(BaseModel):
     roleplay_session_id: str
     learner_id: str
