@@ -4,10 +4,10 @@ import {
   BookOpen,
   ChevronDown,
   ChevronLeft,
+  Heart,
   Lightbulb,
   Menu,
   Mic,
-  Settings,
   ShieldCheck,
   Sparkles,
   Speaker,
@@ -151,7 +151,7 @@ function TurnMessageCard({ message }) {
   if (message.kind === 'scene') {
     return (
       <article className="roleplay-info-card">
-        <BookOpen size={30} fill="currentColor" strokeWidth={1.8} aria-hidden="true" />
+        <BookOpen size={24} fill="currentColor" strokeWidth={1.8} aria-hidden="true" />
         <p>{message.text}</p>
       </article>
     );
@@ -240,6 +240,8 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
   const recorderRef = useRef(null);
   const timerRef = useRef(null);
   const audioRef = useRef(null);
+  const contentScrollRef = useRef(null);
+  const previousMessageCountRef = useRef(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -300,6 +302,22 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    const content = contentScrollRef.current;
+    const previousMessageCount = previousMessageCountRef.current;
+    previousMessageCountRef.current = messages.length;
+
+    if (!content || previousMessageCount === 0 || messages.length <= previousMessageCount) {
+      return undefined;
+    }
+
+    const animationFrameId = requestAnimationFrame(() => {
+      content.scrollTop = content.scrollHeight;
+    });
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [messages.length]);
 
   async function startRecording() {
     if (!ingameData) {
@@ -423,15 +441,12 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
 
         <header className="roleplay-topbar">
           <button type="button" aria-label="Back to roleplay list" onClick={onBack}>
-            <ChevronLeft size={34} strokeWidth={2.5} aria-hidden="true" />
+            <ChevronLeft size={29} strokeWidth={2.6} aria-hidden="true" />
           </button>
           <h1>{ingameData?.scenario?.title || 'Convenience Store'}</h1>
           <span className="roleplay-difficulty">{ingameData?.scenario?.difficulty || 'Easy'}</span>
-          <button type="button" aria-label="Settings">
-            <Settings size={31} strokeWidth={2.8} aria-hidden="true" />
-          </button>
           <button type="button" aria-label="Menu">
-            <Menu size={34} strokeWidth={2.5} aria-hidden="true" />
+            <Menu size={30} strokeWidth={2.6} aria-hidden="true" />
           </button>
         </header>
 
@@ -452,7 +467,9 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
                 <b>{`${scoreCount} / ${totalChances}`}</b>
                 <div className="step-hearts" aria-label={`${remainingChances} chances remaining`}>
                   {Array.from({ length: remainingChances }).map((_, index) => (
-                    <span key={index}>{'\u2665'}</span>
+                    <span key={index}>
+                      <Heart size={24} fill="currentColor" strokeWidth={2.1} aria-hidden="true" />
+                    </span>
                   ))}
                 </div>
               </div>
@@ -467,10 +484,10 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
               </div>
             ) : null}
 
-            <section className="roleplay-content-stack" aria-label="Conversation">
+            <section className="roleplay-content-stack" aria-label="Conversation" ref={contentScrollRef}>
               {step.scene_text ? (
                 <article className="roleplay-info-card">
-                  <BookOpen size={30} fill="currentColor" strokeWidth={1.8} aria-hidden="true" />
+                  <BookOpen size={24} fill="currentColor" strokeWidth={1.8} aria-hidden="true" />
                   <p>{step.scene_text}</p>
                 </article>
               ) : null}
@@ -524,7 +541,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
           ) : (
             <>
               <button className="composer-star" type="button" aria-label="Favorite phrase">
-                <Star size={34} fill="currentColor" strokeWidth={2.5} aria-hidden="true" />
+                <Star size={28} fill="currentColor" strokeWidth={2.5} aria-hidden="true" />
               </button>
               <div className="composer-input">
                 <span>
@@ -542,7 +559,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
                   onClick={startRecording}
                   disabled={isSending || isLoading || isSessionEnded}
                 >
-                  <Mic size={30} strokeWidth={2.8} aria-hidden="true" />
+                  <Mic size={25} strokeWidth={2.8} aria-hidden="true" />
                 </button>
               </div>
             </>
@@ -555,9 +572,9 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
             disabled={isSending || isLoading || isSessionEnded}
           >
             {isSending ? (
-              <Speaker size={29} strokeWidth={2.4} aria-hidden="true" />
+              <Speaker size={24} strokeWidth={2.4} aria-hidden="true" />
             ) : (
-              <ArrowUp size={36} strokeWidth={2.6} aria-hidden="true" />
+              <ArrowUp size={30} strokeWidth={2.6} aria-hidden="true" />
             )}
           </button>
         </footer>
