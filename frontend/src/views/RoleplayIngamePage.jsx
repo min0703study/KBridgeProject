@@ -20,6 +20,7 @@ import { createWavRecorder } from '../utils/wavRecorder.js';
 
 const FALLBACK_BACKGROUND_IMAGE = '/roleplay_ingame_image/roleplay_convenience_store_customer.png';
 const FALLBACK_TOTAL_STEPS = 5;
+const TRANSLATION_PENDING_TEXT = 'English translation coming soon.';
 
 const FINAL_FEEDBACK = {
   summary:
@@ -98,7 +99,7 @@ function mapTurnMessages(payload) {
           type: 'dialogue',
           tone: 'learner',
           ko: message.text_content,
-          en: translatedText || 'Voice response recorded.',
+          en: translatedText || TRANSLATION_PENDING_TEXT,
           hasFeedback,
         };
       }
@@ -205,6 +206,24 @@ function TurnMessageCard({ message }) {
   }
 
   return null;
+}
+
+function PendingResponseBubble() {
+  return (
+    <article className="roleplay-pending-bubble" aria-live="polite" aria-label="Waiting for roleplay response">
+      <span className="pending-response-icon">
+        <Sparkles size={18} strokeWidth={2.4} aria-hidden="true" />
+      </span>
+      <span className="pending-response-text">
+        <strong>Responding</strong>
+        <span className="pending-response-dots" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+      </span>
+    </article>
+  );
 }
 
 function FeedbackPanel({ feedback, onClose }) {
@@ -412,7 +431,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
     const previousMessageCount = previousMessageCountRef.current;
     previousMessageCountRef.current = messages.length;
 
-    if (!content || previousMessageCount === 0 || messages.length <= previousMessageCount) {
+    if (!content || (previousMessageCount === 0 && !isSending) || (messages.length <= previousMessageCount && !isSending)) {
       return undefined;
     }
 
@@ -421,7 +440,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
     });
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [messages.length]);
+  }, [messages.length, isSending]);
 
   async function startRecording() {
     if (!ingameData) {
@@ -488,7 +507,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
                 type: 'dialogue',
                 tone: 'learner',
                 ko: payload.transcript,
-                en: 'Voice response recorded.',
+                en: TRANSLATION_PENDING_TEXT,
                 hasFeedback: Boolean(payload.feedback),
               },
               {
@@ -540,6 +559,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
     toPositiveInteger(turnUiState?.total_steps) ?? toPositiveInteger(ingameData?.ui_state?.total_steps);
   const totalSteps = Math.max(rawTotalSteps ?? 0, FALLBACK_TOTAL_STEPS, currentStepOrder);
   const stepLabel = turnUiState?.current_step_label || `Step ${currentStepOrder}: ${step?.step_title || ''}`;
+  const guidanceText = turnUiState?.current_step_guidance_text || step?.guidance_text || '';
   const isSessionEnded = Boolean(sessionStatus?.is_ended);
   const progressWidth = useMemo(
     () => `${Math.max(3, Math.min(100, (currentStepOrder / Math.max(totalSteps, 1)) * 100))}%`,
@@ -602,12 +622,12 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
               </div>
             </section>
 
-            {step.guidance_text ? (
+            {guidanceText ? (
               <div className="roleplay-tip">
                 <span>
                   <Lightbulb size={22} strokeWidth={2.4} aria-hidden="true" />
                 </span>
-                {step.guidance_text}
+                {guidanceText}
               </div>
             ) : null}
 
@@ -646,6 +666,8 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
                   <TurnMessageCard message={message} key={message.id} />
                 ),
               )}
+
+              {isSending && !isRecording ? <PendingResponseBubble /> : null}
             </section>
           </>
         ) : null}

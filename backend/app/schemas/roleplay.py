@@ -41,6 +41,7 @@ class RoleplayUiState(BaseModel):
     score_count: int
     current_step_label: str
     current_step_order: int
+    current_step_guidance_text: str | None = None
     total_steps: int
     should_show_feedback: bool
 

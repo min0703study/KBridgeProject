@@ -113,6 +113,7 @@ async def run_roleplay_session_turn(
             score_count=0,
             current_step_label=_current_step_label(display_step),
             current_step_order=int(display_step.get("step_order") or 1),
+            current_step_guidance_text=display_step.get("roleplay_guidance_text"),
             total_steps=total_steps,
             should_show_feedback=feedback is not None,
         ),
