@@ -23,6 +23,31 @@ SessionEndStatusEnum = ENUM(
     name="session_end_status_enum",
     create_type=False,
 )
+InputMethodEnum = ENUM("voice", "text", name="input_method_enum", create_type=False)
+SenderTypeEnum = ENUM(
+    "system",
+    "roleplay_character",
+    "learner",
+    name="sender_type_enum",
+    create_type=False,
+)
+MessageGeneratedByEnum = ENUM(
+    "system",
+    "ai_agent",
+    "admin",
+    name="message_generated_by_enum",
+    create_type=False,
+)
+MessageTypeEnum = ENUM(
+    "scene_text",
+    "roleplay_character_action_text",
+    "roleplay_character_dialogue_text",
+    "learner_input_text",
+    "hint",
+    "correction_feedback",
+    name="message_type_enum",
+    create_type=False,
+)
 
 
 class User(Base):
@@ -219,3 +244,28 @@ class RoleplaySession(Base):
     learner: Mapped[User] = relationship()
     scenario_version: Mapped[ScenarioVersion] = relationship()
     current_step: Mapped[Step | None] = relationship()
+
+
+class Message(Base):
+    __tablename__ = "messages"
+
+    message_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
+    roleplay_session_id: Mapped[UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("roleplay_sessions.roleplay_session_id")
+    )
+    roleplay_turn_id: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True))
+    step_id: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True), ForeignKey("steps.step_id"))
+    scenario_roleplay_character_id: Mapped[UUID | None] = mapped_column(
+        PgUUID(as_uuid=True),
+        ForeignKey("scenario_roleplay_characters.scenario_roleplay_character_id"),
+    )
+    message_order: Mapped[int] = mapped_column(Integer)
+    sender_type: Mapped[str] = mapped_column(SenderTypeEnum)
+    generated_by: Mapped[str | None] = mapped_column(MessageGeneratedByEnum)
+    message_type: Mapped[str] = mapped_column(MessageTypeEnum)
+    text_content: Mapped[str] = mapped_column(Text)
+    text_language: Mapped[str] = mapped_column(LanguageCodeEnum)
+    translation_json: Mapped[dict | None] = mapped_column(JSONB)
+    audio_file_id: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    hint_level: Mapped[str | None] = mapped_column(String)

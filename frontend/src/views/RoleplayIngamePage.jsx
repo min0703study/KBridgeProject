@@ -15,7 +15,7 @@ import {
   Volume2,
   X,
 } from 'lucide-react';
-import { getConvenienceStoreIngame, sendConvenienceStoreTurn } from '../api/roleplayApi.js';
+import { getConvenienceStoreIngame, sendRoleplaySessionTurn } from '../api/roleplayApi.js';
 import { createWavRecorder } from '../utils/wavRecorder.js';
 
 const FALLBACK_BACKGROUND_IMAGE = '/roleplay_ingame_image/roleplay_convenience_store_customer.png';
@@ -237,6 +237,10 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
     if (!recorderRef.current || !ingameData) {
       return;
     }
+    if (!roleplaySessionId) {
+      setErrorMessage('Roleplay session is not ready.');
+      return;
+    }
 
     clearInterval(timerRef.current);
     timerRef.current = null;
@@ -247,11 +251,10 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
     try {
       const audioBlob = await recorderRef.current.stop();
       recorderRef.current = null;
-      const payload = await sendConvenienceStoreTurn({
+      const payload = await sendRoleplaySessionTurn({
+        roleplaySessionId,
         audioBlob,
         clientTurnId: crypto.randomUUID(),
-        scenarioId: ingameData.scenario.scenario_id,
-        stepId: ingameData.current_step.step_id,
       });
 
       setMessages((current) => [

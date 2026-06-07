@@ -43,17 +43,18 @@ export async function getConvenienceStoreIngame() {
   return response.json();
 }
 
-export async function sendConvenienceStoreTurn({ audioBlob, clientTurnId, scenarioId, stepId }) {
+export async function sendRoleplaySessionTurn({ roleplaySessionId, audioBlob, clientTurnId }) {
   const formData = new FormData();
   formData.append('audio_file', audioBlob, `${clientTurnId || 'roleplay-turn'}.wav`);
-  formData.append('scenario_id', scenarioId);
-  formData.append('step_id', stepId);
   formData.append('client_turn_id', clientTurnId || crypto.randomUUID());
 
-  const response = await fetch(`${API_BASE_URL}/api/v1/roleplay/convenience-store/turn`, {
-    method: 'POST',
-    body: formData,
-  });
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/roleplay-sessions/${roleplaySessionId}/turns`,
+    {
+      method: 'POST',
+      body: formData,
+    },
+  );
 
   if (!response.ok) {
     let detail = 'Roleplay voice turn failed.';
