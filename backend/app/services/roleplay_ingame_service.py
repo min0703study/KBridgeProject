@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -44,6 +44,7 @@ async def get_convenience_store_ingame(session: AsyncSession) -> RoleplayIngameR
     scenario_location = await _get_required_scenario_location(session)
     scenario_character = await _get_required_scenario_character(session)
     step = await _get_required_first_step(session)
+    total_steps = await _get_total_steps(session)
     sample_answers = await _get_step_sample_answers(session, step.step_id)
 
     location = scenario_location.roleplay_location
@@ -103,6 +104,8 @@ async def get_convenience_store_ingame(session: AsyncSession) -> RoleplayIngameR
         ui_state=RoleplayIngameUiState(
             total_chances=version.default_total_chances,
             remaining_chances=version.default_total_chances,
+            current_step_order=step.step_order,
+            total_steps=total_steps,
         ),
     )
 
@@ -178,6 +181,13 @@ async def _get_required_first_step(session: AsyncSession) -> Step:
     if step is None:
         raise RoleplayIngameNotFoundError("Convenience Store first step was not found.")
     return step
+
+
+async def _get_total_steps(session: AsyncSession) -> int:
+    result = await session.execute(
+        select(func.count(Step.step_id)).where(Step.scenario_version_id == SCENARIO_VERSION_ID)
+    )
+    return int(result.scalar_one() or 1)
 
 
 async def _get_step_sample_answers(

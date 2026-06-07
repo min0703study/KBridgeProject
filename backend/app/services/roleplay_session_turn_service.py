@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.agents.roleplay.graph import build_roleplay_turn_graph
@@ -13,7 +13,7 @@ from backend.app.agents.roleplay.nodes.judge import JudgeNodeError
 from backend.app.agents.roleplay.nodes.response_pack import ResponsePackNodeError
 from backend.app.agents.roleplay.schemas import CorrectionItem, ResponsePack
 from backend.app.agents.roleplay.state import build_initial_state
-from backend.app.db.models import RoleplaySession
+from backend.app.db.models import RoleplaySession, Step
 from backend.app.schemas.roleplay import (
     AssistantMessage,
     CorrectionFeedback,
@@ -73,6 +73,8 @@ async def run_roleplay_session_turn(
     rule_decision = final_state["rule_decision"]
     current_step = final_state["current_step"]
     next_step = final_state.get("next_step")
+    display_step = _display_step(current_step, next_step, rule_decision)
+    total_steps = await _get_total_steps(session, current_step)
     persistence_result = final_state["persistence_result"]
     session_after = persistence_result.session_after if persistence_result else {}
     end_status = str(session_after.get("end_status") or "in_progress")
@@ -109,7 +111,9 @@ async def run_roleplay_session_turn(
         ui_state=RoleplayUiState(
             remaining_chances=_remaining_chances(final_state, session_after),
             score_count=0,
-            current_step_label=_current_step_label(current_step, next_step, rule_decision),
+            current_step_label=_current_step_label(display_step),
+            current_step_order=int(display_step.get("step_order") or 1),
+            total_steps=total_steps,
             should_show_feedback=feedback is not None,
         ),
         turn_messages=[
@@ -164,19 +168,36 @@ def _remaining_chances(final_state: dict, session_after: dict) -> int:
     return int(final_state["session"].get("remaining_chances") or 0)
 
 
-def _current_step_label(
+def _display_step(
     current_step: dict,
     next_step: dict | None,
     rule_decision,
-) -> str:
-    display_step = (
+) -> dict:
+    return (
         next_step
         if rule_decision
         and rule_decision.progress_outcome == "advance_to_next_step"
         and next_step
         else current_step
     )
+
+
+def _current_step_label(display_step: dict) -> str:
     return f"Step {display_step.get('step_order')}: {display_step.get('step_title')}"
+
+
+async def _get_total_steps(session: AsyncSession, current_step: dict) -> int:
+    scenario_version_id = current_step.get("scenario_version_id")
+    if not scenario_version_id:
+        return 1
+
+    result = await session.execute(
+        select(func.count(Step.step_id)).where(
+            Step.scenario_version_id
+            == _parse_uuid(str(scenario_version_id), "scenario_version_id")
+        )
+    )
+    return int(result.scalar_one() or 1)
 
 
 def _first_correction_item(items: list[CorrectionItem]) -> CorrectionItem | None:

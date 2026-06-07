@@ -40,6 +40,8 @@ class RoleplayUiState(BaseModel):
     remaining_chances: int
     score_count: int
     current_step_label: str
+    current_step_order: int
+    total_steps: int
     should_show_feedback: bool
 
 
@@ -134,6 +136,8 @@ class RoleplayIngameUiState(BaseModel):
     total_chances: int
     remaining_chances: int
     score_count: int = 0
+    current_step_order: int
+    total_steps: int
 
 
 class RoleplayIngameResponse(BaseModel):

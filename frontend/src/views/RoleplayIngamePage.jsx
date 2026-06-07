@@ -426,11 +426,14 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
   const totalChances = ingameData?.ui_state?.total_chances || 5;
   const remainingChances = turnUiState?.remaining_chances ?? ingameData?.ui_state?.remaining_chances ?? totalChances;
   const scoreCount = turnUiState?.score_count ?? ingameData?.ui_state?.score_count ?? 0;
+  const totalSteps = turnUiState?.total_steps ?? ingameData?.ui_state?.total_steps ?? 1;
+  const currentStepOrder =
+    turnUiState?.current_step_order ?? ingameData?.ui_state?.current_step_order ?? step?.step_order ?? 1;
   const stepLabel = turnUiState?.current_step_label || `Step ${step?.step_order || 1}: ${step?.step_title || ''}`;
   const isSessionEnded = Boolean(sessionStatus?.is_ended);
   const progressWidth = useMemo(
-    () => `${Math.max(3, Math.min(100, (scoreCount / Math.max(totalChances, 1)) * 100))}%`,
-    [scoreCount, totalChances],
+    () => `${Math.max(3, Math.min(100, (currentStepOrder / Math.max(totalSteps, 1)) * 100))}%`,
+    [currentStepOrder, totalSteps],
   );
 
   return (

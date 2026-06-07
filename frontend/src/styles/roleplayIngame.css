@@ -239,20 +239,25 @@
 
 .roleplay-content-stack {
   position: absolute;
-  top: 0;
+  top: 48%;
   left: var(--roleplay-edge);
   right: var(--roleplay-edge);
   bottom: calc(var(--roleplay-composer-height) + 32px);
   z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 8px;
   align-items: flex-start;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0;
   scrollbar-width: none;
+}
+
+.roleplay-content-stack::before {
+  content: "";
+  margin-top: auto;
 }
 
 .roleplay-content-stack::-webkit-scrollbar {
@@ -416,7 +421,7 @@
   position: absolute;
   left: 50%;
   bottom: 183px;
-  width: min(74%, 314px);
+  width: min(88%, 376px);
   max-height: min(58%, 600px);
   z-index: 4;
   overflow-y: auto;
@@ -453,19 +458,24 @@
 .correction-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin: 15px 0 14px;
+  gap: 8px;
+  margin: 12px 0 12px;
 }
 
 .correction-tab {
-  height: 42px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 13px;
+  gap: 6px;
+  padding: 0 10px;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 700;
+}
+
+.correction-tab svg {
+  width: 17px;
+  height: 17px;
 }
 
 .correction-tab.is-politeness {
@@ -727,6 +737,7 @@
   }
 
   .roleplay-content-stack {
+    top: 46%;
     bottom: calc(var(--roleplay-composer-height) + 28px);
   }
 
