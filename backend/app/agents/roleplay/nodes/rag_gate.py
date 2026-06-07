@@ -76,6 +76,13 @@ def rag_gate_node(state: AgentState) -> AgentState:
 
     state["retrieved_candidates"] = retrieved_candidates
     state["selected_knowledge"] = selected_knowledge
+    print(
+        "[RoleplayAgent] node=rag_gate completed "
+        f"keyword_candidates={len(keyword_candidates)} "
+        f"vector_candidates={len(vector_candidates)} "
+        f"retrieved={len(retrieved_candidates)} "
+        f"selected={len(selected_knowledge)}"
+    )
     return state
 
 

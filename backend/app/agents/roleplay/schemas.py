@@ -40,7 +40,7 @@ class CorrectionItem(BaseModel):
 
 class JudgeResult(BaseModel):
     evaluation_result: EvaluationResult
-    confidence: float = Field(ge=0, le=1)
+    confidence: float
     inferred_intent_text: str
     step_goal_matched: bool
     communication_success: bool

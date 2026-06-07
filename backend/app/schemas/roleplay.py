@@ -12,6 +12,7 @@ IssueTag = Literal[
     "culturalContext",
     "taskExpression",
     "clarity",
+    "offTopic",
 ]
 
 

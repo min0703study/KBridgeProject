@@ -2,43 +2,10 @@ from __future__ import annotations
 
 from backend.app.agents.roleplay.schemas import (
     CorrectionItem,
-    JudgeResult,
     ResponsePack,
     RuleDecision,
 )
 from backend.app.agents.roleplay.state import AgentState
-
-
-def judge_mock_node(state: AgentState) -> AgentState:
-    learner_input = state.get("learner_input_text", "").strip()
-    selected_knowledge = state.get("selected_knowledge") or []
-
-    if not learner_input:
-        state["judge_result"] = JudgeResult(
-            evaluation_result="fail",
-            confidence=1.0,
-            inferred_intent_text="No learner input was provided.",
-            step_goal_matched=False,
-            communication_success=False,
-            issue_tags=["taskExpression"],
-            correction_needed=False,
-            cultural_issue_detected=False,
-            evaluation_reason_text="The MVP mock judge fails empty input.",
-        )
-        return state
-
-    state["judge_result"] = JudgeResult(
-        evaluation_result="soft_pass",
-        confidence=0.72,
-        inferred_intent_text="The learner is attempting to respond to the current roleplay step.",
-        step_goal_matched=True,
-        communication_success=True,
-        issue_tags=["politeness", "naturalness"],
-        correction_needed=True,
-        cultural_issue_detected=bool(selected_knowledge),
-        evaluation_reason_text="The MVP mock judge accepts non-empty input as soft_pass.",
-    )
-    return state
 
 
 def rule_engine_mock_node(state: AgentState) -> AgentState:
@@ -55,6 +22,12 @@ def rule_engine_mock_node(state: AgentState) -> AgentState:
         end_status_after=session.get("end_status") or "in_progress",
         hint_level="light" if is_fail else "none",
     )
+    print(
+        "[RoleplayAgent] node=rule_engine_mock completed "
+        f"remaining_chances_after={state['rule_decision'].remaining_chances_after} "
+        f"end_status_after={state['rule_decision'].end_status_after} "
+        f"hint_level={state['rule_decision'].hint_level}"
+    )
     return state
 
 
@@ -67,6 +40,21 @@ def response_pack_mock_node(state: AgentState) -> AgentState:
             character_dialogue_text="다시 한 번 말씀해 주시겠어요?",
             character_dialogue_translation_text="Could you try saying that again?",
             hint_text="손님에게 필요한 정보를 공손하게 요청해 보세요.",
+        )
+        print(
+            "[RoleplayAgent] node=response_pack_mock completed "
+            "dialogue=True hint=True corrections=0"
+        )
+        return state
+
+    if judge_result and not judge_result.correction_needed:
+        state["response_pack"] = ResponsePack(
+            character_dialogue_text="네, 알겠습니다.",
+            character_dialogue_translation_text="Okay, I understand.",
+        )
+        print(
+            "[RoleplayAgent] node=response_pack_mock completed "
+            "dialogue=True hint=False corrections=0"
         )
         return state
 
@@ -82,6 +70,12 @@ def response_pack_mock_node(state: AgentState) -> AgentState:
             )
         ],
     )
+    print(
+        "[RoleplayAgent] node=response_pack_mock completed "
+        f"dialogue={bool(state['response_pack'].character_dialogue_text)} "
+        f"hint={bool(state['response_pack'].hint_text)} "
+        f"corrections={len(state['response_pack'].correction_items)}"
+    )
     return state
 
 
@@ -92,10 +86,18 @@ def response_validator_mock_node(state: AgentState) -> AgentState:
             character_dialogue_text="네, 알겠습니다.",
             character_dialogue_translation_text="Okay, I understand.",
         )
+    print(
+        "[RoleplayAgent] node=response_validator_mock completed "
+        f"dialogue={bool(state['response_pack'].character_dialogue_text)}"
+    )
     return state
 
 
 def domain_persistence_mock_node(state: AgentState) -> AgentState:
     state["created_turn_id"] = None
     state["created_message_ids"] = []
+    print(
+        "[RoleplayAgent] node=domain_persistence_mock completed "
+        "created_turn_id=None created_message_ids=0"
+    )
     return state

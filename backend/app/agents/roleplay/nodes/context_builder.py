@@ -95,6 +95,13 @@ def make_context_builder_node(session: AsyncSession):
             sender_type="learner",
         )
 
+        print(
+            "[RoleplayAgent] node=context_builder completed "
+            f"session_id={state['session']['roleplay_session_id']} "
+            f"step_id={state['current_step']['step_id']} "
+            f"recent_messages={len(state['recent_messages'])} "
+            f"sample_answers={len(state['step_sample_answers'])}"
+        )
         return state
 
     return context_builder_node

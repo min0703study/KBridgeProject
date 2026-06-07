@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.agents.roleplay.graph import build_roleplay_turn_graph
 from backend.app.agents.roleplay.nodes.context_builder import ContextBuilderError
+from backend.app.agents.roleplay.nodes.judge import JudgeNodeError
 from backend.app.agents.roleplay.schemas import CorrectionItem, ResponsePack
 from backend.app.agents.roleplay.state import build_initial_state
 from backend.app.db.models import RoleplaySession
@@ -79,6 +80,7 @@ async def run_roleplay_session_turn(
             "culturalContext",
             "taskExpression",
             "clarity",
+            "offTopic",
         }
     ]
 
@@ -143,6 +145,7 @@ __all__ = [
     "EmptyTranscriptError",
     "InvalidAudioError",
     "MissingProviderKeyError",
+    "JudgeNodeError",
     "RoleplaySessionTurnError",
     "run_roleplay_session_turn",
 ]
