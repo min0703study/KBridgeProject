@@ -14,7 +14,7 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
     database_url: str = "postgresql+asyncpg://postgres:0000@localhost:5432/kBridge"
-    gemini_model: str = "gemini-2.5-flash-lite"
+    gemini_model: str = "gemini-3.5-flash"
     elevenlabs_model: str = "eleven_flash_v2_5"
     elevenlabs_voice_id: str = "iP95p4xoKVk53GoZ742B"
     google_stt_language_code: str = "ko-KR"

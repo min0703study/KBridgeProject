@@ -25,6 +25,7 @@ frontend/.env.*
 # local storage
 storage/
 backend/storage/
+logs/
 
 # samples / local-only
 sample_codes/
