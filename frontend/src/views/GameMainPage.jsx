@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Battery,
   Bell,
@@ -17,6 +18,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import { getMockGameData } from '../mock/mockGameData.js';
+import RoleplayIngamePage from './RoleplayIngamePage.jsx';
 
 const MOCK_FILTER_ICONS = {
   retail: ShoppingBag,
@@ -91,7 +93,7 @@ function MockGameFilters({ filters }) {
   );
 }
 
-function MockRoleplayCard({ game }) {
+function MockRoleplayCard({ game, onStart }) {
   const categoryIcon = {
     'Convenience Store': ShoppingBag,
     Restaurant: Utensils,
@@ -117,7 +119,12 @@ function MockRoleplayCard({ game }) {
             {game.duration}
           </span>
         </div>
-        <button className="roleplay-start-button" type="button" aria-label={`Start ${game.title} mock roleplay`}>
+        <button
+          className="roleplay-start-button"
+          type="button"
+          aria-label={`Start ${game.title} mock roleplay`}
+          onClick={() => onStart(game)}
+        >
           <CategoryIcon className="roleplay-start-icon" size={18} strokeWidth={2} aria-hidden="true" />
           <ChevronRight size={23} strokeWidth={2.8} aria-hidden="true" />
         </button>
@@ -155,7 +162,12 @@ function MockGameBottomNavigation({ items, onMockNavigate }) {
 }
 
 export default function GameMainPage({ onMockNavigate }) {
+  const [activeRoleplay, setActiveRoleplay] = useState(null);
   const mockGameData = getMockGameData();
+
+  if (activeRoleplay?.id === 'mock-roleplay-convenience-store') {
+    return <RoleplayIngamePage onBack={() => setActiveRoleplay(null)} />;
+  }
 
   return (
     <main className="app-stage">
@@ -166,7 +178,7 @@ export default function GameMainPage({ onMockNavigate }) {
           <MockGameFilters filters={mockGameData.filters} />
           <section className="roleplay-grid" aria-label="Mock roleplay game list">
             {mockGameData.roleplayGames.map((game) => (
-              <MockRoleplayCard game={game} key={game.id} />
+              <MockRoleplayCard game={game} key={game.id} onStart={setActiveRoleplay} />
             ))}
           </section>
         </div>
