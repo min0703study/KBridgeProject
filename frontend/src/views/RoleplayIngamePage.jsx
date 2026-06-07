@@ -52,6 +52,71 @@ function Waveform() {
   );
 }
 
+function mapTurnMessages(payload) {
+  const turnMessages = Array.isArray(payload.turn_messages) ? payload.turn_messages : [];
+  let feedbackAttached = false;
+
+  return turnMessages
+    .map((message) => {
+      const id = message.message_id || crypto.randomUUID();
+      const translatedText = getTranslationText(message.translation_json);
+
+      if (message.message_type === 'learner_input_text') {
+        const hasFeedback = Boolean(payload.feedback) && !feedbackAttached;
+        feedbackAttached = feedbackAttached || hasFeedback;
+        return {
+          id,
+          type: 'dialogue',
+          tone: 'learner',
+          ko: message.text_content,
+          en: translatedText || 'Voice response recorded.',
+          hasFeedback,
+        };
+      }
+
+      if (message.message_type === 'roleplay_character_dialogue_text') {
+        return {
+          id,
+          type: 'dialogue',
+          tone: 'customer',
+          ko: message.text_content,
+          en: translatedText,
+          hasFeedback: false,
+        };
+      }
+
+      if (message.message_type === 'scene_text') {
+        return {
+          id,
+          type: 'card',
+          kind: 'scene',
+          text: message.text_content,
+        };
+      }
+
+      if (message.message_type === 'roleplay_character_action_text') {
+        return {
+          id,
+          type: 'card',
+          kind: 'action',
+          text: message.text_content,
+        };
+      }
+
+      if (message.message_type === 'hint') {
+        return {
+          id,
+          type: 'card',
+          kind: 'hint',
+          text: message.text_content,
+        };
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+}
+
 function DialogueBubble({ tone, ko, en, onFeedbackClick, active }) {
   return (
     <article className={`roleplay-dialogue-bubble ${tone}`}>
@@ -80,6 +145,37 @@ function DialogueBubble({ tone, ko, en, onFeedbackClick, active }) {
       ) : null}
     </article>
   );
+}
+
+function TurnMessageCard({ message }) {
+  if (message.kind === 'scene') {
+    return (
+      <article className="roleplay-info-card">
+        <BookOpen size={30} fill="currentColor" strokeWidth={1.8} aria-hidden="true" />
+        <p>{message.text}</p>
+      </article>
+    );
+  }
+
+  if (message.kind === 'action') {
+    return (
+      <article className="roleplay-action-card">
+        <Sparkles size={26} aria-hidden="true" />
+        <p>{message.text}</p>
+      </article>
+    );
+  }
+
+  if (message.kind === 'hint') {
+    return (
+      <article className="roleplay-turn-hint">
+        <Lightbulb size={20} strokeWidth={2.4} aria-hidden="true" />
+        <p>{message.text}</p>
+      </article>
+    );
+  }
+
+  return null;
 }
 
 function FeedbackPanel({ feedback, onClose }) {
@@ -139,6 +235,8 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
   const [feedback, setFeedback] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [turnUiState, setTurnUiState] = useState(null);
+  const [sessionStatus, setSessionStatus] = useState(null);
   const recorderRef = useRef(null);
   const timerRef = useRef(null);
   const audioRef = useRef(null);
@@ -256,24 +354,33 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
         audioBlob,
         clientTurnId: crypto.randomUUID(),
       });
+      const turnMessages = mapTurnMessages(payload);
 
       setMessages((current) => [
         ...current,
-        {
-          id: crypto.randomUUID(),
-          tone: 'learner',
-          ko: payload.transcript,
-          en: 'Voice response recorded.',
-          hasFeedback: Boolean(payload.feedback),
-        },
-        {
-          id: crypto.randomUUID(),
-          tone: 'customer',
-          ko: payload.assistant_message.ko,
-          en: payload.assistant_message.en,
-          hasFeedback: false,
-        },
+        ...(turnMessages.length
+          ? turnMessages
+          : [
+              {
+                id: crypto.randomUUID(),
+                type: 'dialogue',
+                tone: 'learner',
+                ko: payload.transcript,
+                en: 'Voice response recorded.',
+                hasFeedback: Boolean(payload.feedback),
+              },
+              {
+                id: crypto.randomUUID(),
+                type: 'dialogue',
+                tone: 'customer',
+                ko: payload.assistant_message.ko,
+                en: payload.assistant_message.en,
+                hasFeedback: false,
+              },
+            ]),
       ]);
+      setTurnUiState(payload.ui_state || null);
+      setSessionStatus(payload.session_status || null);
 
       if (payload.feedback) {
         setFeedback(payload.feedback);
@@ -299,8 +406,10 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
   const backgroundImage = ingameData?.location?.background_image_url || FALLBACK_BACKGROUND_IMAGE;
   const step = ingameData?.current_step;
   const totalChances = ingameData?.ui_state?.total_chances || 5;
-  const remainingChances = ingameData?.ui_state?.remaining_chances || totalChances;
-  const scoreCount = ingameData?.ui_state?.score_count || 0;
+  const remainingChances = turnUiState?.remaining_chances ?? ingameData?.ui_state?.remaining_chances ?? totalChances;
+  const scoreCount = turnUiState?.score_count ?? ingameData?.ui_state?.score_count ?? 0;
+  const stepLabel = turnUiState?.current_step_label || `Step ${step?.step_order || 1}: ${step?.step_title || ''}`;
+  const isSessionEnded = Boolean(sessionStatus?.is_ended);
   const progressWidth = useMemo(
     () => `${Math.max(3, Math.min(100, (scoreCount / Math.max(totalChances, 1)) * 100))}%`,
     [scoreCount, totalChances],
@@ -334,7 +443,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
             <section className="roleplay-step-card" aria-label="Current step">
               <div className="step-title-row">
                 <span className="step-number">{formatStepNumber(step.step_order)}</span>
-                <strong>{`Step ${step.step_order}: ${step.step_title}`}</strong>
+                <strong>{stepLabel}</strong>
               </div>
               <div className="step-progress-row">
                 <span className="step-progress-track">
@@ -373,22 +482,26 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
                 </article>
               ) : null}
 
-              {messages.map((message) => (
-                <DialogueBubble
-                  tone={message.tone}
-                  ko={message.ko}
-                  en={message.en}
-                  key={message.id}
-                  active={showFeedback && latestFeedbackMessage?.id === message.id}
-                  onFeedbackClick={
-                    message.hasFeedback
-                      ? () => {
-                          setShowFeedback((value) => !value);
-                        }
-                      : null
-                  }
-                />
-              ))}
+              {messages.map((message) =>
+                message.type === 'dialogue' || !message.type ? (
+                  <DialogueBubble
+                    tone={message.tone}
+                    ko={message.ko}
+                    en={message.en}
+                    key={message.id}
+                    active={showFeedback && latestFeedbackMessage?.id === message.id}
+                    onFeedbackClick={
+                      message.hasFeedback
+                        ? () => {
+                            setShowFeedback((value) => !value);
+                          }
+                        : null
+                    }
+                  />
+                ) : (
+                  <TurnMessageCard message={message} key={message.id} />
+                ),
+              )}
             </section>
           </>
         ) : null}
@@ -414,12 +527,20 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
                 <Star size={34} fill="currentColor" strokeWidth={2.5} aria-hidden="true" />
               </button>
               <div className="composer-input">
-                <span>{isSending ? 'Sending voice...' : 'Type a message...'}</span>
+                <span>
+                  {isSessionEnded
+                    ? sessionStatus.end_status === 'completed'
+                      ? 'Roleplay complete'
+                      : 'Roleplay ended'
+                    : isSending
+                      ? 'Sending voice...'
+                      : 'Type a message...'}
+                </span>
                 <button
                   type="button"
                   aria-label="Start voice recording"
                   onClick={startRecording}
-                  disabled={isSending || isLoading}
+                  disabled={isSending || isLoading || isSessionEnded}
                 >
                   <Mic size={30} strokeWidth={2.8} aria-hidden="true" />
                 </button>
@@ -431,7 +552,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
             type="button"
             aria-label={isRecording ? 'Send voice recording' : 'Send message'}
             onClick={isRecording ? sendRecording : undefined}
-            disabled={isSending || isLoading}
+            disabled={isSending || isLoading || isSessionEnded}
           >
             {isSending ? (
               <Speaker size={29} strokeWidth={2.4} aria-hidden="true" />

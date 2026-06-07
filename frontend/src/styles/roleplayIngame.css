@@ -215,6 +215,7 @@
 
 .roleplay-info-card,
 .roleplay-action-card,
+.roleplay-turn-hint,
 .roleplay-dialogue-bubble {
   border: 1px solid rgba(255, 255, 255, 0.62);
   border-radius: 8px;
@@ -258,6 +259,28 @@
   font-size: 17px;
   font-style: italic;
   line-height: 1.3;
+}
+
+.roleplay-turn-hint {
+  width: min(78%, 306px);
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 15px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #172033;
+}
+
+.roleplay-turn-hint svg {
+  color: #ffab1a;
+}
+
+.roleplay-turn-hint p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 700;
 }
 
 .roleplay-dialogue-bubble {
@@ -555,6 +578,12 @@
   color: #ffffff;
 }
 
+.roleplay-composer button:disabled,
+.composer-input button:disabled {
+  cursor: not-allowed;
+  opacity: 0.54;
+}
+
 .roleplay-composer.is-recording {
   grid-template-columns: 52px 1fr 52px 56px;
   gap: 10px;
@@ -641,6 +670,7 @@
 
   .roleplay-info-card p,
   .roleplay-action-card p,
+  .roleplay-turn-hint p,
   .roleplay-dialogue-bubble p {
     font-size: 15px;
   }

@@ -13,6 +13,7 @@ from backend.app.services.roleplay_session_service import (
 from backend.app.schemas.roleplay import RoleplayTurnResponse
 from backend.app.services.roleplay_session_turn_service import (
     ContextBuilderError,
+    DomainPersistenceError,
     EmptyTranscriptError,
     GameRuleEngineError,
     InvalidAudioError,
@@ -71,5 +72,6 @@ async def create_session_turn(
         JudgeNodeError,
         GameRuleEngineError,
         ResponsePackNodeError,
+        DomainPersistenceError,
     ) as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc

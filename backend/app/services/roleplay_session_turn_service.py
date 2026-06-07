@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.agents.roleplay.graph import build_roleplay_turn_graph
 from backend.app.agents.roleplay.nodes.context_builder import ContextBuilderError
+from backend.app.agents.roleplay.nodes.domain_persistence import DomainPersistenceError
 from backend.app.agents.roleplay.nodes.game_rule_engine import GameRuleEngineError
 from backend.app.agents.roleplay.nodes.judge import JudgeNodeError
 from backend.app.agents.roleplay.nodes.response_pack import ResponsePackNodeError
@@ -17,6 +18,8 @@ from backend.app.schemas.roleplay import (
     AssistantMessage,
     CorrectionFeedback,
     Evaluation,
+    RoleplaySessionStatus,
+    RoleplayTurnMessage,
     RoleplayTurnResponse,
     RoleplayUiState,
 )
@@ -69,6 +72,10 @@ async def run_roleplay_session_turn(
     judge_result = final_state["judge_result"]
     rule_decision = final_state["rule_decision"]
     current_step = final_state["current_step"]
+    next_step = final_state.get("next_step")
+    persistence_result = final_state["persistence_result"]
+    session_after = persistence_result.session_after if persistence_result else {}
+    end_status = str(session_after.get("end_status") or "in_progress")
 
     public_issue_tags = [
         tag
@@ -100,12 +107,31 @@ async def run_roleplay_session_turn(
         ),
         feedback=feedback,
         ui_state=RoleplayUiState(
-            remaining_chances=rule_decision.remaining_chances_after
-            if rule_decision
-            else int(final_state["session"].get("remaining_chances") or 0),
+            remaining_chances=_remaining_chances(final_state, session_after),
             score_count=0,
-            current_step_label=f"Step {current_step.get('step_order')}: {current_step.get('step_title')}",
+            current_step_label=_current_step_label(current_step, next_step, rule_decision),
             should_show_feedback=feedback is not None,
+        ),
+        turn_messages=[
+            RoleplayTurnMessage(
+                message_id=message.message_id,
+                sender_type=message.sender_type,
+                message_type=message.message_type,
+                text_content=message.text_content,
+                text_language=message.text_language,
+                translation_json=message.translation_json,
+                step_id=message.step_id,
+                hint_level=message.hint_level,
+            )
+            for message in (persistence_result.turn_messages if persistence_result else [])
+        ],
+        session_status=RoleplaySessionStatus(
+            end_status=end_status,
+            is_ended=end_status in {"completed", "failed", "abandoned"},
+            current_step_id=session_after.get("current_step_id"),
+            created_turn_id=persistence_result.created_turn_id
+            if persistence_result
+            else None,
         ),
     )
 
@@ -129,6 +155,30 @@ async def _get_session_learner_id(session: AsyncSession, roleplay_session_id: UU
     return learner_id
 
 
+def _remaining_chances(final_state: dict, session_after: dict) -> int:
+    if session_after.get("remaining_chances") is not None:
+        return int(session_after["remaining_chances"])
+    rule_decision = final_state["rule_decision"]
+    if rule_decision:
+        return rule_decision.remaining_chances_after
+    return int(final_state["session"].get("remaining_chances") or 0)
+
+
+def _current_step_label(
+    current_step: dict,
+    next_step: dict | None,
+    rule_decision,
+) -> str:
+    display_step = (
+        next_step
+        if rule_decision
+        and rule_decision.progress_outcome == "advance_to_next_step"
+        and next_step
+        else current_step
+    )
+    return f"Step {display_step.get('step_order')}: {display_step.get('step_title')}"
+
+
 def _first_correction_item(items: list[CorrectionItem]) -> CorrectionItem | None:
     return items[0] if items else None
 
@@ -144,6 +194,7 @@ def _build_feedback(correction_item: CorrectionItem) -> CorrectionFeedback:
 
 __all__ = [
     "ContextBuilderError",
+    "DomainPersistenceError",
     "EmptyTranscriptError",
     "InvalidAudioError",
     "MissingProviderKeyError",

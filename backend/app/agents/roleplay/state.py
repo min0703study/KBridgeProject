@@ -6,7 +6,9 @@ from backend.app.agents.roleplay.schemas import (
     FinalFeedbackResult,
     InputMethod,
     JudgeResult,
+    PersistenceResult,
     ResponsePack,
+    ResponseValidationResult,
     RetrievedKnowledge,
     RuleDecision,
 )
@@ -37,10 +39,13 @@ class AgentState(TypedDict):
     judge_result: JudgeResult | None
     rule_decision: RuleDecision | None
     response_pack: ResponsePack | None
+    response_validation_result: ResponseValidationResult | None
+    persistence_result: PersistenceResult | None
     final_feedback_result: FinalFeedbackResult | None
 
     created_turn_id: str | None
     created_message_ids: list[str]
+    created_evaluation_id: str | None
 
 
 def build_initial_state(
@@ -71,7 +76,10 @@ def build_initial_state(
         "judge_result": None,
         "rule_decision": None,
         "response_pack": None,
+        "response_validation_result": None,
+        "persistence_result": None,
         "final_feedback_result": None,
         "created_turn_id": None,
         "created_message_ids": [],
+        "created_evaluation_id": None,
     }

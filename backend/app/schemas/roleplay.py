@@ -43,12 +43,39 @@ class RoleplayUiState(BaseModel):
     should_show_feedback: bool
 
 
+class RoleplayTurnMessage(BaseModel):
+    message_id: str | None = None
+    sender_type: Literal["system", "roleplay_character", "learner"]
+    message_type: Literal[
+        "scene_text",
+        "roleplay_character_action_text",
+        "roleplay_character_dialogue_text",
+        "learner_input_text",
+        "hint",
+        "correction_feedback",
+    ]
+    text_content: str
+    text_language: Literal["en", "ko"]
+    translation_json: dict | None = None
+    step_id: str | None = None
+    hint_level: str | None = None
+
+
+class RoleplaySessionStatus(BaseModel):
+    end_status: str
+    is_ended: bool
+    current_step_id: str | None = None
+    created_turn_id: str | None = None
+
+
 class RoleplayTurnResponse(BaseModel):
     transcript: str
     assistant_message: AssistantMessage
     evaluation: Evaluation
     feedback: CorrectionFeedback | None = None
     ui_state: RoleplayUiState
+    turn_messages: list[RoleplayTurnMessage] = Field(default_factory=list)
+    session_status: RoleplaySessionStatus | None = None
 
 
 class RoleplayScenarioSummary(BaseModel):

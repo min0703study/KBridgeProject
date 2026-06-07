@@ -135,6 +135,41 @@ class ResponsePack(BaseModel):
         )
 
 
+class ResponseValidationResult(BaseModel):
+    is_valid: bool
+    errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    fallback_used: bool = False
+
+
+class PersistedTurnMessage(BaseModel):
+    message_id: str
+    sender_type: Literal["system", "roleplay_character", "learner"]
+    message_type: Literal[
+        "scene_text",
+        "roleplay_character_action_text",
+        "roleplay_character_dialogue_text",
+        "learner_input_text",
+        "hint",
+        "correction_feedback",
+    ]
+    text_content: str
+    text_language: Literal["en", "ko"]
+    translation_json: dict[str, Any] | None = None
+    step_id: str | None = None
+    scenario_roleplay_character_id: str | None = None
+    message_order: int
+    hint_level: Literal["light", "medium", "strong"] | None = None
+
+
+class PersistenceResult(BaseModel):
+    created_turn_id: str
+    created_message_ids: list[str] = Field(default_factory=list)
+    created_evaluation_id: str
+    session_after: dict[str, Any]
+    turn_messages: list[PersistedTurnMessage] = Field(default_factory=list)
+
+
 class FinalFeedbackResult(BaseModel):
     final_feedback_text: str
     strengths: list[str] = Field(default_factory=list)

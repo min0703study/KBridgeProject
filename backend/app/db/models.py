@@ -48,6 +48,13 @@ MessageTypeEnum = ENUM(
     name="message_type_enum",
     create_type=False,
 )
+EvaluationResultEnum = ENUM(
+    "pass",
+    "soft_pass",
+    "fail",
+    name="evaluation_result_enum",
+    create_type=False,
+)
 
 
 class User(Base):
@@ -246,6 +253,27 @@ class RoleplaySession(Base):
     current_step: Mapped[Step | None] = relationship()
 
 
+class RoleplayTurn(Base):
+    __tablename__ = "roleplay_turns"
+
+    roleplay_turn_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
+    roleplay_session_id: Mapped[UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("roleplay_sessions.roleplay_session_id")
+    )
+    step_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("steps.step_id"))
+    next_step_id: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True), ForeignKey("steps.step_id"))
+    turn_order: Mapped[int] = mapped_column(Integer)
+    input_method: Mapped[str] = mapped_column(InputMethodEnum)
+    remaining_chances_before: Mapped[int] = mapped_column(Integer)
+    remaining_chances_after: Mapped[int] = mapped_column(Integer)
+    end_status_after: Mapped[str | None] = mapped_column(SessionEndStatusEnum)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    fail_count_before: Mapped[int] = mapped_column(Integer)
+    fail_count_after: Mapped[int] = mapped_column(Integer)
+
+    roleplay_session: Mapped[RoleplaySession] = relationship()
+
+
 class Message(Base):
     __tablename__ = "messages"
 
@@ -269,3 +297,31 @@ class Message(Base):
     audio_file_id: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     hint_level: Mapped[str | None] = mapped_column(String)
+
+
+class RoleplayEvaluation(Base):
+    __tablename__ = "roleplay_evaluations"
+
+    roleplay_evaluation_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
+    roleplay_turn_id: Mapped[UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("roleplay_turns.roleplay_turn_id")
+    )
+    roleplay_session_id: Mapped[UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("roleplay_sessions.roleplay_session_id")
+    )
+    step_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), ForeignKey("steps.step_id"))
+    evaluation_order: Mapped[int] = mapped_column(Integer)
+    learner_input_text: Mapped[str] = mapped_column(Text)
+    evaluation_result: Mapped[str] = mapped_column(EvaluationResultEnum)
+    inferred_intent_text: Mapped[str | None] = mapped_column(Text)
+    step_goal_matched: Mapped[bool | None] = mapped_column(Boolean)
+    evaluation_reason_text: Mapped[str | None] = mapped_column(Text)
+    correction_json: Mapped[dict | None] = mapped_column(JSONB)
+    cultural_issue_detected: Mapped[bool | None] = mapped_column(Boolean)
+    should_advance_step: Mapped[bool] = mapped_column(Boolean)
+    should_decrease_chance: Mapped[bool] = mapped_column(Boolean)
+    should_end_session: Mapped[bool] = mapped_column(Boolean)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    roleplay_turn: Mapped[RoleplayTurn] = relationship()
+    roleplay_session: Mapped[RoleplaySession] = relationship()
