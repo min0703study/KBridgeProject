@@ -9,6 +9,7 @@ from backend.app.agents.roleplay.graph import build_roleplay_turn_graph
 from backend.app.agents.roleplay.nodes.context_builder import ContextBuilderError
 from backend.app.agents.roleplay.nodes.game_rule_engine import GameRuleEngineError
 from backend.app.agents.roleplay.nodes.judge import JudgeNodeError
+from backend.app.agents.roleplay.nodes.response_pack import ResponsePackNodeError
 from backend.app.agents.roleplay.schemas import CorrectionItem, ResponsePack
 from backend.app.agents.roleplay.state import build_initial_state
 from backend.app.db.models import RoleplaySession
@@ -149,5 +150,6 @@ __all__ = [
     "GameRuleEngineError",
     "JudgeNodeError",
     "RoleplaySessionTurnError",
+    "ResponsePackNodeError",
     "run_roleplay_session_turn",
 ]

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -73,13 +73,66 @@ class RuleDecision(BaseModel):
     transition_reason: str
 
 
+MessageType = Literal[
+    "scene_text",
+    "roleplay_character_action_text",
+    "roleplay_character_dialogue_text",
+    "hint",
+    "correction_feedback",
+]
+
+
+class ResponseMessageDraft(BaseModel):
+    message_type: MessageType
+    text_content: str
+    text_language: Literal["en", "ko"]
+    translation_json: dict[str, Any] | None = None
+    step_id: str | None = None
+    scenario_roleplay_character_id: str | None = None
+    hint_level: Literal["light", "medium", "strong"] | None = None
+
+
 class ResponsePack(BaseModel):
-    scene_text: str | None = None
-    character_action_text: str | None = None
-    character_dialogue_text: str | None = None
-    character_dialogue_translation_text: str | None = None
-    hint_text: str | None = None
+    message_drafts: list[ResponseMessageDraft] = Field(default_factory=list)
     correction_items: list[CorrectionItem] = Field(default_factory=list)
+
+    @property
+    def scene_text(self) -> str | None:
+        return self._first_text("scene_text")
+
+    @property
+    def character_action_text(self) -> str | None:
+        return self._first_text("roleplay_character_action_text")
+
+    @property
+    def character_dialogue_text(self) -> str | None:
+        return self._first_text("roleplay_character_dialogue_text")
+
+    @property
+    def character_dialogue_translation_text(self) -> str | None:
+        draft = self._first_draft("roleplay_character_dialogue_text")
+        if not draft or not draft.translation_json:
+            return None
+        value = draft.translation_json.get("en")
+        return value if isinstance(value, str) else None
+
+    @property
+    def hint_text(self) -> str | None:
+        return self._first_text("hint")
+
+    def _first_text(self, message_type: MessageType) -> str | None:
+        draft = self._first_draft(message_type)
+        return draft.text_content if draft else None
+
+    def _first_draft(self, message_type: MessageType) -> ResponseMessageDraft | None:
+        return next(
+            (
+                draft
+                for draft in self.message_drafts
+                if draft.message_type == message_type
+            ),
+            None,
+        )
 
 
 class FinalFeedbackResult(BaseModel):

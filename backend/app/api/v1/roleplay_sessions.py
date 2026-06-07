@@ -18,6 +18,7 @@ from backend.app.services.roleplay_session_turn_service import (
     InvalidAudioError,
     JudgeNodeError,
     MissingProviderKeyError,
+    ResponsePackNodeError,
     RoleplaySessionTurnError,
     run_roleplay_session_turn,
 )
@@ -69,5 +70,6 @@ async def create_session_turn(
         ContextBuilderError,
         JudgeNodeError,
         GameRuleEngineError,
+        ResponsePackNodeError,
     ) as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc

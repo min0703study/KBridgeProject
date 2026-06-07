@@ -22,6 +22,7 @@ class AgentState(TypedDict):
     scenario_version: dict[str, Any]
     scenario: dict[str, Any]
     current_step: dict[str, Any]
+    next_step: dict[str, Any] | None
     character: dict[str, Any]
     location: dict[str, Any]
     recent_messages: list[dict[str, Any]]
@@ -58,6 +59,7 @@ def build_initial_state(
         "scenario_version": {},
         "scenario": {},
         "current_step": {},
+        "next_step": None,
         "character": {},
         "location": {},
         "recent_messages": [],
