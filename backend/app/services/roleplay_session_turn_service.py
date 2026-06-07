@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.agents.roleplay.graph import build_roleplay_turn_graph
 from backend.app.agents.roleplay.nodes.context_builder import ContextBuilderError
+from backend.app.agents.roleplay.nodes.game_rule_engine import GameRuleEngineError
 from backend.app.agents.roleplay.nodes.judge import JudgeNodeError
 from backend.app.agents.roleplay.schemas import CorrectionItem, ResponsePack
 from backend.app.agents.roleplay.state import build_initial_state
@@ -145,6 +146,7 @@ __all__ = [
     "EmptyTranscriptError",
     "InvalidAudioError",
     "MissingProviderKeyError",
+    "GameRuleEngineError",
     "JudgeNodeError",
     "RoleplaySessionTurnError",
     "run_roleplay_session_turn",

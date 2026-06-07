@@ -14,6 +14,7 @@ from backend.app.schemas.roleplay import RoleplayTurnResponse
 from backend.app.services.roleplay_session_turn_service import (
     ContextBuilderError,
     EmptyTranscriptError,
+    GameRuleEngineError,
     InvalidAudioError,
     JudgeNodeError,
     MissingProviderKeyError,
@@ -63,5 +64,10 @@ async def create_session_turn(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except (MissingProviderKeyError, TypeError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
-    except (RoleplaySessionTurnError, ContextBuilderError, JudgeNodeError) as exc:
+    except (
+        RoleplaySessionTurnError,
+        ContextBuilderError,
+        JudgeNodeError,
+        GameRuleEngineError,
+    ) as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc

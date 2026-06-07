@@ -7,6 +7,12 @@ from pydantic import BaseModel, Field
 
 EvaluationResult = Literal["pass", "soft_pass", "fail"]
 InputMethod = Literal["voice", "text"]
+ProgressOutcome = Literal[
+    "stay_current_step",
+    "advance_to_next_step",
+    "complete_session",
+    "fail_session",
+]
 IssueTag = Literal[
     "grammar",
     "vocabulary",
@@ -51,13 +57,20 @@ class JudgeResult(BaseModel):
 
 
 class RuleDecision(BaseModel):
+    evaluation_result: EvaluationResult
+    progress_outcome: ProgressOutcome
+    current_step_id: str
+    next_step_id: str | None = None
     should_advance_step: bool
     should_decrease_chance: bool
     should_end_session: bool
-    next_step_id: str | None = None
+    remaining_chances_before: int
     remaining_chances_after: int
-    end_status_after: Literal["in_progress", "completed", "failed", "abandoned"]
+    current_step_fail_count_before: int
+    current_step_fail_count_after: int
+    end_status_after: Literal["in_progress", "completed", "failed"]
     hint_level: Literal["none", "light", "medium", "strong"]
+    transition_reason: str
 
 
 class ResponsePack(BaseModel):
