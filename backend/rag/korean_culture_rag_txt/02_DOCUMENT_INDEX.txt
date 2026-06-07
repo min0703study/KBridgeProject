@@ -1,0 +1,63 @@
+# RAG 문서 인덱스
+
+버전: v1.0-updated-2026-06-07
+
+문서 목록
+01. CULTURE_INDIRECT_REBUKE_TIME_001 | indirect_intention | 지각 또는 지연 상황에서 “지금 몇 시예요?”가 단순 시간 질문이 아니라 질책일 수 있는 경우
+    키워드: 지금 몇 시예요, 지금 몇 시냐, 지각, 늦었어요, 질책, 간접 질책, time question rebuke
+02. CULTURE_INDIRECT_PERMISSION_PRESSURE_001 | indirect_intention | 바쁜 상황에서 “괜찮아요. 천천히 하세요.”가 실제 허용이 아니라 압박일 수 있는 경우
+    키워드: 괜찮아요 천천히 하세요, 천천히 해, 반어, 압박, 바쁜 상황, work pressure
+03. CULTURE_INDIRECT_GIVEUP_REBUKE_001 | indirect_intention | “됐다, 내가 하고 말지”가 친절한 제안이 아니라 포기·짜증·실망일 수 있는 경우
+    키워드: 됐다 내가 하고 말지, 포기, 짜증, 실망, 답답함, give up rebuke
+04. CULTURE_INDIRECT_COMFORT_SARCASM_001 | indirect_intention | “너는 참 편하겠다”가 실제 안부나 상태 말이 아니라 불만·비꼼일 수 있는 경우
+    키워드: 너는 참 편하겠다, 편하겠다, 비꼼, 팀 과제, 불만, sarcasm comfort
+05. CULTURE_REPEATED_MISTAKE_REBUKE_001 | indirect_intention | 반복 실수 후 “아직도 모르겠어요?”가 단순 이해 확인이 아니라 질책일 수 있는 경우
+    키워드: 아직도 모르겠어요, 반복 실수, 질책, 답답함, still do not know
+06. CULTURE_SARCASM_PRAISE_001 | indirect_intention | 실수 직후 “잘한다”, “대단하다”가 실제 칭찬이 아니라 반어적 비판일 수 있는 경우
+    키워드: 잘한다, 대단하다, 자아아알한다, 반어법, 비꼼, sarcasm praise
+07. CULTURE_TONE_SEYO_INSTRUCTION_001 | tone | 업무 상황에서 “~세요”가 선택 가능한 제안이 아니라 지시일 수 있는 경우
+    키워드: 세요, 가세요, 제출하세요, 지시, 존댓말 명령, polite imperative
+08. CULTURE_TONE_QUESTION_REBUKE_001 | tone | “이걸 이제 가져왔어요?”, “이게 맞다고 생각해요?” 같은 질문형 지적
+    키워드: 이걸 이제 가져왔어요, 이게 맞다고 생각해요, 정리 안 하시네요, 질문형 지적, rebuke question
+09. CULTURE_WORKPLACE_SLANG_STASH_001 | workplace_slang | 현장어 “짱박아두다”의 이해와 사용 주의
+    키워드: 짱박다, 짱박아두다, 구석에 두다, 현장어, 비격식, stash
+10. CULTURE_WORKPLACE_SLANG_BREAK_001 | workplace_slang | “작살내지 마라”가 폭력 지시가 아니라 고장 내지 말라는 경고일 수 있는 경우
+    키워드: 작살내다, 기계 작살내지 마라, 고장 내다, 망가뜨리다, 현장어, break
+11. CULTURE_WORKPLACE_BOX_OPEN_001 | workplace_slang | “박스 까다”가 박스를 찢는 것이 아니라 개봉·정리 지시일 수 있는 경우
+    키워드: 박스 까다, 까다, 개봉하다, 내용물 꺼내다, 물류, box open
+12. CULTURE_WORKPLACE_WAKKU_001 | workplace_slang | 현장어 “와꾸 맞추다”가 얼굴이 아니라 틀·규격·배치를 맞추는 의미일 수 있는 경우
+    키워드: 와꾸, 와꾸 맞추다, 틀, 프레임, 규격, 현장어, frame
+13. CULTURE_WORKPLACE_IMPROVISE_001 | workplace_slang | “대충 비벼봐”가 음식 섞기가 아니라 임시 해결을 뜻할 수 있는 경우
+    키워드: 비비다, 대충 비벼봐, 임기응변, 임시 해결, 대충, improvise
+14. CULTURE_IMPLICIT_DEICTIC_THIS_THAT_001 | implicit_reference | “이거”, “그거”, “저기”, “거기” 등 지시어가 손짓·시선·작업 흐름과 함께 해석되는 경우
+    키워드: 이거, 그거, 저기, 거기, 아까 그거, 지시어, 생략, implicit reference
+15. CULTURE_IMPLICIT_OBJECT_TASKFLOW_001 | implicit_reference | 직전 작업 흐름에서 목적어가 생략되는 경우
+    키워드: 목적어 생략, 갖다 줘, 가져와, 냉장고에 넣다, 직전 작업, task flow
+16. CULTURE_ADDRESS_KINSHIP_RESTAURANT_001 | address_terms | 식당·시장 등에서 “이모”가 실제 친척이 아니라 친근한 호칭으로 쓰일 수 있는 경우
+    키워드: 이모, 식당 호칭, 친족 호칭, 저기요, 사장님, kinship term
+17. CULTURE_ADDRESS_FORMAL_OFFICE_001 | address_terms | 공공기관·회사 등 공식 장소에서 식당식 친근 호칭을 피해야 하는 경우
+    키워드: 공공기관 호칭, 이모 부적절, 직원분, 선생님, 담당자님, formal address
+18. CULTURE_ADDRESS_HYUNG_BOUNDARY_001 | address_terms | “형”은 친근한 호칭이지만 처음 만난 관리자·상사에게는 부적절할 수 있는 경우
+    키워드: 형, 관리자님, 선배님, 초면, 호칭, 위계, hyung boundary
+19. CULTURE_ADDRESS_URI_GROUP_001 | address_terms | 한국어 “우리”가 실제 가족·공동 소유가 아니라 소속감 표현일 수 있는 경우
+    키워드: 우리, 우리 반, 우리 회사, 소속감, 공동체, uri
+20. CULTURE_ADDRESS_SAJANGNIM_SERVICE_001 | address_terms | “사장님”이 실제 사장이 아니어도 서비스 제공자에게 예의상 쓰일 수 있는 경우
+    키워드: 사장님, 택시 기사, 서비스 호칭, 예의상 호칭, boss address
+21. CULTURE_PERFORMANCE_PPALLI_PPALLI_001 | performance_pressure | “빨리빨리”가 개인 공격이 아니라 현장 속도 요구일 수 있는 경우
+    키워드: 빨리빨리, 빨리 좀 해, 속도 압박, 현장, performance pressure
+22. CULTURE_PERFORMANCE_DAECHUNG_TEMPORARY_001 | performance_pressure | “대충 해”가 아무렇게나 하라는 뜻이 아니라 우선 임시로 맞추라는 의미일 수 있는 경우
+    키워드: 대충, 일단 대충, 임시 처리, 우선 처리, roughly
+23. CULTURE_PERFORMANCE_ILMEORI_SENSE_001 | performance_pressure | “일머리”, “센스 있게”가 인신공격보다 업무 순서·우선순위 판단 요구일 수 있는 경우
+    키워드: 일머리, 센스 있게, 우선순위, 눈치, 업무 감각, work sense
+24. CULTURE_RESPONSIBILITY_APOLOGY_FIRST_001 | responsibility | 문제 상황에서 이유 설명보다 사과와 해결 의지가 먼저 필요한 경우
+    키워드: 변명, 사과 먼저, 버스가 늦었어요, 시간이 없었어요, 책임 인정, apology first
+25. CULTURE_RESPONSIBILITY_NOT_ME_001 | responsibility | 공동 작업에서 “제가 한 거 아니에요”가 책임 회피처럼 들릴 수 있는 경우
+    키워드: 제가 한 거 아니에요, 책임 회피, 공동 작업, 확인해보겠습니다, not me
+26. CULTURE_RESPONSIBILITY_SERVICE_BLAME_001 | responsibility | 서비스 상황에서 손님·상대 탓처럼 들리는 답변을 피해야 하는 경우
+    키워드: 손님이 작게 말했어요, 손님 탓, 서비스 사과, 주문 오류, customer blame
+27. CULTURE_HIERARCHY_TEACHER_PROFESSOR_001 | hierarchy | 교수님·선생님에게 반말이나 “수고했어”를 쓰면 무례하게 들릴 수 있는 경우
+    키워드: 교수님, 선생님, 수고했어, 수고하셨습니다, 감사합니다, teacher hierarchy
+28. CULTURE_HIERARCHY_SERVICE_POLITENESS_001 | hierarchy | 서비스 직원에게도 기본 존댓말을 사용해야 하는 경우
+    키워드: 야, 반말, 편의점 직원, 서비스 존댓말, 라면 어디 있어, service politeness
+29. CULTURE_HIERARCHY_REQUEST_TO_SUPERIOR_001 | hierarchy | 상사에게 “해주세요”가 지시처럼 들릴 수 있어 부탁형으로 완화해야 하는 경우
+    키워드: 해주세요, 상사 요청, 부탁형, 확인해주실 수 있을까요, polite request
