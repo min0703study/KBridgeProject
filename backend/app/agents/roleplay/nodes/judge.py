@@ -6,7 +6,7 @@ from google import genai
 from google.genai import types
 from pydantic import ValidationError
 
-from backend.app.agents.roleplay.logging import log_node_completed
+from backend.app.agents.roleplay.logging import log_node_completed, log_node_failed
 from backend.app.agents.roleplay.schemas import JudgeResult
 from backend.app.agents.roleplay.state import AgentState
 from backend.app.core.config import get_settings
@@ -78,7 +78,26 @@ def judge_node(state: AgentState) -> AgentState:
     except Exception as exc:
         raise JudgeNodeProviderError(f"Gemini Judge Node failed: {exc}") from exc
 
-    result = parse_judge_response(response.text or "")
+    raw_response_text = response.text or ""
+    try:
+        result = parse_judge_response(raw_response_text)
+    except JudgeNodeOutputError as exc:
+        log_node_failed(
+            "judge",
+            {
+                "error": str(exc),
+                "raw_response_preview": raw_response_text[:4000],
+                "raw_response_length": len(raw_response_text),
+                "prompt_summary": _build_judge_prompt_summary(
+                    state=state,
+                    prompt=prompt,
+                    model=settings.gemini_model,
+                ),
+                "fallback": "none",
+            },
+        )
+        raise
+
     normalized_result = normalize_judge_result(result)
     state["judge_result"] = normalized_result
 
@@ -129,6 +148,7 @@ def build_judge_prompt(state: AgentState) -> str:
             "location_prompt": location.get("location_prompt"),
         },
         "learner_input_text": state["learner_input_text"],
+        "input_method": state["input_method"],
         "recent_messages": [
             {
                 "sender_type": message.get("sender_type"),
@@ -153,10 +173,34 @@ def build_judge_prompt(state: AgentState) -> str:
             "soft_pass means the step goal is achieved but expression improvement is needed.",
             "fail means the step goal is not achieved, unclear, or off-topic.",
             "RAG knowledge is reference only, never automatic evidence of a cultural issue.",
+            (
+                "If input_method is voice, do not penalize obvious Korean STT homophone or spacing "
+                "artifacts when the learner's intended meaning is clear. For example, treat '내 총', "
+                "'내 결제', or '내 완료' as likely STT artifacts for '네, 총', '네, 결제', or '네, 완료' "
+                "instead of learner grammar mistakes."
+            ),
         ],
     }
 
     return json.dumps(prompt_payload, ensure_ascii=False, indent=2)
+
+
+def _build_judge_prompt_summary(*, state: AgentState, prompt: str, model: str) -> dict:
+    current_step = state["current_step"]
+    return {
+        "model": model,
+        "prompt_length": len(prompt),
+        "roleplay_session_id": state["roleplay_session_id"],
+        "learner_id": state["learner_id"],
+        "input_method": state["input_method"],
+        "learner_input_preview": (state.get("learner_input_text") or "")[:500],
+        "step_id": current_step.get("step_id"),
+        "step_order": current_step.get("step_order"),
+        "step_title": current_step.get("step_title"),
+        "step_goal": current_step.get("step_goal"),
+        "selected_knowledge_count": len(state.get("selected_knowledge") or []),
+        "recent_message_count": len(state.get("recent_messages") or []),
+    }
 
 
 def parse_judge_response(raw_text: str) -> JudgeResult:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import io
+import re
 import wave
 from collections.abc import Iterable
 
@@ -32,7 +33,7 @@ def transcribe_wav_audio(audio_bytes: bytes) -> str:
     if not transcript:
         raise EmptyTranscriptError("Google STT returned an empty transcript.")
 
-    return transcript
+    return _normalize_korean_stt_transcript(transcript)
 
 
 def text_to_speech_base64(text: str) -> str:
@@ -88,3 +89,11 @@ def _transcribe_wav(audio_bytes: bytes) -> str:
         for result in stt_response.results
         if result.alternatives
     ).strip()
+
+
+def _normalize_korean_stt_transcript(transcript: str) -> str:
+    normalized = transcript.strip()
+    normalized = re.sub(r"^내\s+(총)\b", r"네, \1", normalized)
+    normalized = re.sub(r"^내\s+(결제)\b", r"네, \1", normalized)
+    normalized = re.sub(r"^내\s+(완료)\b", r"네, \1", normalized)
+    return normalized
