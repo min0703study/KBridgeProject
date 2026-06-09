@@ -37,6 +37,8 @@ Do not decide step advancement, chances, or session ending.
 
 Evaluate whether the learner input achieves the current step goal.
 Prioritize inferred intent over perfect grammar.
+If input_method is voice, do not penalize missing question marks or weak punctuation.
+For voice/STT input, infer question intent from the step goal, dialogue context, and Korean endings such as 필요하세요, 드릴까요, 있으세요, 하시겠어요, 괜찮으세요.
 If the meaning is understandable and the step goal is achieved, return pass or soft_pass.
 If the meaning is right but the expression is awkward, blunt, unnatural, or culturally risky, return soft_pass.
 If the step goal is not achieved, the meaning is unclear, or the input is off-topic, return fail.
