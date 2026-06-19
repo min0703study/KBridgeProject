@@ -199,7 +199,12 @@ function BottomNavigation({ items, onMockNavigate }) {
           type="button"
           key={item.id}
           onClick={() => {
-            if (item.tab === 'dashboard' || item.tab === 'game' || item.tab === 'homework') {
+            if (
+              item.tab === 'dashboard' ||
+              item.tab === 'game' ||
+              item.tab === 'homework' ||
+              item.tab === 'chatbot'
+            ) {
               onMockNavigate(item.tab);
             }
           }}
