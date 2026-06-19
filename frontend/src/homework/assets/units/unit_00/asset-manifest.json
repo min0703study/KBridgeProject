@@ -1,0 +1,110 @@
+[
+  {
+    "key": "hero",
+    "file": "unit00-hero-hangul-learning.png",
+    "source_file": "ChatGPT Image 2026년 6월 16일 오전 10_36_28 (3).png",
+    "size": [
+      900,
+      1125
+    ],
+    "role": "Unit 00 main hero / cover card: Hangul learning with tiger character.",
+    "usage": "Home featured lesson card or lesson intro hero.",
+    "active_for_unit_00": true
+  },
+  {
+    "key": "learning_scene",
+    "file": "unit00-question-hangul-board.png",
+    "source_file": "ChatGPT Image 2026년 6월 16일 오전 10_36_26 (1).png",
+    "size": [
+      900,
+      1125
+    ],
+    "role": "Question illustration: consonant/vowel board and study scene.",
+    "usage": "Word meaning choice / Korean word choice question art.",
+    "active_for_unit_00": true
+  },
+  {
+    "key": "header_icon",
+    "file": "unit00-header-book-ga.png",
+    "source_file": "ChatGPT Image 2026년 6월 16일 오전 10_36_28 (2).png",
+    "size": [
+      420,
+      280
+    ],
+    "role": "Compact progress header icon: book, pencil, ? and ?.",
+    "usage": "Progress header and small lesson card icon.",
+    "active_for_unit_00": true
+  },
+  {
+    "key": "supplies",
+    "file": "unit00-supplies-book-bag-pencil.png",
+    "source_file": "ChatGPT Image 2026년 6월 16일 오전 10_36_30 (8).png",
+    "size": [
+      640,
+      427
+    ],
+    "role": "Supplementary study supplies illustration.",
+    "usage": "More lessons card, result/review decoration, empty state.",
+    "active_for_unit_00": true
+  },
+  {
+    "key": "review_art",
+    "file": "unit00-review-speech-notebook.png",
+    "source_file": "ChatGPT Image 2026년 6월 16일 오전 10_36_29 (5).png",
+    "size": [
+      640,
+      427
+    ],
+    "role": "Review/feedback decoration with speech bubbles and notebook.",
+    "usage": "Mistake review or difficulty feedback decoration.",
+    "active_for_unit_00": true
+  },
+  {
+    "key": "object_question_ref",
+    "file": "reference-unit02-object-question.png",
+    "source_file": "ChatGPT Image 2026년 6월 16일 오전 10_36_30 (7).png",
+    "size": [
+      640,
+      800
+    ],
+    "role": "Reference image, closer to Unit 02 object questions.",
+    "usage": "Keep for later Unit 02 assets, not active in Unit 00.",
+    "active_for_unit_00": false
+  },
+  {
+    "key": "greeting_students_ref",
+    "file": "reference-unit01-greeting-students.png",
+    "source_file": "ChatGPT Image 2026년 6월 16일 오전 10_36_29 (4).png",
+    "size": [
+      640,
+      800
+    ],
+    "role": "Reference image, closer to Unit 01 greetings.",
+    "usage": "Keep for later Unit 01 assets, not active in Unit 00.",
+    "active_for_unit_00": false
+  },
+  {
+    "key": "self_intro_ref",
+    "file": "reference-unit01-self-intro.png",
+    "source_file": "ChatGPT Image 2026년 6월 16일 오전 10_36_29 (6).png",
+    "size": [
+      640,
+      800
+    ],
+    "role": "Reference image, closer to Unit 01 self introduction.",
+    "usage": "Keep for later Unit 01 assets, not active in Unit 00.",
+    "active_for_unit_00": false
+  },
+  {
+    "key": "what_is_this_ref",
+    "file": "reference-unit02-what-is-this.png",
+    "source_file": "ChatGPT Image 2026년 6월 16일 오전 10_36_30 (9).png",
+    "size": [
+      640,
+      800
+    ],
+    "role": "Reference image, closer to Unit 02 ?What is this?? dialogue.",
+    "usage": "Keep for later Unit 02 assets, not active in Unit 00.",
+    "active_for_unit_00": false
+  }
+]

@@ -67,6 +67,7 @@ backend/storage/
 # samples / local-only
 sample_codes/
 sample/
+samples/*
 
 # frontend
 frontend/node_modules/

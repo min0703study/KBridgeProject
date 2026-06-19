@@ -1,0 +1,12 @@
+{
+  "unit_id": "unit_00",
+  "unit_title": "?? ???",
+  "assets": {
+    "hero": "unit00-hero-hangul-learning.png",
+    "headerIcon": "unit00-header-book-ga.png",
+    "questionArt": "unit00-question-hangul-board.png",
+    "reviewArt": "unit00-review-speech-notebook.png",
+    "supplementary": "unit00-supplies-book-bag-pencil.png"
+  },
+  "notes": "Reference images are kept in the same folder but marked active_for_unit_00=false in asset-manifest.json."
+}
