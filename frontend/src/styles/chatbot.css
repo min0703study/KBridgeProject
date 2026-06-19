@@ -31,10 +31,35 @@
 }
 
 .chatbot-session-row span {
+  display: none;
   overflow: hidden;
   min-width: 0;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.chatbot-student-select-label {
+  color: #667892;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.chatbot-student-select {
+  min-width: 0;
+  flex: 1 1 auto;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #2d3748;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.chatbot-student-select:disabled {
+  color: #95a2b5;
 }
 
 .chatbot-reset-button {

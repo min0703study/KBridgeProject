@@ -74,7 +74,15 @@ function ChatbotStatusBar() {
   );
 }
 
-function ChatbotHeader({ profileInitial, selectedStudent, onReset, loadingStudents }) {
+function ChatbotHeader({
+  profileInitial,
+  students,
+  selectedStudentId,
+  selectedStudent,
+  onStudentChange,
+  onReset,
+  loadingStudents,
+}) {
   return (
     <header className="dashboard-header chatbot-header">
       <img
@@ -96,6 +104,29 @@ function ChatbotHeader({ profileInitial, selectedStudent, onReset, loadingStuden
         </button>
       </div>
       <div className="chatbot-session-row">
+        <label className="chatbot-student-select-label" htmlFor="chatbot-student-select">
+          Student
+        </label>
+        <select
+          id="chatbot-student-select"
+          className="chatbot-student-select"
+          value={selectedStudentId}
+          disabled={loadingStudents || students.length === 0}
+          onChange={(event) => onStudentChange(event.target.value)}
+          aria-label="Select student profile"
+        >
+          {loadingStudents ? (
+            <option value="">Loading student...</option>
+          ) : students.length ? (
+            students.map((student) => (
+              <option value={student.id} key={student.id}>
+                {student.name} - {student.visa_type || 'Student'}
+              </option>
+            ))
+          ) : (
+            <option value="">Student unavailable</option>
+          )}
+        </select>
         <span>
           {loadingStudents
             ? 'Loading student...'
@@ -383,6 +414,18 @@ export default function ChatbotMainPage({ onMockNavigate }) {
     setError('');
   }
 
+  function handleStudentChange(studentId) {
+    if (studentId === selectedStudentId) {
+      return;
+    }
+
+    setSelectedStudentId(studentId);
+    setConversationId(makeId('conversation'));
+    setMessages([DEFAULT_GREETING]);
+    setInput('');
+    setError('');
+  }
+
   async function handleSubmit() {
     const text = input.trim();
     if (!text || busy || !selectedStudentId) {
@@ -434,8 +477,11 @@ export default function ChatbotMainPage({ onMockNavigate }) {
         <ChatbotStatusBar />
         <ChatbotHeader
           profileInitial="H"
+          students={students}
+          selectedStudentId={selectedStudentId}
           selectedStudent={selectedStudent}
           loadingStudents={loadingStudents}
+          onStudentChange={handleStudentChange}
           onReset={handleReset}
         />
         <section
