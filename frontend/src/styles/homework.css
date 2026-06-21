@@ -2460,3 +2460,252 @@ img.clipboard-art {
     justify-self: start;
   }
 }
+
+/* Choice labels scale by content length across every multiple-choice page. */
+.homework-shell .choice {
+  min-width: 0;
+  padding: 38px clamp(12px, 3.8vw, 20px) 18px;
+  overflow: hidden;
+}
+
+.homework-shell .choice .choice-text {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--navy);
+  font-weight: 900;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.homework-shell .choice .choice-text-short {
+  font-size: clamp(23px, 6.7vw, 30px);
+}
+
+.homework-shell .choice .choice-text-medium {
+  font-size: clamp(20px, 5.8vw, 27px);
+}
+
+.homework-shell .choice .choice-text-long {
+  font-size: clamp(17px, 4.9vw, 23px);
+  line-height: 1.22;
+}
+
+.homework-shell .choice .choice-text-sentence {
+  font-size: clamp(14px, 4.1vw, 19px);
+  line-height: 1.28;
+}
+
+.homework-shell .choice > small {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(11px, 3vw, 14px);
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 461px) {
+  .homework-shell .choice .choice-text-short {
+    font-size: 30px;
+  }
+
+  .homework-shell .choice .choice-text-medium {
+    font-size: 26px;
+  }
+
+  .homework-shell .choice .choice-text-long {
+    font-size: 22px;
+  }
+
+  .homework-shell .choice .choice-text-sentence {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 380px) {
+  .homework-shell .choice {
+    padding-inline: 10px;
+  }
+
+  .homework-shell .choice .choice-text-short {
+    font-size: clamp(21px, 6.4vw, 25px);
+  }
+
+  .homework-shell .choice .choice-text-medium {
+    font-size: clamp(18px, 5.5vw, 22px);
+  }
+
+  .homework-shell .choice .choice-text-long {
+    font-size: clamp(16px, 4.7vw, 19px);
+  }
+
+  .homework-shell .choice .choice-text-sentence {
+    font-size: clamp(13px, 3.9vw, 16px);
+  }
+}
+
+/* Keep quiz actions reachable without scrolling.
+   The action dock sits above the persistent bottom navigation, while the
+   question content uses only the remaining viewport height. */
+.homework-shell .quiz-screen {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: clamp(8px, 1.2vh, 14px);
+  overflow: hidden;
+  padding-bottom: 102px;
+}
+
+.homework-shell .quiz-screen .back-button {
+  margin-bottom: 0;
+}
+
+.homework-shell .quiz-screen .progress-header {
+  margin-bottom: 0;
+}
+
+.homework-shell .quiz-screen .lesson-progress-card {
+  min-height: clamp(78px, 10vh, 102px);
+}
+
+.homework-shell .quiz-screen .question-card {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: clamp(76px, 9vh, 92px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.homework-shell .quiz-screen .question-card::-webkit-scrollbar {
+  display: none;
+}
+
+.homework-shell .quiz-screen .action-row {
+  position: absolute;
+  right: 16px;
+  bottom: 94px;
+  left: 16px;
+  z-index: 30;
+  margin: 0;
+  padding: 8px 0 2px;
+  background: linear-gradient(
+    180deg,
+    rgba(250, 247, 241, 0) 0%,
+    rgba(250, 247, 241, 0.94) 24%,
+    rgba(250, 247, 241, 0.99) 100%
+  );
+}
+
+.homework-shell .quiz-screen .action-row .primary-button,
+.homework-shell .quiz-screen .action-row .secondary-button {
+  min-height: clamp(50px, 6.5vh, 60px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .question-hero,
+.homework-shell .quiz-screen .question-card.is-checked.choice-question .question-hero {
+  min-height: 0;
+  margin-bottom: clamp(8px, 1vh, 12px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked.choice-question .question-copy {
+  min-height: 0;
+  padding-block: 2px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .question-copy h2 {
+  margin-bottom: 6px;
+  font-size: clamp(25px, 7vw, 32px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .question-copy p {
+  font-size: clamp(14px, 4vw, 17px);
+  line-height: 1.35;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .inline-focus,
+.homework-shell .quiz-screen .question-card.is-checked .romanization.big {
+  margin-top: 7px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .korean-display,
+.homework-shell .quiz-screen .question-card.is-checked .revised-unit-one-question .korean-display.support-removed {
+  margin-top: 8px;
+  font-size: clamp(38px, 10vw, 48px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .choice-grid {
+  gap: clamp(8px, 1vh, 11px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .choice {
+  min-height: clamp(88px, 12vh, 112px);
+  padding-top: 34px;
+  padding-bottom: 12px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .feedback {
+  flex: 0 0 auto;
+  margin-top: clamp(9px, 1.2vh, 13px);
+  padding: 10px 12px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .feedback-copy {
+  gap: 4px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .feedback-copy strong {
+  font-size: clamp(13px, 3.5vw, 15px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .feedback-copy b {
+  font-size: clamp(16px, 4.5vw, 19px);
+}
+
+@media (max-height: 780px) {
+  .homework-shell .quiz-screen {
+    gap: 6px;
+    padding-top: 10px;
+  }
+
+  .homework-shell .quiz-screen .lesson-progress-card {
+    min-height: 72px;
+    padding-block: 8px;
+  }
+
+  .homework-shell .quiz-screen .question-card {
+    padding-top: 14px;
+  }
+
+  .homework-shell .quiz-screen .question-card.is-checked .mode-dot {
+    width: 24px;
+    height: 24px;
+  }
+
+  .homework-shell .quiz-screen .question-card.is-checked .question-copy h2 {
+    font-size: 24px;
+  }
+
+  .homework-shell .quiz-screen .question-card.is-checked .choice {
+    min-height: 78px;
+  }
+}
+
+@media (max-width: 380px) {
+  .homework-shell .quiz-screen .action-row {
+    grid-template-columns: 1fr 1fr;
+    right: 13px;
+    left: 13px;
+  }
+}

@@ -18,6 +18,17 @@ function questionTitle(question) {
   return titles[question.question_type] ?? 'Daily Practice'
 }
 
+function choiceTextSizeClass(text) {
+  const normalized = String(text ?? '').split('/')[0].trim()
+  const compactLength = normalized.replace(/\s+/g, '').length
+  const wordCount = normalized.split(/\s+/).filter(Boolean).length
+
+  if (compactLength >= 13 || wordCount >= 4) return 'choice-text-sentence'
+  if (compactLength >= 9 || wordCount >= 3) return 'choice-text-long'
+  if (compactLength >= 6 || wordCount >= 2) return 'choice-text-medium'
+  return 'choice-text-short'
+}
+
 export default function QuestionCard({ question, answer, setAnswer, checked, grade, onCheck, onDontKnow, onNext, isLast }) {
   const isChoice = Boolean(question.choices?.length)
   const isOrder = Boolean(question.blocks?.length)
@@ -40,7 +51,7 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
       : question.correct_answer
 
   return (
-    <section className={`question-card ${isOrder ? 'order-question' : 'choice-question'} ${isReading ? 'reading-question' : ''} ${isRevisedUnitOne ? 'revised-unit-one-question' : ''}`}>
+    <section className={`question-card ${isOrder ? 'order-question' : 'choice-question'} ${isReading ? 'reading-question' : ''} ${isRevisedUnitOne ? 'revised-unit-one-question' : ''} ${checked ? 'is-checked' : ''}`}>
       <div className="question-hero">
         <div className="question-art" aria-hidden="true">
           <img src={isOrder ? assets.orderArt : assets.questionArt} alt="" />
@@ -93,6 +104,7 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
         <div className="choice-grid">
           {question.choices.map((choice, index) => {
             const [korean, romanization] = String(choice).split('/').map((item) => item?.trim())
+            const choiceSizeClass = choiceTextSizeClass(korean)
             const normalizedCorrectAnswer = Array.isArray(question.correct_answer)
               ? question.correct_answer.join(' ')
               : String(question.correct_answer)
@@ -109,8 +121,8 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
                 <span className="choice-number">{index + 1}</span>
                 {isKoreanChoice && romanization && showRomanization ? <small>{romanization}</small> : null}
                 {isKoreanChoice || /[가-힣]/.test(korean)
-                  ? <SemanticText as="strong" singleLine={isRevisedUnitOne} text={korean} />
-                  : <strong>{choice}</strong>}
+                  ? <strong className={`choice-text ${choiceSizeClass}`} lang="ko">{korean}</strong>
+                  : <strong className={`choice-text ${choiceSizeClass}`}>{choice}</strong>}
               </button>
             )
           })}
