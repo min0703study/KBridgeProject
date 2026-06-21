@@ -42,6 +42,14 @@ function sentenceTextSizeClass(text) {
   return 'sentence-text-short'
 }
 
+function splitDialogueLine(text) {
+  const match = String(text ?? '').match(/^([A-Z]):\s*(.+)$/)
+
+  return match
+    ? { speaker: match[1], content: match[2] }
+    : { speaker: '', content: String(text ?? '') }
+}
+
 export default function QuestionCard({ question, answer, setAnswer, checked, grade, onCheck, onDontKnow, onNext, isLast }) {
   const isChoice = Boolean(question.choices?.length)
   const isOrder = Boolean(question.blocks?.length)
@@ -101,15 +109,23 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
 
       {isReading ? (
         <div className="reading-passage">
-          {question.passage.map((line, index) => (
-            <div className={`passage-line ${isRevisedUnitOne ? 'support-removed' : ''}`} key={`${line.korean}-${index}`}>
-              {isRevisedUnitOne
-                ? <strong className="reading-korean-line">{line.korean}</strong>
-                : <SemanticText as="strong" text={line.korean} />}
-              {showRomanization && line.romanization ? <small>{line.romanization}</small> : null}
-              {!isRevisedUnitOne && line.english ? <span>{line.english}</span> : null}
-            </div>
-          ))}
+          {question.passage.map((line, index) => {
+            const dialogue = splitDialogueLine(line.korean)
+
+            return (
+              <div
+                className={`passage-line ${dialogue.speaker ? 'dialogue-line' : ''} ${dialogue.speaker === 'B' ? 'speaker-b' : ''} ${isRevisedUnitOne ? 'support-removed' : ''}`}
+                key={`${line.korean}-${index}`}
+              >
+                {dialogue.speaker ? <b className="dialogue-speaker">{dialogue.speaker}</b> : null}
+                {isRevisedUnitOne
+                  ? <strong className="reading-korean-line">{dialogue.content}</strong>
+                  : <SemanticText as="strong" text={dialogue.content} />}
+                {showRomanization && line.romanization ? <small>{line.romanization}</small> : null}
+                {!isRevisedUnitOne && line.english ? <span>{line.english}</span> : null}
+              </div>
+            )
+          })}
           <p className="reading-question-prompt">{question.prompt}</p>
         </div>
       ) : null}

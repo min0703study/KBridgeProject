@@ -5,6 +5,14 @@ import { formatAnswer } from '../utils/grading'
 import mistakeClipboardSearch from '../assets/daily-practice-ui/mistake-clipboard-search.png'
 import { SemanticText } from '../utils/koreanText.jsx'
 
+function compareAnswerSizeClass(value) {
+  const length = String(value ?? '').replace(/\s+/g, '').length
+
+  if (length >= 13) return 'compare-answer-xlong'
+  if (length >= 9) return 'compare-answer-long'
+  return 'compare-answer-normal'
+}
+
 export default function MistakeReview({ mistakes, onContinue }) {
   return (
     <main className="screen mistakes-screen">
@@ -29,6 +37,14 @@ export default function MistakeReview({ mistakes, onContinue }) {
           const reviewLabel = String(question.review_label ?? question.target_item)
           const [reviewKorean, embeddedRomanization] = reviewLabel.split('/').map((item) => item?.trim())
           const reviewRomanization = embeddedRomanization || question.romanization
+          const studentAnswer = result.answer_status === 'dontKnow'
+            ? 'Not answered yet'
+            : question.unit_id === 'unit_01'
+              ? String(formatAnswer(result.student_answer)).split('/')[0].trim()
+              : formatAnswer(result.student_answer)
+          const correctAnswer = question.unit_id === 'unit_01'
+            ? String(formatAnswer(question.correct_answer)).split('/')[0].trim()
+            : formatAnswer(question.correct_answer)
 
           return (
           <article className={`review-card ${question.unit_id === 'unit_01' ? 'revised-unit-one-review' : ''}`} key={question.question_id}>
@@ -47,19 +63,9 @@ export default function MistakeReview({ mistakes, onContinue }) {
               </div>
               <div className="compare-grid">
                 <span>My answer</span>
-                <strong>
-                  {result.answer_status === 'dontKnow'
-                    ? 'Not answered yet'
-                    : question.unit_id === 'unit_01'
-                      ? String(formatAnswer(result.student_answer)).split('/')[0].trim()
-                      : formatAnswer(result.student_answer)}
-                </strong>
+                <strong className={compareAnswerSizeClass(studentAnswer)}>{studentAnswer}</strong>
                 <span>Correct answer</span>
-                <strong>
-                  {question.unit_id === 'unit_01'
-                    ? String(formatAnswer(question.correct_answer)).split('/')[0].trim()
-                    : formatAnswer(question.correct_answer)}
-                </strong>
+                <strong className={compareAnswerSizeClass(correctAnswer)}>{correctAnswer}</strong>
               </div>
             </div>
             <p className="why-strip">

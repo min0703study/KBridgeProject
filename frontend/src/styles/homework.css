@@ -2860,3 +2860,512 @@ img.clipboard-art {
     font-size: clamp(13px, 4cqw, 17px);
   }
 }
+
+/* Compact sentence-question layout: keep the prompt on one line and reveal
+   all four answers above the fixed action buttons. */
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus
+  .sentence-korean-line {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+  font-size: clamp(14px, 3.9cqw, 20px) !important;
+  line-height: 1.08;
+  letter-spacing: -0.085em;
+  text-overflow: clip;
+  white-space: nowrap !important;
+  word-break: normal !important;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .question-hero {
+  margin-bottom: clamp(8px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus {
+  margin-top: clamp(8px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .choice-grid {
+  min-height: 0;
+  height: clamp(198px, 27vh, 248px);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .choice {
+  min-height: 0;
+  height: 100%;
+  padding-top: 30px;
+  padding-bottom: 10px;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-sentence_structure_choice
+    )
+    .choice-grid {
+    height: 190px;
+  }
+
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-sentence_structure_choice
+    )
+    .sentence-focus
+    .sentence-korean-line {
+    font-size: clamp(13px, 3.6cqw, 18px) !important;
+  }
+}
+
+/* Use the same compact 2x2 answer layout on every multiple-choice page. */
+.homework-shell .quiz-screen .choice-grid {
+  min-height: 0;
+  height: clamp(198px, 27vh, 248px);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen .choice {
+  min-height: 0;
+  height: 100%;
+  padding-top: clamp(29px, 4vh, 36px);
+  padding-bottom: clamp(8px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen .choice-number {
+  top: clamp(8px, 1.2vh, 11px);
+}
+
+.homework-shell .quiz-screen .reading-question .choice-grid {
+  height: clamp(180px, 24vh, 220px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .choice-grid {
+  height: clamp(176px, 24vh, 218px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .choice {
+  min-height: 0;
+  height: 100%;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen .choice-grid {
+    height: 188px;
+  }
+
+  .homework-shell .quiz-screen .reading-question .choice-grid,
+  .homework-shell .quiz-screen .question-card.is-checked .choice-grid {
+    height: 172px;
+  }
+}
+
+/* Restore comfortable vertical rhythm on vocabulary feedback screens. */
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+  .question-hero {
+  margin-bottom: clamp(16px, 2.2vh, 22px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+  .korean-display,
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+  .inline-focus {
+  margin-bottom: clamp(4px, 0.7vh, 8px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+  .choice-grid {
+  row-gap: clamp(12px, 1.8vh, 17px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+  .feedback {
+  margin-top: clamp(16px, 2.2vh, 22px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice).is-checked
+  .question-hero {
+  margin-bottom: clamp(14px, 2vh, 19px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice).is-checked
+  .choice-grid {
+  row-gap: clamp(11px, 1.6vh, 15px);
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+    .question-hero {
+    margin-bottom: 12px;
+  }
+
+  .homework-shell .quiz-screen
+    :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+    .feedback {
+    margin-top: 12px;
+  }
+}
+
+/* Match the same spacing rhythm across the remaining choice-based pages. */
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-reading_choice,
+    .question-type-situation_expression_choice
+  )
+  .question-hero {
+  margin-bottom: clamp(13px, 1.9vh, 19px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-reading_choice,
+    .question-type-situation_expression_choice
+  )
+  .choice-grid {
+  row-gap: clamp(11px, 1.6vh, 15px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-reading_choice,
+    .question-type-situation_expression_choice
+  )
+  .feedback {
+  margin-top: clamp(14px, 2vh, 20px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-passage {
+  margin-bottom: clamp(14px, 2vh, 20px);
+}
+
+.homework-shell .quiz-screen
+  .question-type-situation_expression_choice
+  .situation-copy {
+  margin-bottom: clamp(5px, 0.8vh, 9px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-reading_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .question-hero {
+  margin-bottom: clamp(11px, 1.6vh, 16px);
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-sentence_structure_choice,
+      .question-type-reading_choice,
+      .question-type-situation_expression_choice
+    )
+    .question-hero {
+    margin-bottom: 10px;
+  }
+
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-sentence_structure_choice,
+      .question-type-reading_choice,
+      .question-type-situation_expression_choice
+    )
+    .feedback {
+    margin-top: 11px;
+  }
+}
+
+/* Reading dialogue: separate speakers from their lines and keep the passage
+   compact enough for the answer choices below. */
+.homework-shell .quiz-screen .question-type-reading_choice .reading-passage {
+  gap: clamp(8px, 1.2vh, 12px);
+  padding: clamp(14px, 2vh, 20px);
+  border-radius: 20px;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .passage-line {
+  min-height: 0;
+  padding: clamp(10px, 1.4vh, 14px) clamp(12px, 3cqw, 16px);
+  border: 0;
+  border-radius: 16px;
+  background: rgba(238, 241, 230, 0.58);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line {
+  grid-template-columns: clamp(30px, 7cqw, 38px) minmax(0, 1fr);
+  column-gap: clamp(8px, 2cqw, 12px);
+  align-items: start;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line.speaker-b {
+  background: rgba(255, 241, 228, 0.72);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-speaker {
+  width: clamp(30px, 7cqw, 38px);
+  height: clamp(30px, 7cqw, 38px);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--sage);
+  color: white;
+  font-size: clamp(14px, 3.5cqw, 18px);
+  line-height: 1;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .speaker-b .dialogue-speaker {
+  background: var(--orange);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line {
+  min-width: 0;
+  color: var(--navy);
+  font-size: clamp(17px, 4.6cqw, 23px);
+  font-weight: 850;
+  line-height: 1.34;
+  letter-spacing: -0.035em;
+  text-align: left;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line > small,
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line > span {
+  grid-column: 2;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-question-prompt {
+  margin: clamp(6px, 1vh, 10px) 2px 0;
+  padding-top: clamp(10px, 1.4vh, 14px);
+  border-top: 1px solid #e7ded2;
+  font-size: clamp(15px, 4cqw, 19px);
+  line-height: 1.3;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen .question-type-reading_choice .reading-passage {
+    gap: 7px;
+    padding: 11px;
+  }
+
+  .homework-shell .quiz-screen .question-type-reading_choice .passage-line {
+    padding: 8px 10px;
+  }
+
+  .homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line {
+    font-size: clamp(15px, 4.1cqw, 20px);
+    line-height: 1.28;
+  }
+}
+
+/* Reading answers stay compact so the dialogue and all four choices share
+   the viewport without pushing the action buttons down. */
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .choice-grid {
+  min-height: 0;
+  height: clamp(156px, 21vh, 190px);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 1.1vh, 11px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .choice {
+  min-height: 0;
+  height: 100%;
+  padding: 27px clamp(9px, 2.5cqw, 13px) 8px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .choice-number {
+  top: 7px;
+  left: 9px;
+  width: clamp(23px, 5.8cqw, 28px);
+  height: clamp(23px, 5.8cqw, 28px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .choice-text-medium {
+  font-size: clamp(17px, 4.8cqw, 22px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice.is-checked
+  .choice-grid {
+  height: clamp(146px, 19.5vh, 176px);
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-reading_choice
+    .choice-grid {
+    height: 150px;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-reading_choice.is-checked
+    .choice-grid {
+    height: 140px;
+  }
+}
+
+/* Short situation expressions such as "안녕히가세요." stay on one line. */
+.homework-shell .quiz-screen
+  .question-card.question-type-situation_expression_choice
+  .choice-text-medium {
+  display: block;
+  overflow: visible;
+  font-size: clamp(16px, 4.4cqw, 21px);
+  line-height: 1.14;
+  letter-spacing: -0.06em;
+  text-overflow: clip;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-situation_expression_choice
+  .choice-text-long {
+  font-size: clamp(14px, 3.8cqw, 18px);
+  line-height: 1.22;
+  letter-spacing: -0.055em;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-situation_expression_choice
+  .choice-text-sentence {
+  font-size: clamp(12px, 3.3cqw, 16px);
+  line-height: 1.24;
+  letter-spacing: -0.045em;
+}
+
+@media (max-width: 380px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-situation_expression_choice
+    .choice-text-medium {
+    font-size: clamp(14px, 4cqw, 18px);
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-situation_expression_choice
+    .choice-text-long {
+    font-size: clamp(13px, 3.6cqw, 16px);
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-situation_expression_choice
+    .choice-text-sentence {
+    font-size: clamp(11px, 3.1cqw, 14px);
+  }
+}
+
+/* Mistake review comparison values stay compact and on one line. */
+.homework-shell .revised-unit-one-review .mistake-content {
+  grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+  gap: clamp(10px, 2.6cqw, 14px);
+}
+
+.homework-shell .revised-unit-one-review .compare-grid {
+  min-width: 0;
+  padding-left: clamp(12px, 3cqw, 17px);
+}
+
+.homework-shell .revised-unit-one-review .compare-grid span {
+  font-size: clamp(11px, 2.9cqw, 14px);
+  line-height: 1.2;
+}
+
+.homework-shell .revised-unit-one-review .compare-grid strong {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(14px, 3.8cqw, 18px);
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  text-overflow: clip;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.homework-shell .revised-unit-one-review .compare-grid .compare-answer-long {
+  font-size: clamp(12px, 3.3cqw, 16px);
+  letter-spacing: -0.055em;
+}
+
+.homework-shell .revised-unit-one-review .compare-grid .compare-answer-xlong {
+  font-size: clamp(10px, 2.8cqw, 14px);
+  letter-spacing: -0.065em;
+}
+
+@media (max-width: 380px) {
+  .homework-shell .revised-unit-one-review .mistake-content {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+
+  .homework-shell .revised-unit-one-review .compare-grid {
+    padding-left: 10px;
+  }
+}
