@@ -29,6 +29,19 @@ function choiceTextSizeClass(text) {
   return 'choice-text-short'
 }
 
+function sentenceTextSizeClass(text) {
+  const normalized = String(text ?? '').trim()
+  const compactLength = normalized.replace(/\s+/g, '').length
+  const spacingWeight = (normalized.match(/\s/g) ?? []).length * 0.7
+  const blankWeight = (normalized.match(/_/g) ?? []).length * 0.45
+  const visualLength = compactLength + spacingWeight + blankWeight
+
+  if (visualLength >= 17) return 'sentence-text-xlong'
+  if (visualLength >= 12) return 'sentence-text-long'
+  if (visualLength >= 8) return 'sentence-text-medium'
+  return 'sentence-text-short'
+}
+
 export default function QuestionCard({ question, answer, setAnswer, checked, grade, onCheck, onDontKnow, onNext, isLast }) {
   const isChoice = Boolean(question.choices?.length)
   const isOrder = Boolean(question.blocks?.length)
@@ -43,6 +56,7 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
   const showSentenceEnglish = !isRevisedUnitOne || ['u01_q13', 'u01_q15'].includes(sourceQuestionId)
   const showSentenceFocus = !isReading && !isOrder && !isSituationExpression
   const isSentenceSupportRemoved = !showRomanization && !showSentenceEnglish
+  const sentenceSizeClass = sentenceTextSizeClass(question.korean)
   const assets = getUnitAssets(question.unit_id)
   const feedbackCorrectAnswer = Array.isArray(question.correct_answer)
     ? question.correct_answer.join(' ')
@@ -51,7 +65,7 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
       : question.correct_answer
 
   return (
-    <section className={`question-card ${isOrder ? 'order-question' : 'choice-question'} ${isReading ? 'reading-question' : ''} ${isRevisedUnitOne ? 'revised-unit-one-question' : ''} ${checked ? 'is-checked' : ''}`}>
+    <section className={`question-card ${isOrder ? 'order-question' : 'choice-question'} question-type-${question.question_type} ${isReading ? 'reading-question' : ''} ${isRevisedUnitOne ? 'revised-unit-one-question' : ''} ${checked ? 'is-checked' : ''}`}>
       <div className="question-hero">
         <div className="question-art" aria-hidden="true">
           <img src={isOrder ? assets.orderArt : assets.questionArt} alt="" />
@@ -75,9 +89,9 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
             <strong className="inline-focus">{question.english_meaning}</strong>
           ) : showSentenceFocus ? (
             <div className={`sentence-focus ${isSentenceSupportRemoved ? 'support-removed' : ''}`}>
-              {isSentenceSupportRemoved
-                ? <strong className="sentence-korean-line">{question.korean}</strong>
-                : <SemanticText as="strong" text={question.korean} />}
+              <strong className={`sentence-korean-line ${sentenceSizeClass}`} lang="ko">
+                {question.korean}
+              </strong>
               {showRomanization && question.romanization ? <small>{question.romanization}</small> : null}
               {showSentenceEnglish && question.english_meaning ? <span>{question.english_meaning}</span> : null}
             </div>

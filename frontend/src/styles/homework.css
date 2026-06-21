@@ -2709,3 +2709,154 @@ img.clipboard-art {
     left: 13px;
   }
 }
+
+/* Sentence-based questions need content-driven height.
+   This prevents the Korean prompt from slipping behind the answer cards. */
+.homework-shell .quiz-screen .question-type-context_fill_choice .question-hero,
+.homework-shell .quiz-screen .question-type-grammar_ending_choice .question-hero,
+.homework-shell .quiz-screen .question-type-sentence_structure_choice .question-hero {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 0;
+  margin-bottom: clamp(14px, 2vh, 20px);
+  overflow: visible;
+}
+
+.homework-shell .quiz-screen .question-type-context_fill_choice .question-copy,
+.homework-shell .quiz-screen .question-type-grammar_ending_choice .question-copy,
+.homework-shell .quiz-screen .question-type-sentence_structure_choice .question-copy {
+  min-height: 0;
+  height: auto;
+  padding-bottom: 0;
+}
+
+.homework-shell .quiz-screen .question-card .sentence-focus {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  margin-top: clamp(12px, 1.7vh, 18px);
+  transform: none;
+}
+
+.homework-shell .quiz-screen .question-card .sentence-focus strong,
+.homework-shell .quiz-screen .question-card .sentence-korean-line {
+  display: block;
+  max-width: 100%;
+  color: var(--navy);
+  font-size: clamp(27px, 7.5vw, 38px);
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.homework-shell .quiz-screen .question-card .sentence-focus.support-removed strong {
+  font-size: clamp(28px, 7.8vw, 40px);
+  line-height: 1.16;
+  white-space: normal;
+}
+
+.homework-shell .quiz-screen .question-type-context_fill_choice .choice-grid,
+.homework-shell .quiz-screen .question-type-grammar_ending_choice .choice-grid,
+.homework-shell .quiz-screen .question-type-sentence_structure_choice .choice-grid,
+.homework-shell .quiz-screen .reading-question .choice-grid {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  min-height: clamp(250px, 34vh, 330px);
+}
+
+.homework-shell .quiz-screen .reading-passage {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked.question-type-context_fill_choice .question-hero,
+.homework-shell .quiz-screen .question-card.is-checked.question-type-grammar_ending_choice .question-hero,
+.homework-shell .quiz-screen .question-card.is-checked.question-type-sentence_structure_choice .question-hero {
+  height: auto;
+  min-height: 0;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-focus {
+  margin-top: 8px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-focus strong,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line {
+  font-size: clamp(24px, 6.6vw, 33px);
+}
+
+@media (max-height: 780px) {
+  .homework-shell .quiz-screen .question-card .sentence-focus strong,
+  .homework-shell .quiz-screen .question-card .sentence-korean-line,
+  .homework-shell .quiz-screen .question-card .sentence-focus.support-removed strong {
+    font-size: clamp(24px, 6.8vw, 32px);
+  }
+
+  .homework-shell .quiz-screen .question-type-context_fill_choice .choice-grid,
+  .homework-shell .quiz-screen .question-type-grammar_ending_choice .choice-grid,
+  .homework-shell .quiz-screen .question-type-sentence_structure_choice .choice-grid,
+  .homework-shell .quiz-screen .reading-question .choice-grid {
+    min-height: 230px;
+  }
+}
+
+/* Keep fill-in and grammar prompts on one line.
+   Font size steps are selected from the actual Korean sentence length. */
+.homework-shell .quiz-screen .question-card .sentence-focus .sentence-korean-line {
+  width: calc(100% - 4px);
+  max-width: calc(100% - 4px);
+  overflow: hidden;
+  line-height: 1.12;
+  letter-spacing: -0.065em;
+  text-overflow: clip;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-short {
+  font-size: clamp(31px, 8.5cqw, 42px);
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-medium {
+  font-size: clamp(24px, 6.5cqw, 32px);
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-long {
+  font-size: clamp(19px, 5.2cqw, 26px);
+  letter-spacing: -0.075em;
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-xlong {
+  font-size: clamp(15px, 4.2cqw, 21px);
+  letter-spacing: -0.085em;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-short {
+  font-size: clamp(28px, 7.6cqw, 37px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-medium {
+  font-size: clamp(22px, 6cqw, 29px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-long {
+  font-size: clamp(18px, 4.9cqw, 24px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-xlong {
+  font-size: clamp(14px, 4cqw, 20px);
+}
+
+@media (max-width: 380px) {
+  .homework-shell .quiz-screen .sentence-korean-line.sentence-text-long {
+    font-size: clamp(17px, 5cqw, 21px);
+  }
+
+  .homework-shell .quiz-screen .sentence-korean-line.sentence-text-xlong {
+    font-size: clamp(13px, 4cqw, 17px);
+  }
+}
