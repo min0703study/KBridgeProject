@@ -1,5 +1,5 @@
 import React from 'react'
-import { BookOpen, CheckCircle2, HelpCircle, MessageCircle, Target, XCircle } from 'lucide-react'
+import { CheckCircle2, HelpCircle, MessageCircle, Target, XCircle } from 'lucide-react'
 import BlockOrder from './BlockOrder'
 import { getUnitAssets } from '../assets/unitAssets'
 import { SemanticText } from '../utils/koreanText.jsx'
@@ -42,12 +42,28 @@ function sentenceTextSizeClass(text) {
   return 'sentence-text-short'
 }
 
+function situationTextSizeClass(text) {
+  const length = String(text ?? '').replace(/\s+/g, '').length
+
+  if (length >= 29) return 'situation-text-long'
+  if (length >= 22) return 'situation-text-medium'
+  return 'situation-text-short'
+}
+
 function splitDialogueLine(text) {
   const match = String(text ?? '').match(/^([A-Z]):\s*(.+)$/)
 
   return match
     ? { speaker: match[1], content: match[2] }
     : { speaker: '', content: String(text ?? '') }
+}
+
+function dialogueTextSizeClass(text) {
+  const length = String(text ?? '').replace(/\s+/g, '').length
+
+  if (length >= 16) return 'dialogue-text-long'
+  if (length >= 12) return 'dialogue-text-medium'
+  return 'dialogue-text-short'
 }
 
 export default function QuestionCard({ question, answer, setAnswer, checked, grade, onCheck, onDontKnow, onNext, isLast }) {
@@ -82,7 +98,11 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
           <div className="mode-dot"><Target size={22} /></div>
           <h2>{questionTitle(question)}</h2>
           <p>{question.prompt}</p>
-          {isSituation ? <p className="situation-copy">{question.situation}</p> : null}
+          {isSituation ? (
+            <p className={`situation-copy ${situationTextSizeClass(question.situation)}`}>
+              {question.situation}
+            </p>
+          ) : null}
           {isMeaningChoice ? (
             <>
               {showRomanization && question.romanization ? <p className="romanization big">{question.romanization}</p> : null}
@@ -119,7 +139,7 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
               >
                 {dialogue.speaker ? <b className="dialogue-speaker">{dialogue.speaker}</b> : null}
                 {isRevisedUnitOne
-                  ? <strong className="reading-korean-line">{dialogue.content}</strong>
+                  ? <strong className={`reading-korean-line ${dialogueTextSizeClass(dialogue.content)}`}>{dialogue.content}</strong>
                   : <SemanticText as="strong" text={dialogue.content} />}
                 {showRomanization && line.romanization ? <small>{line.romanization}</small> : null}
                 {!isRevisedUnitOne && line.english ? <span>{line.english}</span> : null}
@@ -166,7 +186,6 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
             <span><small>English meaning</small><strong>{question.english_meaning}</strong></span>
           </div>
           <BlockOrder blocks={question.blocks} selected={Array.isArray(answer) ? answer : []} onChange={setAnswer} disabled={checked} />
-          <div className="tip-strip"><BookOpen size={24} /><span>Grammar focus: natural word order</span></div>
         </>
       ) : null}
 

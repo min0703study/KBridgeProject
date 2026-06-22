@@ -1,5 +1,5 @@
 import React from 'react'
-import { ChevronLeft } from 'lucide-react'
+import { BookOpen, ChevronLeft } from 'lucide-react'
 import { getUnitAssets } from '../assets/unitAssets'
 
 export function StatusBar() {
@@ -31,13 +31,18 @@ export function LessonProgress({ unit, current, total }) {
   return (
     <section className="lesson-progress-card">
       <WeatherIllustration compact unitId={unit.unit_id} />
-      <div className="lesson-pill">
-        <strong>Lesson {lessonNumber}</strong>
-        <span>•</span>
-        <span>{title}</span>
+      <div className="lesson-progress-copy">
+        <div className="lesson-pill">
+          <BookOpen aria-hidden="true" />
+          <strong>Lesson {lessonNumber}</strong>
+        </div>
+        <span className="lesson-progress-title">{title}</span>
       </div>
       <div className="ring-progress" style={{ '--progress': `${total ? (current / total) * 100 : 0}%` }}>
-        <span aria-label={`${current} of ${total}`}>{current}<small>/</small>{total}</span>
+        <span aria-label={`${current} of ${total}`}>
+          <strong>{current}</strong>
+          <small>/ {total}</small>
+        </span>
       </div>
     </section>
   )
