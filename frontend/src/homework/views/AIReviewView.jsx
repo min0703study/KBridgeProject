@@ -7,6 +7,14 @@ const statusIcon = {
   'Needs Review': CircleAlert,
 }
 
+function focusItemSizeClass(item) {
+  const length = String(item ?? '').replace(/\s+/g, '').length
+
+  if (length >= 9) return 'focus-item-long'
+  if (length >= 6) return 'focus-item-medium'
+  return 'focus-item-short'
+}
+
 export default function AIReviewView({ evaluations, reviewItems, onDone }) {
   const nextFocus = evaluations.flatMap((evaluation) => evaluation.review_items)
   const uniqueFocus = [...new Set(nextFocus)]
@@ -45,7 +53,11 @@ export default function AIReviewView({ evaluations, reviewItems, onDone }) {
       <section className="review-card next-focus-card">
         <h2>Next Review Focus</h2>
         {uniqueFocus.length ? (
-          <div className="chip-row">{uniqueFocus.map((item) => <span key={item}>{item}</span>)}</div>
+          <div className="chip-row next-focus-grid">
+            {uniqueFocus.map((item) => (
+              <span className={focusItemSizeClass(item)} key={item}>{item}</span>
+            ))}
+          </div>
         ) : (
           <p className="meaning">No extra review is needed today.</p>
         )}

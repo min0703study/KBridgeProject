@@ -303,6 +303,7 @@ button {
   margin-left: -2px;
   overflow-x: auto;
   padding: 0 2px 8px;
+  background: transparent;
   scrollbar-width: none;
 }
 
@@ -319,7 +320,7 @@ button {
   gap: 2px;
   padding: 12px 12px 10px;
   background: var(--card);
-  box-shadow: 0 12px 32px rgba(24, 32, 45, 0.08);
+  box-shadow: 0 7px 18px rgba(24, 32, 45, 0.055);
 }
 
 .mini-lesson-card .weather-art { transform: scale(0.72); margin: -10px 0 -4px; }
@@ -349,6 +350,7 @@ button {
   justify-content: center;
   gap: 12px;
   margin-top: 12px;
+  background: transparent;
 }
 
 .pager-dots span {
@@ -2077,16 +2079,19 @@ img.clipboard-art {
   left: 18px;
   z-index: 4;
   min-height: 58px;
-  border: 1px solid rgba(91, 132, 72, 0.24);
+  border: 1px solid rgba(211, 116, 30, 0.48);
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: rgba(238, 241, 230, 0.96);
-  color: var(--sage);
-  box-shadow: 0 10px 24px rgba(24, 32, 45, 0.08);
+  background: linear-gradient(135deg, rgba(255, 244, 222, 0.98), rgba(255, 226, 190, 0.98));
+  color: #a65416;
+  box-shadow:
+    0 10px 24px rgba(184, 91, 18, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   text-align: left;
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
 }
 
 .personalized-ready span,
@@ -2097,11 +2102,31 @@ img.clipboard-art {
 .personalized-ready span {
   font-size: 15px;
   font-weight: 900;
+  letter-spacing: -0.02em;
 }
 
 .personalized-ready strong {
-  color: var(--navy);
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #863b0c;
   font-size: 14px;
+  box-shadow: inset 0 0 0 1px rgba(211, 116, 30, 0.14);
+}
+
+.personalized-ready:hover {
+  background: linear-gradient(135deg, #fff0d0, #ffd9aa);
+  box-shadow:
+    0 13px 28px rgba(184, 91, 18, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+}
+
+.personalized-ready:active {
+  box-shadow:
+    0 6px 15px rgba(184, 91, 18, 0.2),
+    inset 0 2px 5px rgba(166, 84, 22, 0.12);
+  transform: translateY(1px);
 }
 
 .sentence-focus {
@@ -2446,6 +2471,51 @@ img.clipboard-art {
   line-height: 1.5;
 }
 
+.next-focus-card {
+  padding: clamp(18px, 4.6vw, 24px);
+}
+
+.next-focus-card .next-focus-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px 10px;
+  align-items: stretch;
+}
+
+.next-focus-card .next-focus-grid span {
+  min-width: 0;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  border-radius: 16px;
+  font-size: clamp(13px, 3.5vw, 16px);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.next-focus-card .next-focus-grid .focus-item-short {
+  font-size: clamp(14px, 3.8vw, 17px);
+}
+
+.next-focus-card .next-focus-grid .focus-item-medium {
+  font-size: clamp(13px, 3.4vw, 15px);
+}
+
+.next-focus-card .next-focus-grid .focus-item-long {
+  font-size: clamp(11px, 3vw, 14px);
+  letter-spacing: -0.055em;
+}
+
+.next-focus-card .ready-copy {
+  margin-top: 18px;
+  font-size: clamp(13px, 3.4vw, 16px);
+  line-height: 1.45;
+}
+
 @media (max-width: 380px) {
   .action-row {
     grid-template-columns: 1fr;
@@ -2458,6 +2528,14 @@ img.clipboard-art {
   .skill-status {
     grid-column: 2;
     justify-self: start;
+  }
+
+  .next-focus-card .next-focus-grid {
+    gap: 8px;
+  }
+
+  .next-focus-card .next-focus-grid span {
+    padding-inline: 7px;
   }
 }
 
@@ -3367,5 +3445,126 @@ img.clipboard-art {
 
   .homework-shell .revised-unit-one-review .compare-grid {
     padding-left: 10px;
+  }
+}
+
+/* Give checked sentence-structure questions clearer separation between the
+   prompt, answer grid, and feedback card. */
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_structure_choice.is-checked
+  .question-hero {
+  margin-bottom: clamp(16px, 2.2vh, 22px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_structure_choice.is-checked
+  .sentence-focus {
+  margin-bottom: clamp(4px, 0.7vh, 8px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_structure_choice.is-checked
+  .choice-grid {
+  margin-bottom: clamp(17px, 2.3vh, 23px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_structure_choice.is-checked
+  .feedback {
+  margin-top: 0;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_structure_choice.is-checked
+    .question-hero {
+    margin-bottom: 12px;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_structure_choice.is-checked
+    .choice-grid {
+    margin-bottom: 13px;
+  }
+}
+
+/* Apply the checked-state spacing rhythm to the other quiz types that share
+   the same prompt → answers → feedback structure. */
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .question-hero {
+  margin-bottom: clamp(15px, 2.1vh, 21px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .choice-grid {
+  margin-bottom: clamp(16px, 2.2vh, 22px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .feedback {
+  margin-top: 0;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice.is-checked
+  .reading-passage {
+  margin-bottom: clamp(13px, 1.8vh, 18px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice.is-checked
+  .choice-grid {
+  margin-bottom: clamp(14px, 2vh, 19px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice.is-checked
+  .feedback {
+  margin-top: 0;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-situation_expression_choice
+    ).is-checked
+    .question-hero {
+    margin-bottom: 11px;
+  }
+
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-situation_expression_choice
+    ).is-checked
+    .choice-grid,
+  .homework-shell .quiz-screen
+    .question-card.question-type-reading_choice.is-checked
+    .choice-grid {
+    margin-bottom: 12px;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-reading_choice.is-checked
+    .reading-passage {
+    margin-bottom: 10px;
   }
 }

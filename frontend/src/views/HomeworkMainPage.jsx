@@ -1,7 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Gamepad2, LayoutGrid } from 'lucide-react';
 import { buildPersonalizedReview, evaluateSkills } from '../homework/agent/reviewBuilderAgent.js';
-import { mockDraftQuestions, mockUnits } from '../homework/mock/index.js';
+import {
+  MOCK_AI_REVIEW_EVALUATIONS,
+  mockDraftQuestions,
+  mockUnits,
+} from '../homework/mock/index.js';
 import { gradeQuestion } from '../homework/utils/grading.js';
 import AIReviewView from '../homework/views/AIReviewView.jsx';
 import MistakeReview from '../homework/views/MistakeReview.jsx';
@@ -13,6 +17,7 @@ import { MOCK_BOTTOM_NAV_ITEMS } from '../mock/mockDashboardData.js';
 
 const STUDENT_ID = 'student_demo';
 const SESSION_ID = 'session_homework_001';
+const USE_MOCK_AI_REVIEW = true;
 
 function HomeworkBottomNavigation({ onMockNavigate }) {
   return (
@@ -221,7 +226,7 @@ function HomeworkFlow() {
 
   return (
     <AIReviewView
-      evaluations={skillEvaluations}
+      evaluations={USE_MOCK_AI_REVIEW ? MOCK_AI_REVIEW_EVALUATIONS : skillEvaluations}
       reviewItems={reviewItems}
       onDone={finishSession}
     />
