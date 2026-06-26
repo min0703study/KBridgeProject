@@ -17,12 +17,9 @@ import {
   Waves,
   Wifi,
 } from 'lucide-react';
-import { createRoleplaySession } from '../api/roleplayApi.js';
+import { createRoleplaySession, getConvenienceStoreIngame } from '../api/roleplayApi.js';
 import { getMockGameData } from '../mock/mockGameData.js';
 import RoleplayIngamePage from './RoleplayIngamePage.jsx';
-
-const TEMP_LEARNER_ID = '23978a46-2c8e-4e2c-aa1d-4c37380b436e';
-const CONVENIENCE_STORE_SCENARIO_VERSION_ID = '44444444-4444-4444-8444-444444444444';
 
 const MOCK_FILTER_ICONS = {
   retail: ShoppingBag,
@@ -182,11 +179,11 @@ export default function GameMainPage({ onMockNavigate }) {
     setStartingRoleplayId(game.id);
 
     try {
+      const ingameData = await getConvenienceStoreIngame();
       const session = await createRoleplaySession({
-        learnerId: TEMP_LEARNER_ID,
-        scenarioVersionId: CONVENIENCE_STORE_SCENARIO_VERSION_ID,
+        scenarioVersionId: ingameData.version.scenario_version_id,
       });
-      setActiveRoleplay({ game, session });
+      setActiveRoleplay({ game, session, ingameData });
     } catch (error) {
       setStartError(error.message || 'Roleplay session could not be created.');
     } finally {
@@ -198,6 +195,7 @@ export default function GameMainPage({ onMockNavigate }) {
     return (
       <RoleplayIngamePage
         roleplaySessionId={activeRoleplay.session.roleplay_session_id}
+        initialIngameData={activeRoleplay.ingameData}
         onBack={() => setActiveRoleplay(null)}
       />
     );

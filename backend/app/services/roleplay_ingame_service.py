@@ -27,24 +27,24 @@ from backend.app.schemas.roleplay import (
 )
 
 
-LOCATION_ID = UUID("11111111-1111-4111-8111-111111111111")
-CHARACTER_ID = UUID("22222222-2222-4222-8222-222222222222")
-SCENARIO_ID = UUID("33333333-3333-4333-8333-333333333333")
-SCENARIO_VERSION_ID = UUID("44444444-4444-4444-8444-444444444444")
-SCENARIO_LOCATION_ID = UUID("55555555-5555-4555-8555-555555555555")
-SCENARIO_ROLEPLAY_CHARACTER_ID = UUID("66666666-6666-4666-8666-666666666666")
-
-
 class RoleplayIngameNotFoundError(ValueError):
     pass
 
 
 async def get_convenience_store_ingame(session: AsyncSession) -> RoleplayIngameResponse:
-    version = await _get_required_version(session)
-    scenario_location = await _get_required_scenario_location(session)
-    scenario_character = await _get_required_scenario_character(session)
-    step = await _get_required_first_step(session)
-    total_steps = await _get_total_steps(session)
+    version = await get_default_scenario_version(session)
+    step = await get_first_step(session, version.scenario_version_id)
+    scenario_location = await _get_step_or_primary_scenario_location(
+        session,
+        version.scenario_version_id,
+        step.primary_scenario_location_id,
+    )
+    scenario_character = await _get_step_or_primary_scenario_character(
+        session,
+        version.scenario_version_id,
+        step.primary_scenario_roleplay_character_id,
+    )
+    total_steps = await _get_total_steps(session, version.scenario_version_id)
     sample_answers = await _get_step_sample_answers(session, step.step_id)
 
     location = scenario_location.roleplay_location
@@ -110,82 +110,107 @@ async def get_convenience_store_ingame(session: AsyncSession) -> RoleplayIngameR
     )
 
 
-async def _get_required_version(session: AsyncSession) -> ScenarioVersion:
+async def get_default_scenario_version(session: AsyncSession) -> ScenarioVersion:
     result = await session.execute(
         select(ScenarioVersion)
         .options(joinedload(ScenarioVersion.scenario))
-        .where(
-            ScenarioVersion.scenario_version_id == SCENARIO_VERSION_ID,
-            ScenarioVersion.scenario_id == SCENARIO_ID,
+        .where(ScenarioVersion.status != "archived")
+        .order_by(
+            (ScenarioVersion.status == "published").desc(),
+            ScenarioVersion.published_at.desc().nullslast(),
+            ScenarioVersion.created_at.desc(),
         )
+        .limit(1)
     )
     version = result.scalar_one_or_none()
     if version is None:
-        raise RoleplayIngameNotFoundError("Convenience Store scenario version was not found.")
+        raise RoleplayIngameNotFoundError("No roleplay scenario version was found.")
     return version
 
 
-async def _get_required_scenario_location(session: AsyncSession) -> ScenarioLocation:
-    result = await session.execute(
+async def _get_step_or_primary_scenario_location(
+    session: AsyncSession,
+    scenario_version_id: UUID,
+    primary_scenario_location_id: UUID | None,
+) -> ScenarioLocation:
+    query = (
         select(ScenarioLocation)
         .options(
             joinedload(ScenarioLocation.roleplay_location).joinedload(
                 RoleplayLocation.background_image
             )
         )
-        .where(
-            ScenarioLocation.scenario_location_id == SCENARIO_LOCATION_ID,
-            ScenarioLocation.scenario_version_id == SCENARIO_VERSION_ID,
-            ScenarioLocation.roleplay_location_id == LOCATION_ID,
+        .where(ScenarioLocation.scenario_version_id == scenario_version_id)
+    )
+    if primary_scenario_location_id:
+        query = query.where(
+            ScenarioLocation.scenario_location_id == primary_scenario_location_id
         )
+    else:
+        query = query.order_by(
+            ScenarioLocation.is_primary.desc(),
+            ScenarioLocation.display_order.asc(),
+        )
+
+    result = await session.execute(
+        query.limit(1)
     )
     scenario_location = result.scalar_one_or_none()
     if scenario_location is None:
-        raise RoleplayIngameNotFoundError("Convenience Store scenario location was not found.")
+        raise RoleplayIngameNotFoundError("Roleplay scenario location was not found.")
     return scenario_location
 
 
-async def _get_required_scenario_character(session: AsyncSession) -> ScenarioRoleplayCharacter:
-    result = await session.execute(
+async def _get_step_or_primary_scenario_character(
+    session: AsyncSession,
+    scenario_version_id: UUID,
+    primary_scenario_roleplay_character_id: UUID | None,
+) -> ScenarioRoleplayCharacter:
+    query = (
         select(ScenarioRoleplayCharacter)
         .options(
             joinedload(ScenarioRoleplayCharacter.roleplay_character).joinedload(
                 RoleplayCharacter.image_base
             )
         )
-        .where(
+        .where(ScenarioRoleplayCharacter.scenario_version_id == scenario_version_id)
+    )
+    if primary_scenario_roleplay_character_id:
+        query = query.where(
             ScenarioRoleplayCharacter.scenario_roleplay_character_id
-            == SCENARIO_ROLEPLAY_CHARACTER_ID,
-            ScenarioRoleplayCharacter.scenario_version_id == SCENARIO_VERSION_ID,
-            ScenarioRoleplayCharacter.roleplay_character_id == CHARACTER_ID,
+            == primary_scenario_roleplay_character_id
         )
+    else:
+        query = query.order_by(
+            ScenarioRoleplayCharacter.is_primary.desc(),
+            ScenarioRoleplayCharacter.display_order.asc(),
+        )
+
+    result = await session.execute(
+        query.limit(1)
     )
     scenario_character = result.scalar_one_or_none()
     if scenario_character is None:
-        raise RoleplayIngameNotFoundError("Convenience Store roleplay character was not found.")
+        raise RoleplayIngameNotFoundError("Roleplay character was not found.")
     return scenario_character
 
 
-async def _get_required_first_step(session: AsyncSession) -> Step:
+async def get_first_step(session: AsyncSession, scenario_version_id: UUID) -> Step:
     result = await session.execute(
         select(Step)
-        .where(
-            Step.scenario_version_id == SCENARIO_VERSION_ID,
-            Step.primary_scenario_location_id == SCENARIO_LOCATION_ID,
-            Step.primary_scenario_roleplay_character_id == SCENARIO_ROLEPLAY_CHARACTER_ID,
-        )
+        .where(Step.scenario_version_id == scenario_version_id)
         .order_by(Step.step_order.asc())
         .limit(1)
     )
     step = result.scalar_one_or_none()
     if step is None:
-        raise RoleplayIngameNotFoundError("Convenience Store first step was not found.")
+        raise RoleplayIngameNotFoundError("Roleplay first step was not found.")
     return step
 
 
-async def _get_total_steps(session: AsyncSession) -> int:
+async def _get_total_steps(session: AsyncSession, scenario_version_id: UUID) -> int:
     result = await session.execute(
-        select(func.count(Step.step_id)).where(Step.scenario_version_id == SCENARIO_VERSION_ID)
+        select(func.count(Step.step_id)).where(Step.scenario_version_id == scenario_version_id)
     )
     return int(result.scalar_one() or 1)
 

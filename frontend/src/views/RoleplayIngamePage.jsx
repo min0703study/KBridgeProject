@@ -23,7 +23,7 @@ import {
 } from '../api/roleplayApi.js';
 import { createWavRecorder } from '../utils/wavRecorder.js';
 
-const FALLBACK_BACKGROUND_IMAGE = '/roleplay_ingame_image/roleplay_convenience_store_customer.png';
+const FALLBACK_BACKGROUND_IMAGE = '/roleplay_ingame_image/roleplay_university_student.png';
 const FALLBACK_TOTAL_STEPS = 5;
 const TRANSLATION_PENDING_TEXT = 'English translation coming soon.';
 const ENABLE_DEV_MAGIC_ANSWER =
@@ -59,6 +59,26 @@ function getTranslationText(translationJson, preferredLanguage = 'en') {
     translationJson.EN ||
     ''
   );
+}
+
+function buildInitialMessages(payload) {
+  const initialDialogue = payload?.current_step?.character_dialogue_text;
+  const initialDialogueTranslation = getTranslationText(
+    payload?.current_step?.character_dialogue_translation_json,
+    payload?.version?.default_system_language,
+  );
+
+  return initialDialogue
+    ? [
+        {
+          id: `${payload.current_step.step_id}-initial-character-dialogue`,
+          tone: 'customer',
+          ko: initialDialogue,
+          en: initialDialogueTranslation,
+          hasFeedback: false,
+        },
+      ]
+    : [];
 }
 
 function formatStepNumber(stepOrder) {
@@ -354,14 +374,14 @@ function LoadingState({ message }) {
   return <div className="roleplay-state-card">{message}</div>;
 }
 
-export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
-  const [ingameData, setIngameData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+export default function RoleplayIngamePage({ roleplaySessionId, initialIngameData = null, onBack }) {
+  const [ingameData, setIngameData] = useState(initialIngameData);
+  const [isLoading, setIsLoading] = useState(!initialIngameData);
   const [isRecording, setIsRecording] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [draftMessage, setDraftMessage] = useState('');
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => buildInitialMessages(initialIngameData));
   const [feedback, setFeedback] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -378,6 +398,10 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
     let isMounted = true;
 
     async function loadIngameData() {
+      if (initialIngameData) {
+        return;
+      }
+
       setIsLoading(true);
       setErrorMessage('');
 
@@ -388,25 +412,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
         }
 
         setIngameData(payload);
-        const initialDialogue = payload.current_step?.character_dialogue_text;
-        const initialDialogueTranslation = getTranslationText(
-          payload.current_step?.character_dialogue_translation_json,
-          payload.version?.default_system_language,
-        );
-
-        setMessages(
-          initialDialogue
-            ? [
-                {
-                  id: `${payload.current_step.step_id}-initial-character-dialogue`,
-                  tone: 'customer',
-                  ko: initialDialogue,
-                  en: initialDialogueTranslation,
-                  hasFeedback: false,
-                },
-              ]
-            : [],
-        );
+        setMessages(buildInitialMessages(payload));
       } catch (error) {
         if (isMounted) {
           setErrorMessage(error.message || 'Roleplay ingame data could not be loaded.');
@@ -423,7 +429,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, onBack }) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [initialIngameData]);
 
   useEffect(() => {
     return () => {

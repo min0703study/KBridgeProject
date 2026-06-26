@@ -1,15 +1,20 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
-export async function createRoleplaySession({ learnerId, scenarioVersionId }) {
+export async function createRoleplaySession({ learnerId, scenarioVersionId } = {}) {
+  const body = {};
+  if (learnerId) {
+    body.learner_id = learnerId;
+  }
+  if (scenarioVersionId) {
+    body.scenario_version_id = scenarioVersionId;
+  }
+
   const response = await fetch(`${API_BASE_URL}/api/v1/roleplay-sessions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      learner_id: learnerId,
-      scenario_version_id: scenarioVersionId,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
