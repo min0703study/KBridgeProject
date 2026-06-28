@@ -25,16 +25,43 @@ const DEFAULT_GREETING = {
 };
 
 const DEFAULT_SAFETY_HOTLINES = [
-  { label: '자살예방상담', tel: '1393' },
-  { label: '외국인 도움', tel: '1345' },
-  { label: '긴급', tel: '112' },
+  { label: '경찰 (범죄·신변 위협)', tel: '112' },
+  { label: '응급의료·구조', tel: '119' },
+  { label: '24시간 통역 도움', tel: '1330' },
 ];
 
-const SAFETY_QUICK_ACTIONS = [
-  { label: '자살예방상담', tel: '1393', icon: 'heart' },
-  { label: '긴급', tel: '112', icon: 'siren' },
-  { label: '노동상담', tel: '1350', icon: 'briefcase' },
-];
+const SAFETY_QUICK_ACTIONS_BY_SUBTYPE = {
+  emotional_crisis: [
+    { label: '자살예방상담', tel: '1393', icon: 'heart' },
+    { label: '응급', tel: '119', icon: 'siren' },
+    { label: '통역', tel: '1330', icon: 'heart' },
+  ],
+  external_threat: [
+    { label: '경찰', tel: '112', icon: 'siren' },
+    { label: '통역', tel: '1330', icon: 'heart' },
+    { label: '출입국·체류', tel: '1345', icon: 'briefcase' },
+  ],
+  labor_exploitation: [
+    { label: '노동상담', tel: '1350', icon: 'briefcase' },
+    { label: '경찰', tel: '112', icon: 'siren' },
+    { label: '통역', tel: '1330', icon: 'heart' },
+  ],
+  medical_emergency: [
+    { label: '응급', tel: '119', icon: 'siren' },
+    { label: '통역', tel: '1330', icon: 'heart' },
+    { label: '경찰', tel: '112', icon: 'siren' },
+  ],
+  fraud: [
+    { label: '경찰', tel: '112', icon: 'siren' },
+    { label: '통역', tel: '1330', icon: 'heart' },
+    { label: '노동상담', tel: '1350', icon: 'briefcase' },
+  ],
+  default_l3: [
+    { label: '경찰', tel: '112', icon: 'siren' },
+    { label: '응급', tel: '119', icon: 'siren' },
+    { label: '통역', tel: '1330', icon: 'heart' },
+  ],
+};
 
 function makeId(prefix) {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -205,6 +232,9 @@ function SafetyIcon({ icon }) {
 
 function SafetyCard({ card }) {
   const hotlines = card.hotlines?.length ? card.hotlines : DEFAULT_SAFETY_HOTLINES;
+  const quickActions =
+    SAFETY_QUICK_ACTIONS_BY_SUBTYPE[card.red_subtype] ||
+    SAFETY_QUICK_ACTIONS_BY_SUBTYPE.default_l3;
 
   return (
     <section className="safety-response" aria-label="Emergency support contacts">
@@ -232,7 +262,7 @@ function SafetyCard({ card }) {
       </div>
 
       <div className="safety-action-grid">
-        {SAFETY_QUICK_ACTIONS.map((action) => (
+        {quickActions.map((action) => (
           <a className="safety-action-card" href={`tel:${action.tel}`} key={action.tel}>
             <span className="safety-action-icon">
               <SafetyIcon icon={action.icon} />
