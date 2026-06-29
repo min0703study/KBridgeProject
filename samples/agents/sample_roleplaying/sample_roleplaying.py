@@ -7,7 +7,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Literal
+from typing import Any, Callable, Generic, Literal, TypeVar
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -62,6 +62,7 @@ MessageType = Literal[
     "hint",
     "correction_feedback",
 ]
+StructuredOutputT = TypeVar("StructuredOutputT", bound=BaseModel)
 NODE_SEQUENCE = [
     "context_builder",
     "judge",
@@ -282,6 +283,10 @@ def compact_json(value: Any) -> str:
     return json.dumps(json_safe(value), ensure_ascii=False, indent=2)
 
 
+def openai_structured_input(prompt: str) -> str:
+    return "Return a JSON object matching the provided schema.\n\n" + prompt
+
+
 def build_llm_request_trace(
     system_instruction: str,
     prompt: str,
@@ -293,6 +298,7 @@ def build_llm_request_trace(
     thinking_budget: int | None = None,
 ) -> dict[str, Any]:
     provider = model_provider(model_name)
+    actual_prompt = openai_structured_input(prompt) if provider == "openai" else prompt
     config = {
         "temperature": temperature,
         "max_output_tokens": max_output_tokens,
@@ -300,8 +306,9 @@ def build_llm_request_trace(
     if provider == "gemini":
         config["response_mime_type"] = "application/json"
         config["candidate_count"] = candidate_count
+        config["response_schema"] = "Pydantic output model"
     if provider == "openai":
-        config["response_format"] = {"type": "json_object"}
+        config["text_format"] = "Pydantic output model"
     if provider == "gemini" and thinking_budget is not None:
         config["thinking_budget"] = thinking_budget
     return {
@@ -309,7 +316,7 @@ def build_llm_request_trace(
         "provider": provider,
         "config": config,
         "system_instruction": system_instruction,
-        "prompt": prompt,
+        "prompt": actual_prompt,
     }
 
 
@@ -362,6 +369,21 @@ class ResponsePackLLMOutput(BaseModel):
     correction_items: list[CorrectionItemLLMOutput] = Field(default_factory=list)
 
 
+class LLMStructuredResult(Generic[StructuredOutputT]):
+    def __init__(
+        self,
+        *,
+        parsed: StructuredOutputT,
+        raw_text: str,
+        provider: str,
+        model: str,
+    ) -> None:
+        self.parsed = parsed
+        self.raw_text = raw_text
+        self.provider = provider
+        self.model = model
+
+
 for output_model in (
     JudgeLLMOutput,
     ResponseMessageLLMOutput,
@@ -381,6 +403,10 @@ def llm_parse_error_reason(exc: Exception) -> str:
     else:
         detail = str(exc)
     return f"invalid_llm_json_or_schema: {detail[:500]}"
+
+
+def set_llm_error(exc: Exception) -> None:
+    st.session_state["last_provider_error"] = llm_parse_error_reason(exc)
 
 
 def ensure_runtime_tables() -> None:
@@ -826,16 +852,18 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
     used_fallback = True
     fallback_reason = None
     if sample_config.get("use_llm"):
-        raw_response = generate_llm_json(
+        llm_result = generate_llm_structured(
             JUDGE_SYSTEM_INSTRUCTION,
             prompt,
             model_name=model_name,
+            output_model=JudgeLLMOutput,
             max_output_tokens=200,
             thinking_budget=0,
         )
-        if raw_response:
+        if llm_result:
+            raw_response = llm_result.raw_text
             try:
-                state["judge_result"] = normalize_judge_result(parse_judge_response(raw_response))
+                state["judge_result"] = normalize_judge_result(llm_result.parsed.model_dump())
                 used_fallback = False
             except Exception as exc:
                 fallback_reason = llm_parse_error_reason(exc)
@@ -954,35 +982,38 @@ def get_openai_client(api_key_value: str):
     return OpenAI(api_key=api_key_value)
 
 
-def generate_llm_json(
+def generate_llm_structured(
     system_instruction: str,
     prompt: str,
     *,
     model_name: str,
+    output_model: type[StructuredOutputT],
     temperature: float = 0,
     max_output_tokens: int = 256,
     candidate_count: int = 1,
     thinking_budget: int | None = None,
-) -> str | None:
+) -> LLMStructuredResult[StructuredOutputT] | None:
     provider_error = llm_provider_error(model_name)
     if provider_error:
         st.session_state["last_provider_error"] = provider_error
         return None
     if model_provider(model_name) == "gemini":
-        return generate_gemini_json(
+        return generate_gemini_structured(
             system_instruction,
             prompt,
             model_name=model_name,
+            output_model=output_model,
             temperature=temperature,
             max_output_tokens=max_output_tokens,
             candidate_count=candidate_count,
             thinking_budget=thinking_budget,
         )
     if model_provider(model_name) == "openai":
-        return generate_openai_json(
+        return generate_openai_structured(
             system_instruction,
             prompt,
             model_name=model_name,
+            output_model=output_model,
             temperature=temperature,
             max_output_tokens=max_output_tokens,
         )
@@ -990,16 +1021,17 @@ def generate_llm_json(
     return None
 
 
-def generate_gemini_json(
+def generate_gemini_structured(
     system_instruction: str,
     prompt: str,
     *,
     model_name: str,
+    output_model: type[StructuredOutputT],
     temperature: float = 0,
     max_output_tokens: int = 256,
     candidate_count: int = 1,
     thinking_budget: int | None = None,
-) -> str | None:
+) -> LLMStructuredResult[StructuredOutputT] | None:
     key = api_key()
     if not key or genai is None or types is None:
         return None
@@ -1011,6 +1043,7 @@ def generate_gemini_json(
             "temperature": temperature,
             "candidate_count": candidate_count,
             "max_output_tokens": max_output_tokens,
+            "response_schema": output_model,
         }
         if thinking_budget is not None:
             config_kwargs["thinking_config"] = types.ThinkingConfig(
@@ -1031,62 +1064,57 @@ def generate_gemini_json(
                 contents=prompt,
                 config=types.GenerateContentConfig(**config_kwargs),
             )
-        return response.text or ""
+        raw_text = response.text or ""
+        parsed = getattr(response, "parsed", None)
+        if not isinstance(parsed, output_model):
+            parsed = output_model.model_validate_json(raw_text)
+        return LLMStructuredResult(
+            parsed=parsed,
+            raw_text=raw_text,
+            provider="gemini",
+            model=model_name,
+        )
     except Exception as exc:
-        st.session_state["last_provider_error"] = str(exc)
+        set_llm_error(exc)
         return None
 
 
-def generate_openai_json(
+def generate_openai_structured(
     system_instruction: str,
     prompt: str,
     *,
     model_name: str,
+    output_model: type[StructuredOutputT],
     temperature: float = 0,
     max_output_tokens: int = 256,
-) -> str | None:
+) -> LLMStructuredResult[StructuredOutputT] | None:
     key = openai_api_key()
     if not key or OpenAI is None:
         return None
     try:
         client = get_openai_client(key)
-        response = client.responses.create(
+        response = client.responses.parse(
             model=model_name,
             instructions=system_instruction,
-            input=prompt,
-            text={"format": {"type": "json_object"}},
+            input=openai_structured_input(prompt),
+            text_format=output_model,
             temperature=temperature,
             max_output_tokens=max_output_tokens,
         )
         output_text = getattr(response, "output_text", None)
-        if output_text:
-            return output_text
-        response_dict = response.model_dump() if hasattr(response, "model_dump") else {}
-        for output in response_dict.get("output", []):
-            for content in output.get("content", []):
-                text_value = content.get("text")
-                if text_value:
-                    return text_value
-        return ""
+        raw_text = output_text or ""
+        parsed = getattr(response, "output_parsed", None)
+        if not isinstance(parsed, output_model):
+            parsed = output_model.model_validate_json(raw_text)
+        return LLMStructuredResult(
+            parsed=parsed,
+            raw_text=raw_text,
+            provider="openai",
+            model=model_name,
+        )
     except Exception as exc:
-        st.session_state["last_provider_error"] = str(exc)
+        set_llm_error(exc)
         return None
-
-
-def clean_json_response_text(raw_text: str) -> str:
-    cleaned = raw_text.strip()
-    if cleaned.startswith("```"):
-        cleaned = cleaned.strip("`").removeprefix("json").strip()
-    return cleaned
-
-
-def parse_json_response(raw_text: str) -> dict[str, Any]:
-    cleaned = clean_json_response_text(raw_text)
-    return json.loads(cleaned)
-
-
-def parse_judge_response(raw_text: str) -> dict[str, Any]:
-    return JudgeLLMOutput.model_validate_json(clean_json_response_text(raw_text)).model_dump()
 
 
 def normalize_judge_result(result: dict[str, Any]) -> dict[str, Any]:
@@ -1297,14 +1325,16 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
     fallback_reason = None
     response_pack = {"message_drafts": [], "correction_items": []}
     if sample_config.get("use_llm"):
-        raw_response = generate_llm_json(
+        llm_result = generate_llm_structured(
             RESPONSE_PACK_SYSTEM_INSTRUCTION,
             prompt,
             model_name=model_name,
+            output_model=ResponsePackLLMOutput,
         )
-        if raw_response:
+        if llm_result:
+            raw_response = llm_result.raw_text
             try:
-                response_pack = parse_response_pack_response(raw_response)
+                response_pack = llm_result.parsed.model_dump()
                 used_fallback = False
             except Exception as exc:
                 fallback_reason = llm_parse_error_reason(exc)
@@ -1433,10 +1463,6 @@ def response_main_task(progress_outcome: str) -> str:
     if progress_outcome == "complete_session":
         return "Give a concise completion response."
     return "Continue the roleplay naturally."
-
-
-def parse_response_pack_response(raw_text: str) -> dict[str, Any]:
-    return ResponsePackLLMOutput.model_validate_json(clean_json_response_text(raw_text)).model_dump()
 
 
 def normalize_response_pack(state: dict[str, Any], response_pack: dict[str, Any]) -> dict[str, Any]:
