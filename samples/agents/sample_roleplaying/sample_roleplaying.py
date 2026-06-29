@@ -177,7 +177,7 @@ def gemini_judge_model() -> str:
 
 
 def gemini_response_model() -> str:
-    return load_dotenv_value("GEMINI_RESPONSE_MODEL") or "gemini-3.5-flash"
+    return load_dotenv_value("GEMINI_RESPONSE_MODEL") or "gemini-3.1-flash-lite"
 
 
 def parse_json_maybe(value: Any) -> Any:
@@ -229,6 +229,22 @@ def build_llm_request_trace(
         "config": config,
         "system_instruction": system_instruction,
         "prompt": prompt,
+    }
+
+
+def build_llm_response_trace(
+    *,
+    model_name: str,
+    raw_response: str | None,
+    used_fallback: bool,
+    fallback_reason: str | None,
+) -> dict[str, Any]:
+    return {
+        "model": model_name,
+        "used_fallback": used_fallback,
+        "fallback_reason": fallback_reason,
+        "raw_response": raw_response or "",
+        "raw_response_preview": (raw_response or "")[:1200],
     }
 
 
@@ -672,6 +688,7 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
     )
     raw_response = None
     used_fallback = True
+    fallback_reason = None
     if state.get("_sample_config", {}).get("use_gemini"):
         raw_response = generate_gemini_json(
             JUDGE_SYSTEM_INSTRUCTION,
@@ -685,16 +702,27 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
                 state["judge_result"] = normalize_judge_result(parse_json_response(raw_response))
                 used_fallback = False
             except Exception:
+                fallback_reason = "invalid_llm_json_or_schema"
                 state["judge_result"] = heuristic_judge_result(state)
         else:
+            fallback_reason = st.session_state.get("last_provider_error") or "empty_llm_response"
             state["judge_result"] = heuristic_judge_result(state)
     else:
+        fallback_reason = "gemini_disabled"
         state["judge_result"] = heuristic_judge_result(state)
+    if not used_fallback:
+        fallback_reason = None
 
     set_node_output(
         state,
         {
             "llm_request": llm_request,
+            "llm_response": build_llm_response_trace(
+                model_name=model_name,
+                raw_response=raw_response,
+                used_fallback=used_fallback,
+                fallback_reason=fallback_reason,
+            ),
             "judge_result": state["judge_result"],
             "used_fallback": used_fallback,
             "raw_response_preview": (raw_response or "")[:1200],
@@ -1043,6 +1071,7 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
     )
     raw_response = None
     used_fallback = True
+    fallback_reason = None
     response_pack = {"message_drafts": [], "correction_items": []}
     if state.get("_sample_config", {}).get("use_gemini"):
         raw_response = generate_gemini_json(
@@ -1055,7 +1084,14 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
                 response_pack = parse_response_pack_response(raw_response)
                 used_fallback = False
             except Exception:
+                fallback_reason = "invalid_llm_json_or_schema"
                 response_pack = {"message_drafts": [], "correction_items": []}
+        else:
+            fallback_reason = st.session_state.get("last_provider_error") or "empty_llm_response"
+    else:
+        fallback_reason = "gemini_disabled"
+    if not used_fallback:
+        fallback_reason = None
     response_pack = normalize_response_pack(state, response_pack)
     response_pack = ensure_minimum_response_pack(state, response_pack)
     response_pack = normalize_response_pack(state, response_pack)
@@ -1064,6 +1100,12 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
         state,
         {
             "llm_request": llm_request,
+            "llm_response": build_llm_response_trace(
+                model_name=model_name,
+                raw_response=raw_response,
+                used_fallback=used_fallback,
+                fallback_reason=fallback_reason,
+            ),
             "next_step": state.get("next_step"),
             "response_pack": response_pack,
             "used_fallback": used_fallback,
@@ -1789,6 +1831,20 @@ def render_llm_request(llm_request: dict[str, Any]) -> None:
     st.code(llm_request.get("prompt") or "", language="json")
 
 
+def render_llm_response(llm_response: dict[str, Any]) -> None:
+    st.markdown(f"**Model used**: `{llm_response.get('model')}`")
+    if llm_response.get("used_fallback"):
+        st.warning(f"Fallback used: {llm_response.get('fallback_reason') or 'unknown'}")
+    else:
+        st.success("LLM response was used.")
+    st.markdown("**Raw response**")
+    raw_response = llm_response.get("raw_response") or ""
+    if raw_response:
+        st.code(raw_response, language="json")
+    else:
+        st.caption("No raw LLM response was returned.")
+
+
 def render_node_logs(logs: list[dict[str, Any]]) -> None:
     st.subheader("Node Trace")
     if not logs:
@@ -1803,9 +1859,12 @@ def render_node_logs(logs: list[dict[str, Any]]) -> None:
                 st.error(log["error"])
             node_output = log.get("node_output") or {}
             llm_request = node_output.get("llm_request")
+            llm_response = node_output.get("llm_response")
             tab_labels = ["Node input"]
             if llm_request:
                 tab_labels.append("LLM input")
+            if llm_response:
+                tab_labels.append("LLM output")
             tab_labels.extend(["Node output", "State update"])
             tabs = st.tabs(tab_labels)
             tab_index = 0
@@ -1815,6 +1874,10 @@ def render_node_logs(logs: list[dict[str, Any]]) -> None:
             if llm_request:
                 llm_tab = tabs[tab_index]
                 tab_index += 1
+            llm_output_tab = None
+            if llm_response:
+                llm_output_tab = tabs[tab_index]
+                tab_index += 1
             output_tab = tabs[tab_index]
             update_tab = tabs[tab_index + 1]
             with input_tab:
@@ -1822,9 +1885,18 @@ def render_node_logs(logs: list[dict[str, Any]]) -> None:
             if llm_tab:
                 with llm_tab:
                     render_llm_request(llm_request)
+            if llm_output_tab:
+                with llm_output_tab:
+                    render_llm_response(llm_response)
             with output_tab:
                 st.markdown("**Node output**")
-                st.json({key: value for key, value in node_output.items() if key != "llm_request"})
+                st.json(
+                    {
+                        key: value
+                        for key, value in node_output.items()
+                        if key not in {"llm_request", "llm_response"}
+                    }
+                )
             with update_tab:
                 st.markdown("**State update**")
                 st.json(log.get("state_update") or {})
