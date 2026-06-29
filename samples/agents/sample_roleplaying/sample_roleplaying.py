@@ -605,7 +605,12 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
     raw_response = None
     used_fallback = True
     if state.get("_sample_config", {}).get("use_gemini"):
-        raw_response = generate_gemini_json(JUDGE_SYSTEM_INSTRUCTION, prompt)
+        raw_response = generate_gemini_json(
+            JUDGE_SYSTEM_INSTRUCTION,
+            prompt,
+            max_output_tokens=200,
+            thinking_budget=0,
+        )
         if raw_response:
             try:
                 state["judge_result"] = normalize_judge_result(parse_json_response(raw_response))
@@ -674,15 +679,18 @@ def build_judge_prompt(state: dict[str, Any]) -> str:
             for message in state.get("recent_messages", [])
         ],
         "step_sample_answers": state.get("step_sample_answers", []),
-        "judge_rules": [
-            "Evaluate intent before grammar.",
-            "pass means the step goal is clearly achieved with no major expression issue.",
-            "soft_pass means the step goal is achieved but expression improvement is needed.",
-            "fail means the step goal is not achieved, unclear, or off-topic.",
-            "Do not mark a cultural issue unless the learner input clearly contains one.",
-        ],
+        "evaluation_criteria": build_step_evaluation_criteria(state),
     }
     return compact_json(prompt_payload)
+
+
+def build_step_evaluation_criteria(state: dict[str, Any]) -> dict[str, Any]:
+    current_step = state["current_step"]
+    return {
+        "step_goal": current_step.get("step_goal"),
+        "roleplay_guidance_text": current_step.get("roleplay_guidance_text"),
+        "acceptable_sample_answers": state.get("step_sample_answers", []),
+    }
 
 
 @st.cache_resource
@@ -690,22 +698,46 @@ def get_gemini_client(api_key_value: str):
     return genai.Client(api_key=api_key_value)
 
 
-def generate_gemini_json(system_instruction: str, prompt: str) -> str | None:
+def generate_gemini_json(
+    system_instruction: str,
+    prompt: str,
+    *,
+    temperature: float = 0,
+    max_output_tokens: int = 256,
+    candidate_count: int = 1,
+    thinking_budget: int | None = None,
+) -> str | None:
     key = api_key()
     if not key or genai is None or types is None:
         return None
     try:
         client = get_gemini_client(key)
-        response = client.models.generate_content(
-            model=gemini_model(),
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                temperature=0,
-                max_output_tokens=256,
-            ),
-        )
+        config_kwargs = {
+            "system_instruction": system_instruction,
+            "response_mime_type": "application/json",
+            "temperature": temperature,
+            "candidate_count": candidate_count,
+            "max_output_tokens": max_output_tokens,
+        }
+        if thinking_budget is not None:
+            config_kwargs["thinking_config"] = types.ThinkingConfig(
+                thinking_budget=thinking_budget,
+            )
+        try:
+            response = client.models.generate_content(
+                model=gemini_model(),
+                contents=prompt,
+                config=types.GenerateContentConfig(**config_kwargs),
+            )
+        except Exception:
+            if thinking_budget is None:
+                raise
+            config_kwargs.pop("thinking_config", None)
+            response = client.models.generate_content(
+                model=gemini_model(),
+                contents=prompt,
+                config=types.GenerateContentConfig(**config_kwargs),
+            )
         return response.text or ""
     except Exception as exc:
         st.session_state["last_provider_error"] = str(exc)
