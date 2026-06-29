@@ -20,6 +20,11 @@ except Exception:  # pragma: no cover - the UI shows a clear fallback state.
     types = None
 
 try:
+    from openai import OpenAI
+except Exception:  # pragma: no cover - OpenAI is optional for this sample.
+    OpenAI = None
+
+try:
     from langgraph.graph import END, START, StateGraph
 except Exception:  # pragma: no cover - sequential fallback keeps the sample usable.
     END = START = StateGraph = None
@@ -34,6 +39,10 @@ import sample_roleplaying_db as sample_db
 
 LEARNER_ID = "23978a46-2c8e-4e2c-aa1d-4c37380b436e"
 INPUT_METHOD = "text"
+LLM_MODEL_OPTIONS = {
+    "Gemini 3.1 Flash Lite": "gemini-3.1-flash-lite",
+    "GPT-5.4 mini": "gpt-5.4-mini",
+}
 NODE_SEQUENCE = [
     "context_builder",
     "judge",
@@ -172,12 +181,60 @@ def api_key() -> str | None:
     return load_dotenv_value("GEMINI_API_KEY") or load_dotenv_value("GOOGLE_API_KEY")
 
 
-def gemini_judge_model() -> str:
-    return load_dotenv_value("GEMINI_JUDGE_MODEL") or "gemini-3.1-flash-lite"
+def openai_api_key() -> str | None:
+    return load_dotenv_value("OPENAI_API_KEY")
 
 
-def gemini_response_model() -> str:
-    return load_dotenv_value("GEMINI_RESPONSE_MODEL") or "gemini-3.1-flash-lite"
+def default_judge_model() -> str:
+    return (
+        load_dotenv_value("JUDGE_LLM_MODEL")
+        or load_dotenv_value("GEMINI_JUDGE_MODEL")
+        or "gemini-3.1-flash-lite"
+    )
+
+
+def default_response_model() -> str:
+    return (
+        load_dotenv_value("RESPONSE_LLM_MODEL")
+        or load_dotenv_value("GEMINI_RESPONSE_MODEL")
+        or "gemini-3.1-flash-lite"
+    )
+
+
+def model_provider(model_name: str) -> str:
+    if model_name.startswith("gemini-"):
+        return "gemini"
+    if model_name.startswith("gpt-"):
+        return "openai"
+    return "unknown"
+
+
+def llm_provider_error(model_name: str) -> str | None:
+    provider = model_provider(model_name)
+    if provider == "gemini":
+        if genai is None or types is None:
+            return "google-genai package is not available."
+        if not api_key():
+            return "No GEMINI_API_KEY or GOOGLE_API_KEY was found."
+        return None
+    if provider == "openai":
+        if OpenAI is None:
+            return "openai package is not available."
+        if not openai_api_key():
+            return "No OPENAI_API_KEY was found."
+        return None
+    return f"Unsupported LLM model: {model_name}"
+
+
+def any_llm_provider_ready() -> bool:
+    return any(llm_provider_error(model_name) is None for model_name in LLM_MODEL_OPTIONS.values())
+
+
+def option_label_for_model(model_name: str) -> str:
+    for label, value in LLM_MODEL_OPTIONS.items():
+        if value == model_name:
+            return label
+    return next(iter(LLM_MODEL_OPTIONS))
 
 
 def parse_json_maybe(value: Any) -> Any:
@@ -216,16 +273,21 @@ def build_llm_request_trace(
     candidate_count: int = 1,
     thinking_budget: int | None = None,
 ) -> dict[str, Any]:
+    provider = model_provider(model_name)
     config = {
-        "response_mime_type": "application/json",
         "temperature": temperature,
-        "candidate_count": candidate_count,
         "max_output_tokens": max_output_tokens,
     }
-    if thinking_budget is not None:
+    if provider == "gemini":
+        config["response_mime_type"] = "application/json"
+        config["candidate_count"] = candidate_count
+    if provider == "openai":
+        config["response_format"] = {"type": "json_object"}
+    if provider == "gemini" and thinking_budget is not None:
         config["thinking_budget"] = thinking_budget
     return {
         "model": model_name,
+        "provider": provider,
         "config": config,
         "system_instruction": system_instruction,
         "prompt": prompt,
@@ -678,7 +740,8 @@ def extract_last_message(messages: list[dict[str, Any]], sender_type: str) -> st
 
 def judge_node(state: dict[str, Any]) -> dict[str, Any]:
     prompt = build_judge_prompt(state)
-    model_name = gemini_judge_model()
+    sample_config = state.get("_sample_config", {})
+    model_name = sample_config.get("judge_model") or default_judge_model()
     llm_request = build_llm_request_trace(
         JUDGE_SYSTEM_INSTRUCTION,
         prompt,
@@ -689,8 +752,8 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
     raw_response = None
     used_fallback = True
     fallback_reason = None
-    if state.get("_sample_config", {}).get("use_gemini"):
-        raw_response = generate_gemini_json(
+    if sample_config.get("use_llm"):
+        raw_response = generate_llm_json(
             JUDGE_SYSTEM_INSTRUCTION,
             prompt,
             model_name=model_name,
@@ -708,7 +771,7 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
             fallback_reason = st.session_state.get("last_provider_error") or "empty_llm_response"
             state["judge_result"] = heuristic_judge_result(state)
     else:
-        fallback_reason = "gemini_disabled"
+        fallback_reason = "llm_disabled"
         state["judge_result"] = heuristic_judge_result(state)
     if not used_fallback:
         fallback_reason = None
@@ -813,6 +876,47 @@ def get_gemini_client(api_key_value: str):
     return genai.Client(api_key=api_key_value)
 
 
+@st.cache_resource
+def get_openai_client(api_key_value: str):
+    return OpenAI(api_key=api_key_value)
+
+
+def generate_llm_json(
+    system_instruction: str,
+    prompt: str,
+    *,
+    model_name: str,
+    temperature: float = 0,
+    max_output_tokens: int = 256,
+    candidate_count: int = 1,
+    thinking_budget: int | None = None,
+) -> str | None:
+    provider_error = llm_provider_error(model_name)
+    if provider_error:
+        st.session_state["last_provider_error"] = provider_error
+        return None
+    if model_provider(model_name) == "gemini":
+        return generate_gemini_json(
+            system_instruction,
+            prompt,
+            model_name=model_name,
+            temperature=temperature,
+            max_output_tokens=max_output_tokens,
+            candidate_count=candidate_count,
+            thinking_budget=thinking_budget,
+        )
+    if model_provider(model_name) == "openai":
+        return generate_openai_json(
+            system_instruction,
+            prompt,
+            model_name=model_name,
+            temperature=temperature,
+            max_output_tokens=max_output_tokens,
+        )
+    st.session_state["last_provider_error"] = f"Unsupported LLM model: {model_name}"
+    return None
+
+
 def generate_gemini_json(
     system_instruction: str,
     prompt: str,
@@ -855,6 +959,42 @@ def generate_gemini_json(
                 config=types.GenerateContentConfig(**config_kwargs),
             )
         return response.text or ""
+    except Exception as exc:
+        st.session_state["last_provider_error"] = str(exc)
+        return None
+
+
+def generate_openai_json(
+    system_instruction: str,
+    prompt: str,
+    *,
+    model_name: str,
+    temperature: float = 0,
+    max_output_tokens: int = 256,
+) -> str | None:
+    key = openai_api_key()
+    if not key or OpenAI is None:
+        return None
+    try:
+        client = get_openai_client(key)
+        response = client.responses.create(
+            model=model_name,
+            instructions=system_instruction,
+            input=prompt,
+            text={"format": {"type": "json_object"}},
+            temperature=temperature,
+            max_output_tokens=max_output_tokens,
+        )
+        output_text = getattr(response, "output_text", None)
+        if output_text:
+            return output_text
+        response_dict = response.model_dump() if hasattr(response, "model_dump") else {}
+        for output in response_dict.get("output", []):
+            for content in output.get("content", []):
+                text_value = content.get("text")
+                if text_value:
+                    return text_value
+        return ""
     except Exception as exc:
         st.session_state["last_provider_error"] = str(exc)
         return None
@@ -1056,6 +1196,7 @@ def decide_hint_level(current_step_fail_count_after: int) -> str:
 
 
 def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
+    sample_config = state.get("_sample_config", {})
     rule_decision = state["rule_decision"]
     state["next_step"] = (
         serialize_step(find_one(sample_db.STEPS, "step_id", rule_decision["next_step_id"]))
@@ -1063,7 +1204,7 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
         else None
     )
     prompt = build_response_pack_prompt(state)
-    model_name = gemini_response_model()
+    model_name = sample_config.get("response_model") or default_response_model()
     llm_request = build_llm_request_trace(
         RESPONSE_PACK_SYSTEM_INSTRUCTION,
         prompt,
@@ -1073,8 +1214,8 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
     used_fallback = True
     fallback_reason = None
     response_pack = {"message_drafts": [], "correction_items": []}
-    if state.get("_sample_config", {}).get("use_gemini"):
-        raw_response = generate_gemini_json(
+    if sample_config.get("use_llm"):
+        raw_response = generate_llm_json(
             RESPONSE_PACK_SYSTEM_INSTRUCTION,
             prompt,
             model_name=model_name,
@@ -1089,7 +1230,7 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
         else:
             fallback_reason = st.session_state.get("last_provider_error") or "empty_llm_response"
     else:
-        fallback_reason = "gemini_disabled"
+        fallback_reason = "llm_disabled"
     if not used_fallback:
         fallback_reason = None
     response_pack = normalize_response_pack(state, response_pack)
@@ -1772,14 +1913,24 @@ def build_graph_runner() -> Callable[[dict[str, Any]], dict[str, Any]]:
     return compiled.invoke
 
 
-def run_roleplay_turn(text: str, *, use_gemini: bool) -> dict[str, Any]:
+def run_roleplay_turn(
+    text: str,
+    *,
+    use_llm: bool,
+    judge_model: str,
+    response_model: str,
+) -> dict[str, Any]:
     state = build_initial_state(
         roleplay_session_id=st.session_state["roleplay_session_id"],
         learner_id=LEARNER_ID,
         learner_input_text=text,
         input_method=INPUT_METHOD,
     )
-    state["_sample_config"] = {"use_gemini": use_gemini}
+    state["_sample_config"] = {
+        "use_llm": use_llm,
+        "judge_model": judge_model,
+        "response_model": response_model,
+    }
     runner = build_graph_runner()
     return runner(state)
 
@@ -1927,7 +2078,7 @@ def main() -> None:
     session = current_session()
     step = current_step_for_ui()
     total_steps = len(sorted_steps())
-    use_gemini_default = bool(api_key() and genai is not None)
+    use_llm_default = any_llm_provider_ready()
 
     st.title("Roleplaying Sample")
 
@@ -1938,11 +2089,29 @@ def main() -> None:
             st.session_state["last_node_logs"] = []
             st.session_state["last_provider_error"] = None
             st.rerun()
-        use_gemini = st.checkbox("Use Gemini nodes", value=use_gemini_default)
-        st.caption(f"Judge model: {gemini_judge_model()}")
-        st.caption(f"Response model: {gemini_response_model()}")
-        if use_gemini and not api_key():
-            st.warning("No GEMINI_API_KEY or GOOGLE_API_KEY was found. Local fallback will be used.")
+        use_llm = st.checkbox("Use LLM nodes", value=use_llm_default)
+        model_labels = list(LLM_MODEL_OPTIONS)
+        judge_model_label = st.selectbox(
+            "Judge node model",
+            model_labels,
+            index=model_labels.index(option_label_for_model(default_judge_model())),
+            disabled=not use_llm,
+        )
+        response_model_label = st.selectbox(
+            "Response Pack model",
+            model_labels,
+            index=model_labels.index(option_label_for_model(default_response_model())),
+            disabled=not use_llm,
+        )
+        judge_model = LLM_MODEL_OPTIONS[judge_model_label]
+        response_model = LLM_MODEL_OPTIONS[response_model_label]
+        st.caption(f"Judge model: {judge_model}")
+        st.caption(f"Response model: {response_model}")
+        if use_llm:
+            for node_label, model_name in [("Judge", judge_model), ("Response Pack", response_model)]:
+                provider_error = llm_provider_error(model_name)
+                if provider_error:
+                    st.warning(f"{node_label} model fallback: {provider_error}")
         if st.session_state.get("last_provider_error"):
             st.warning(f"Provider fallback: {st.session_state['last_provider_error']}")
         st.metric("Life", session["remaining_chances"])
@@ -1968,7 +2137,12 @@ def main() -> None:
             learner_text = st.chat_input("Type your Korean reply")
             if learner_text:
                 try:
-                    final_state = run_roleplay_turn(learner_text, use_gemini=use_gemini)
+                    final_state = run_roleplay_turn(
+                        learner_text,
+                        use_llm=use_llm,
+                        judge_model=judge_model,
+                        response_model=response_model,
+                    )
                     st.session_state["last_node_logs"] = final_state.get("_node_logs", [])
                 except Exception as exc:
                     st.error(str(exc))
