@@ -172,6 +172,32 @@ def compact_json(value: Any) -> str:
     return json.dumps(json_safe(value), ensure_ascii=False, indent=2)
 
 
+def build_llm_request_trace(
+    system_instruction: str,
+    prompt: str,
+    *,
+    model_name: str,
+    temperature: float = 0,
+    max_output_tokens: int = 256,
+    candidate_count: int = 1,
+    thinking_budget: int | None = None,
+) -> dict[str, Any]:
+    config = {
+        "response_mime_type": "application/json",
+        "temperature": temperature,
+        "candidate_count": candidate_count,
+        "max_output_tokens": max_output_tokens,
+    }
+    if thinking_budget is not None:
+        config["thinking_budget"] = thinking_budget
+    return {
+        "model": model_name,
+        "config": config,
+        "system_instruction": system_instruction,
+        "prompt": prompt,
+    }
+
+
 def ensure_runtime_tables() -> None:
     for name in [
         "ROLEPLAY_SESSIONS",
@@ -404,6 +430,7 @@ def timed_node(name: str, fn: Callable[[dict[str, Any]], dict[str, Any]]) -> Cal
             {
                 "node": name,
                 "elapsed_ms": elapsed_ms,
+                "node_input": before,
                 "node_output": node_output,
                 "state_update": state_diff(before, after),
                 "error": error,
@@ -601,13 +628,21 @@ def extract_last_message(messages: list[dict[str, Any]], sender_type: str) -> st
 
 def judge_node(state: dict[str, Any]) -> dict[str, Any]:
     prompt = build_judge_prompt(state)
+    model_name = gemini_judge_model()
+    llm_request = build_llm_request_trace(
+        JUDGE_SYSTEM_INSTRUCTION,
+        prompt,
+        model_name=model_name,
+        max_output_tokens=200,
+        thinking_budget=0,
+    )
     raw_response = None
     used_fallback = True
     if state.get("_sample_config", {}).get("use_gemini"):
         raw_response = generate_gemini_json(
             JUDGE_SYSTEM_INSTRUCTION,
             prompt,
-            model_name=gemini_judge_model(),
+            model_name=model_name,
             max_output_tokens=200,
             thinking_budget=0,
         )
@@ -625,6 +660,7 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
     set_node_output(
         state,
         {
+            "llm_request": llm_request,
             "judge_result": state["judge_result"],
             "used_fallback": used_fallback,
             "raw_response_preview": (raw_response or "")[:1200],
@@ -965,6 +1001,12 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
         else None
     )
     prompt = build_response_pack_prompt(state)
+    model_name = gemini_response_model()
+    llm_request = build_llm_request_trace(
+        RESPONSE_PACK_SYSTEM_INSTRUCTION,
+        prompt,
+        model_name=model_name,
+    )
     raw_response = None
     used_fallback = True
     response_pack = {"message_drafts": [], "correction_items": []}
@@ -972,7 +1014,7 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
         raw_response = generate_gemini_json(
             RESPONSE_PACK_SYSTEM_INSTRUCTION,
             prompt,
-            model_name=gemini_response_model(),
+            model_name=model_name,
         )
         if raw_response:
             try:
@@ -985,6 +1027,7 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
     set_node_output(
         state,
         {
+            "llm_request": llm_request,
             "next_step": state.get("next_step"),
             "response_pack": response_pack,
             "used_fallback": used_fallback,
@@ -1597,10 +1640,20 @@ def render_chat_message(message: dict[str, Any]) -> None:
                 st.caption(translation["en"])
 
 
+def render_llm_request(llm_request: dict[str, Any]) -> None:
+    st.markdown(f"**Model**: `{llm_request.get('model')}`")
+    st.markdown("**Config**")
+    st.json(llm_request.get("config") or {})
+    st.markdown("**System instruction**")
+    st.code(llm_request.get("system_instruction") or "", language="text")
+    st.markdown("**Prompt / contents**")
+    st.code(llm_request.get("prompt") or "", language="json")
+
+
 def render_node_logs(logs: list[dict[str, Any]]) -> None:
     st.subheader("Node Trace")
     if not logs:
-        st.caption("Send a message to see node timings, node output, and state updates.")
+        st.caption("Send a message to see node timings, node input, node output, and state updates.")
         return
     total_ms = round(sum(float(log["elapsed_ms"]) for log in logs), 2)
     st.caption(f"Total node time: {total_ms} ms")
@@ -1609,11 +1662,31 @@ def render_node_logs(logs: list[dict[str, Any]]) -> None:
         with st.expander(title, expanded=index == len(logs)):
             if log.get("error"):
                 st.error(log["error"])
-            col1, col2 = st.columns(2)
-            with col1:
+            node_output = log.get("node_output") or {}
+            llm_request = node_output.get("llm_request")
+            tab_labels = ["Node input"]
+            if llm_request:
+                tab_labels.append("LLM input")
+            tab_labels.extend(["Node output", "State update"])
+            tabs = st.tabs(tab_labels)
+            tab_index = 0
+            input_tab = tabs[tab_index]
+            tab_index += 1
+            llm_tab = None
+            if llm_request:
+                llm_tab = tabs[tab_index]
+                tab_index += 1
+            output_tab = tabs[tab_index]
+            update_tab = tabs[tab_index + 1]
+            with input_tab:
+                st.json(log.get("node_input") or {})
+            if llm_tab:
+                with llm_tab:
+                    render_llm_request(llm_request)
+            with output_tab:
                 st.markdown("**Node output**")
-                st.json(log.get("node_output") or {})
-            with col2:
+                st.json({key: value for key, value in node_output.items() if key != "llm_request"})
+            with update_tab:
                 st.markdown("**State update**")
                 st.json(log.get("state_update") or {})
 
@@ -1675,7 +1748,7 @@ def main() -> None:
             for sample in samples:
                 st.code(sample, language=None)
 
-    left, right = st.columns([1.2, 1])
+    left, right = st.columns([0.9, 1.5])
     with left:
         st.subheader("Roleplay Chat")
         for message in messages_for_session(st.session_state["roleplay_session_id"]):
