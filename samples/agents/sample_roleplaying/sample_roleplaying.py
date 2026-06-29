@@ -72,46 +72,80 @@ Return only valid JSON with exactly these fields:
 """.strip()
 
 RESPONSE_PACK_SYSTEM_INSTRUCTION = """
-You are the Response Pack Node for a Korean roleplaying learning game.
-Your only job is to generate displayable message drafts for this single turn.
+당신은 한국어 롤플레잉 학습 게임의 응답 생성기입니다. 현재 장면의 `character`로서 학습자의 최근 발화에 자연스럽게 반응하고, 확정된 진행 방향에 맞는 다음 메시지를 생성하세요.
 
-Do not evaluate learner input.
-Do not change or reinterpret the Judge result.
-Do not decide step advancement, chances, fail counts, or session ending.
-Do not write to the database.
-Do not generate TTS.
-Do not generate final overall learning feedback.
+## 입력 우선순위
+1. `progress_outcome`: 대화를 현재 단계에서 유지할지, 다음 단계로 이동할지, 종료할지를 결정합니다.
+2. `generation_policy`: 이번 응답의 목적과 힌트·교정·종료 메시지 생성 여부를 결정합니다.
+3. `judge_result`: 이미 확정된 평가입니다. 다시 판정하거나 새로운 오류를 추가하지 마세요.
+4. `learner_input_text`, `recent_messages`: 학습자의 발화와 직전 대화에 직접 반응하는 데 사용합니다.
+5. `current_step`, `next_step`, `character`, `location`: 대화 목표, 캐릭터 말투와 상황 제약을 유지하는 데 사용합니다.
 
-Use rule_decision as the source of truth for progress.
-Use judge_result as the source of truth for evaluation and correction need.
-Keep character dialogue short, natural, and in persona.
-Never confuse the roles in the roleplay.
-The roleplay_character must speak and act only as the assigned character.
-The roleplay_character must not speak as the learner/user.
-Do not reveal the exact answer the learner should say next.
+`generation_policy`는 생성할 메시지 유형을 결정하고, `progress_outcome`은 대화가 향할 단계를 결정합니다.
 
-Return only valid JSON with exactly these top-level fields:
+## 진행 방향
+* `advance_to_next_step`: 학습자의 발화에 먼저 자연스럽게 반응한 뒤 `next_step` 목표를 유도하세요.
+* `stay_current_step`: `current_step`을 유지하며 학습자가 다시 말할 기회를 주세요.
+* `complete_session`: 현재 관계와 장면에 맞게 자연스럽게 대화를 마무리하세요.
+* `fail_session`: 캐릭터 역할을 유지한 채 짧고 자연스럽게 상황을 종료하세요.
+
+다음 단계로 이동할 때는 `current_step` 내용을 다시 요구하지 마세요. 현재 단계에 머물 때는 `next_step` 목표를 미리 유도하지 마세요.
+
+## 캐릭터 작성 원칙
+* `role_name`과 `persona_prompt`에 지정된 역할, 관계, 성격과 말투를 유지하세요.
+* 학습자의 최근 발화를 무시하지 않고 반응하세요.
+* 학습자 입장에서 말하거나 학습자의 대사를 대신 작성하지 마세요.
+* 캐릭터가 알 수 없는 정보나 입력에 없는 사실을 만들지 마세요.
+* 대사는 초급 학습자가 이해할 수 있도록 짧고 자연스럽게 작성하세요.
+* 한 번에 하나의 핵심 질문이나 반응만 전달하세요.
+* 학습자가 이미 제공한 정보를 다시 묻지 마세요.
+* 다음 목표를 유도하되, 학습자가 말해야 할 정답 문장 전체를 알려 주지 마세요.
+
+## 힌트와 교정
+
+* `should_generate_hint`가 `true`일 때만 `hint`를 생성하세요.
+* 힌트는 `hint_level` 범위를 넘지 않아야 하며, 정답 문장 전체를 공개하면 안 됩니다.
+* 출력 문장에 “힌트 1단계” 같은 레벨명을 쓰지 마세요.
+* `should_generate_correction`이 `true`일 때만 `correction_feedback`과 `correction_items`를 생성하세요.
+* 교정 내용은 `judge_result.issue_tags`와 `evaluation_reason_text`에 명시된 문제만 다루세요.
+* 판정을 변경하거나 입력에 없는 오류를 추가하지 마세요.
+* 캐릭터 대사와 교정 피드백은 분리하세요.
+
+## 메시지와 언어
+* `roleplay_character_dialogue_text`: 캐릭터가 실제로 말하는 대사이며 `learning_language`로 작성합니다.
+* `scene_text`: 꼭 필요한 장소·시간·상황 변화만 `system_language`로 작성합니다.
+* `roleplay_character_action_text`: 캐릭터의 표정·몸짓·행동만 `system_language`로 작성합니다.
+* `hint`, `correction_feedback`, `correction_items.reason_text`: `system_language`로 작성합니다.
+* `original_text`와 `corrected_text`는 학습 언어 표현을 유지할 수 있습니다.
+* 번역이 명시적으로 요구된 경우에만 `translation_json`을 작성하고, 아니면 `null`로 반환하세요.
+
+현재 장면에 필요한 메시지만 생성하세요. 불필요한 장면 설명이나 행동을 추가하지 마세요.
+
+## 출력 형식
+
+반드시 유효한 JSON만 반환하세요. JSON 밖에 설명, 마크다운 또는 코드 블록을 출력하지 마세요.
+
 {
-  "message_drafts": [
-    {
-      "message_type": "scene_text" | "roleplay_character_action_text" | "roleplay_character_dialogue_text" | "hint" | "correction_feedback",
-      "text_content": "message text",
-      "text_language": "en" | "ko",
-      "translation_json": {"en": "optional English translation"} | null,
-      "step_id": "uuid string or null",
-      "scenario_roleplay_character_id": "uuid string or null",
-      "hint_level": "light" | "medium" | "strong" | null
-    }
-  ],
-  "correction_items": [
-    {
-      "type": "grammar" | "vocabulary" | "politeness" | "naturalness" | "culturalContext" | "taskExpression" | "clarity" | "offTopic",
-      "original_text": "learner text",
-      "corrected_text": "better expression",
-      "reason_text": "short explanation"
-    }
-  ]
+"message_drafts": [
+{
+"message_type": "scene_text" | "roleplay_character_action_text" | "roleplay_character_dialogue_text" | "hint" | "correction_feedback",
+"text": "앱에 표시할 최종 문장",
+"translation_json": {
+"en": "필요한 경우의 번역"
+} | null
 }
+],
+"correction_items": [
+{
+"type": "grammar" | "vocabulary" | "politeness" | "naturalness" | "culturalContext" | "taskExpression" | "clarity" | "offTopic",
+"original_text": "학습자의 원래 표현",
+"corrected_text": "더 적절한 표현",
+"reason_text": "짧고 구체적인 교정 이유"
+}
+]
+}
+
+교정이 필요하지 않으면 `correction_items`는 빈 배열로 반환하세요.
 """.strip()
 
 def now_iso() -> str:
@@ -1022,7 +1056,9 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
                 used_fallback = False
             except Exception:
                 response_pack = {"message_drafts": [], "correction_items": []}
+    response_pack = normalize_response_pack(state, response_pack)
     response_pack = ensure_minimum_response_pack(state, response_pack)
+    response_pack = normalize_response_pack(state, response_pack)
     state["response_pack"] = response_pack
     set_node_output(
         state,
@@ -1040,76 +1076,98 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
 def build_response_pack_prompt(state: dict[str, Any]) -> str:
     rule_decision = state["rule_decision"]
     prompt_payload = {
-        "roleplay_session_id": state["roleplay_session_id"],
-        "learner_id": state["learner_id"],
         "languages": {
             "learning_language": state["scenario_version"].get("learning_language"),
             "system_language": state["scenario_version"].get("default_system_language"),
-            "rules": {
-                "roleplay_character_dialogue_text": "learning_language",
-                "scene_text": "system_language",
-                "roleplay_character_action_text": "system_language",
-                "hint": "system_language",
-                "correction_feedback": "system_language",
-            },
         },
-        "scenario": state["scenario"],
-        "current_step": state["current_step"],
-        "next_step": state.get("next_step"),
-        "character": state["character"],
-        "role_contract": {
-            "learner": "The learner/user is the person practicing the target role for the current scenario.",
-            "roleplay_character": "The AI-generated roleplay_character is only the assigned character in this scenario.",
-            "rule": "Never swap, merge, or imitate these roles.",
-        },
-        "location": state["location"],
-        "recent_messages": state.get("recent_messages", []),
+        "current_step": response_step_context(state["current_step"]),
+        "next_step": response_step_context(state.get("next_step")) if state.get("next_step") else None,
+        "character": response_character_context(state),
+        "location": response_location_context(state),
+        "recent_messages": response_recent_context(state),
         "learner_input_text": state["learner_input_text"],
         "judge_result": state["judge_result"],
-        "rule_decision": rule_decision,
-        "generation_rules": generation_rules_for_state(state),
+        "generation_policy": response_generation_policy(state),
+        "progress_outcome": rule_decision["progress_outcome"],
     }
     return compact_json(prompt_payload)
 
 
-def generation_rules_for_state(state: dict[str, Any]) -> list[str]:
+def response_step_context(step: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not step:
+        return None
+    return {
+        "step_goal": step.get("step_goal"),
+        "guidance": step.get("roleplay_guidance_text"),
+    }
+
+
+def response_character_context(state: dict[str, Any]) -> dict[str, Any]:
+    character = state["character"]
+    return {
+        "character_name": character.get("character_name"),
+        "role_name": character.get("role_name"),
+        "persona_prompt": character.get("persona_prompt"),
+    }
+
+
+def response_location_context(state: dict[str, Any]) -> dict[str, Any]:
+    location = state["location"]
+    return {
+        "location_prompt": location.get("location_prompt"),
+    }
+
+
+def response_recent_context(state: dict[str, Any], limit: int = 4) -> list[dict[str, Any]]:
+    direct_message_types = {
+        "roleplay_character_dialogue_text",
+        "learner_input_text",
+        "hint",
+        "correction_feedback",
+    }
+    return [
+        {
+            "speaker": message.get("sender_type"),
+            "message_type": message.get("message_type"),
+            "text": message.get("text_content"),
+        }
+        for message in state.get("recent_messages", [])
+        if message.get("message_type") in direct_message_types
+    ][-limit:]
+
+
+def response_generation_policy(state: dict[str, Any]) -> dict[str, Any]:
     rule_decision = state["rule_decision"]
     judge_result = state["judge_result"]
-    rules = [
-        "message_type values must use snake_case DB enum values.",
-        "hint_level may appear only on hint messages.",
-        "Never confuse the learner/user role with the roleplay_character role.",
-        "roleplay_character_dialogue_text must be from the assigned character's perspective.",
-    ]
-    if rule_decision["progress_outcome"] in {"stay_current_step", "fail_session"}:
-        rules.extend(
-            [
-                "Generate a hint message because the learner failed and stays or ends.",
-                f"The hint message hint_level must be {rule_decision['hint_level']}.",
-                "Use current_step.step_id for every generated message.",
-            ]
-        )
-    elif rule_decision["progress_outcome"] == "advance_to_next_step":
-        rules.extend(
-            [
-                "Do not generate a hint.",
-                "Use next_step.step_id for next-step scene/action/dialogue messages.",
-                "Generate short character dialogue that naturally enters the next step.",
-            ]
-        )
-    elif rule_decision["progress_outcome"] == "complete_session":
-        rules.extend(["Do not generate a hint.", "Generate only a concise completion response."])
-    if judge_result and judge_result["evaluation_result"] == "soft_pass" and judge_result["correction_needed"]:
-        rules.extend(
-            [
-                "Generate correction_items.",
-                "Generate one correction_feedback message in the system language.",
-                "Use current_step.step_id for correction_feedback.",
-            ]
-        )
-    else:
-        rules.append("Do not generate correction_items or correction_feedback.")
-    return rules
+    should_generate_hint = bool(
+        rule_decision["progress_outcome"] in {"stay_current_step", "fail_session"}
+        and judge_result
+        and judge_result["evaluation_result"] == "fail"
+    )
+    should_generate_correction = bool(
+        judge_result
+        and judge_result["evaluation_result"] == "soft_pass"
+        and judge_result["correction_needed"]
+    )
+    return {
+        "main_task": response_main_task(rule_decision["progress_outcome"]),
+        "should_generate_hint": should_generate_hint,
+        "hint_level": rule_decision["hint_level"] if should_generate_hint else None,
+        "should_generate_correction": should_generate_correction,
+        "should_generate_completion": rule_decision["progress_outcome"] == "complete_session",
+    }
+
+
+def response_main_task(progress_outcome: str) -> str:
+    if progress_outcome == "advance_to_next_step":
+        return "Naturally acknowledge the learner and lead into the next step."
+    if progress_outcome == "stay_current_step":
+        return "Help the learner try the current step again."
+    if progress_outcome == "fail_session":
+        return "Close the failed attempt briefly and kindly."
+    if progress_outcome == "complete_session":
+        return "Give a concise completion response."
+    return "Continue the roleplay naturally."
 
 
 def parse_response_pack_response(raw_text: str) -> dict[str, Any]:
@@ -1119,6 +1177,67 @@ def parse_response_pack_response(raw_text: str) -> dict[str, Any]:
     if not isinstance(drafts, list) or not isinstance(corrections, list):
         raise ValueError("Response Pack Node returned an invalid response_pack.")
     return {"message_drafts": drafts, "correction_items": corrections}
+
+
+def normalize_response_pack(state: dict[str, Any], response_pack: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "message_drafts": [
+            normalize_message_draft(state, draft)
+            for draft in response_pack.get("message_drafts", [])
+            if isinstance(draft, dict)
+        ],
+        "correction_items": [
+            item
+            for item in response_pack.get("correction_items", [])
+            if isinstance(item, dict)
+        ],
+    }
+
+
+def normalize_message_draft(state: dict[str, Any], draft: dict[str, Any]) -> dict[str, Any]:
+    message_type = draft.get("message_type")
+    text_content = draft.get("text_content") or draft.get("text") or ""
+    normalized = {
+        "message_type": message_type,
+        "text_content": text_content,
+        "text_language": language_for_message_type(state, message_type),
+        "translation_json": parse_json_maybe(draft.get("translation_json")),
+        "step_id": target_step_id_for_message_type(state, message_type),
+        "scenario_roleplay_character_id": scenario_character_id_for_message_type(state, message_type),
+        "hint_level": hint_level_for_message_type(state, draft),
+    }
+    return normalized
+
+
+def language_for_message_type(state: dict[str, Any], message_type: str | None) -> str:
+    if message_type == "roleplay_character_dialogue_text":
+        return learning_language(state)
+    return system_language(state)
+
+
+def target_step_id_for_message_type(state: dict[str, Any], message_type: str | None) -> str | None:
+    rule_decision = state["rule_decision"]
+    if message_type in {"hint", "correction_feedback"}:
+        return state["current_step"].get("step_id")
+    if (
+        message_type in {"scene_text", "roleplay_character_action_text", "roleplay_character_dialogue_text"}
+        and rule_decision["progress_outcome"] == "advance_to_next_step"
+        and rule_decision.get("next_step_id")
+    ):
+        return rule_decision["next_step_id"]
+    return state["current_step"].get("step_id")
+
+
+def scenario_character_id_for_message_type(state: dict[str, Any], message_type: str | None) -> str | None:
+    if message_type in {"roleplay_character_action_text", "roleplay_character_dialogue_text"}:
+        return state["character"].get("scenario_roleplay_character_id")
+    return None
+
+
+def hint_level_for_message_type(state: dict[str, Any], draft: dict[str, Any]) -> str | None:
+    if draft.get("message_type") != "hint":
+        return None
+    return state["rule_decision"].get("hint_level") or draft.get("hint_level") or "light"
 
 
 def ensure_minimum_response_pack(state: dict[str, Any], response_pack: dict[str, Any]) -> dict[str, Any]:
@@ -1258,6 +1377,7 @@ def response_validator_node(state: dict[str, Any]) -> dict[str, Any]:
     response_pack = state.get("response_pack") or {"message_drafts": [], "correction_items": []}
     errors: list[str] = []
     warnings: list[str] = []
+    errors.extend(validate_message_types(response_pack))
     errors.extend(validate_required_dialogue(response_pack))
     errors.extend(validate_languages(state, response_pack))
     errors.extend(validate_hint_rules(state, response_pack))
@@ -1269,6 +1389,8 @@ def response_validator_node(state: dict[str, Any]) -> dict[str, Any]:
     fallback_errors: list[str] = []
     if fallback_used:
         response_pack = ensure_minimum_response_pack(state, {"message_drafts": [], "correction_items": []})
+        response_pack = normalize_response_pack(state, response_pack)
+        fallback_errors.extend(validate_message_types(response_pack))
         fallback_errors.extend(validate_required_dialogue(response_pack))
         fallback_errors.extend(validate_languages(state, response_pack))
         fallback_errors.extend(validate_hint_rules(state, response_pack))
@@ -1294,6 +1416,21 @@ def response_validator_node(state: dict[str, Any]) -> dict[str, Any]:
     return state
 
 
+def validate_message_types(response_pack: dict[str, Any]) -> list[str]:
+    allowed = {
+        "scene_text",
+        "roleplay_character_action_text",
+        "roleplay_character_dialogue_text",
+        "hint",
+        "correction_feedback",
+    }
+    return [
+        f"message_drafts[{index}].message_type is invalid."
+        for index, draft in enumerate(response_pack.get("message_drafts", []))
+        if draft.get("message_type") not in allowed
+    ]
+
+
 def validate_required_dialogue(response_pack: dict[str, Any]) -> list[str]:
     if any(draft.get("message_type") == "roleplay_character_dialogue_text" for draft in response_pack.get("message_drafts", [])):
         return []
@@ -1310,7 +1447,9 @@ def validate_languages(state: dict[str, Any], response_pack: dict[str, Any]) -> 
     }
     errors = []
     for index, draft in enumerate(response_pack.get("message_drafts", [])):
-        expected_language = expected[draft.get("message_type")]
+        expected_language = expected.get(draft.get("message_type"))
+        if expected_language is None:
+            continue
         if draft.get("text_language") != expected_language:
             errors.append(
                 f"message_drafts[{index}].text_language must be {expected_language} for {draft.get('message_type')}."
