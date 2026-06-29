@@ -65,13 +65,8 @@ Do not mark a cultural issue unless the learner input clearly contains one.
 Return only valid JSON with exactly these fields:
 {
   "evaluation_result": "pass" | "soft_pass" | "fail",
-  "confidence": number from 0 to 1,
   "inferred_intent_text": "short explanation of inferred learner intent",
-  "step_goal_matched": boolean,
-  "communication_success": boolean,
   "issue_tags": ["grammar" | "vocabulary" | "politeness" | "naturalness" | "culturalContext" | "taskExpression" | "clarity" | "offTopic"],
-  "correction_needed": boolean,
-  "cultural_issue_detected": boolean,
   "evaluation_reason_text": "short reason for the evaluation"
 }
 """.strip()
@@ -143,8 +138,12 @@ def api_key() -> str | None:
     return load_dotenv_value("GEMINI_API_KEY") or load_dotenv_value("GOOGLE_API_KEY")
 
 
-def gemini_model() -> str:
-    return load_dotenv_value("GEMINI_MODEL") or "gemini-2.5-flash"
+def gemini_judge_model() -> str:
+    return load_dotenv_value("GEMINI_JUDGE_MODEL") or "gemini-3.1-flash-lite"
+
+
+def gemini_response_model() -> str:
+    return load_dotenv_value("GEMINI_RESPONSE_MODEL") or "gemini-3.5-flash"
 
 
 def parse_json_maybe(value: Any) -> Any:
@@ -608,6 +607,7 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
         raw_response = generate_gemini_json(
             JUDGE_SYSTEM_INSTRUCTION,
             prompt,
+            model_name=gemini_judge_model(),
             max_output_tokens=200,
             thinking_budget=0,
         )
@@ -719,6 +719,7 @@ def generate_gemini_json(
     system_instruction: str,
     prompt: str,
     *,
+    model_name: str,
     temperature: float = 0,
     max_output_tokens: int = 256,
     candidate_count: int = 1,
@@ -742,7 +743,7 @@ def generate_gemini_json(
             )
         try:
             response = client.models.generate_content(
-                model=gemini_model(),
+                model=model_name,
                 contents=prompt,
                 config=types.GenerateContentConfig(**config_kwargs),
             )
@@ -751,7 +752,7 @@ def generate_gemini_json(
                 raise
             config_kwargs.pop("thinking_config", None)
             response = client.models.generate_content(
-                model=gemini_model(),
+                model=model_name,
                 contents=prompt,
                 config=types.GenerateContentConfig(**config_kwargs),
             )
@@ -769,30 +770,29 @@ def parse_json_response(raw_text: str) -> dict[str, Any]:
 
 
 def normalize_judge_result(result: dict[str, Any]) -> dict[str, Any]:
+    evaluation_result = result.get("evaluation_result")
+    issue_tags = list(result.get("issue_tags") or [])
     normalized = {
-        "evaluation_result": result.get("evaluation_result"),
-        "confidence": max(0.0, min(1.0, float(result.get("confidence", 0.0)))),
+        "evaluation_result": evaluation_result,
         "inferred_intent_text": str(result.get("inferred_intent_text") or ""),
-        "step_goal_matched": bool(result.get("step_goal_matched")),
-        "communication_success": bool(result.get("communication_success")),
-        "issue_tags": list(result.get("issue_tags") or []),
-        "correction_needed": bool(result.get("correction_needed")),
-        "cultural_issue_detected": bool(result.get("cultural_issue_detected")),
+        "issue_tags": issue_tags,
         "evaluation_reason_text": str(result.get("evaluation_reason_text") or ""),
     }
-    if normalized["evaluation_result"] == "pass":
+    if evaluation_result == "pass":
         normalized["step_goal_matched"] = True
         normalized["communication_success"] = True
         normalized["correction_needed"] = False
-    elif normalized["evaluation_result"] == "soft_pass":
+    elif evaluation_result == "soft_pass":
         normalized["step_goal_matched"] = True
         normalized["communication_success"] = True
         normalized["correction_needed"] = True
-    elif normalized["evaluation_result"] == "fail":
+    elif evaluation_result == "fail":
         normalized["step_goal_matched"] = False
+        normalized["communication_success"] = False
         normalized["correction_needed"] = False
     else:
         raise ValueError("Judge Node returned an invalid evaluation_result.")
+    normalized["cultural_issue_detected"] = "culturalContext" in issue_tags
     return normalized
 
 
@@ -813,26 +813,16 @@ def heuristic_judge_result(state: dict[str, Any]) -> dict[str, Any]:
         return normalize_judge_result(
             {
                 "evaluation_result": evaluation,
-                "confidence": 0.72 if evaluation == "pass" else 0.62,
                 "inferred_intent_text": "The learner appears to answer the current step goal.",
-                "step_goal_matched": True,
-                "communication_success": True,
                 "issue_tags": [] if evaluation == "pass" else ["naturalness"],
-                "correction_needed": evaluation == "soft_pass",
-                "cultural_issue_detected": False,
                 "evaluation_reason_text": "Local fallback matched the learner input to this step's expected intent.",
             }
         )
     return normalize_judge_result(
         {
             "evaluation_result": "fail",
-            "confidence": 0.58,
             "inferred_intent_text": "The learner input does not clearly satisfy the current step.",
-            "step_goal_matched": False,
-            "communication_success": False,
             "issue_tags": ["clarity"],
-            "correction_needed": False,
-            "cultural_issue_detected": False,
             "evaluation_reason_text": "Local fallback could not match the expected intent for the current step.",
         }
     )
@@ -979,7 +969,11 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
     used_fallback = True
     response_pack = {"message_drafts": [], "correction_items": []}
     if state.get("_sample_config", {}).get("use_gemini"):
-        raw_response = generate_gemini_json(RESPONSE_PACK_SYSTEM_INSTRUCTION, prompt)
+        raw_response = generate_gemini_json(
+            RESPONSE_PACK_SYSTEM_INSTRUCTION,
+            prompt,
+            model_name=gemini_response_model(),
+        )
         if raw_response:
             try:
                 response_pack = parse_response_pack_response(raw_response)
@@ -1661,7 +1655,8 @@ def main() -> None:
             st.session_state["last_provider_error"] = None
             st.rerun()
         use_gemini = st.checkbox("Use Gemini nodes", value=use_gemini_default)
-        st.caption(f"Model: {gemini_model()}")
+        st.caption(f"Judge model: {gemini_judge_model()}")
+        st.caption(f"Response model: {gemini_response_model()}")
         if use_gemini and not api_key():
             st.warning("No GEMINI_API_KEY or GOOGLE_API_KEY was found. Local fallback will be used.")
         if st.session_state.get("last_provider_error"):
