@@ -635,51 +635,16 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
 
 def build_judge_prompt(state: dict[str, Any]) -> str:
     current_step = state["current_step"]
-    scenario = state["scenario"]
     scenario_version = state["scenario_version"]
-    character = state["character"]
-    location = state["location"]
     prompt_payload = {
-        "roleplay_session_id": state["roleplay_session_id"],
-        "learner_id": state["learner_id"],
-        "scenario": {
-            "title": scenario.get("title"),
-            "description": scenario.get("description"),
-            "difficulty": scenario.get("difficulty"),
-        },
-        "scenario_version": {
-            "learning_language": scenario_version.get("learning_language"),
-            "default_system_language": scenario_version.get("default_system_language"),
-        },
-        "step": {
-            "step_id": current_step.get("step_id"),
-            "step_order": current_step.get("step_order"),
-            "step_title": current_step.get("step_title"),
-            "step_goal": current_step.get("step_goal"),
-            "roleplay_guidance_text": current_step.get("roleplay_guidance_text"),
-        },
-        "roles_and_location": {
-            "learner_role": "roleplay learner",
-            "character_role": character.get("role_name"),
-            "character_name": character.get("name"),
-            "character_description": character.get("description"),
-            "character_persona": character.get("persona_prompt"),
-            "location_name": location.get("name"),
-            "location_description": location.get("description"),
-            "location_prompt": location.get("location_prompt"),
-        },
         "learner_input_text": state["learner_input_text"],
+        "learning_language": scenario_version.get("learning_language"),
         "input_method": state["input_method"],
-        "recent_messages": [
-            {
-                "sender_type": message.get("sender_type"),
-                "message_type": message.get("message_type"),
-                "text_content": message.get("text_content"),
-            }
-            for message in state.get("recent_messages", [])
-        ],
-        "step_sample_answers": state.get("step_sample_answers", []),
+        "current_step_goal": current_step.get("step_goal"),
         "evaluation_criteria": build_step_evaluation_criteria(state),
+        "dialogue_context": build_judge_dialogue_context(state),
+        "role_pragmatics": build_role_pragmatics(state),
+        "representative_acceptable_answers": state.get("step_sample_answers", []),
     }
     return compact_json(prompt_payload)
 
@@ -687,10 +652,62 @@ def build_judge_prompt(state: dict[str, Any]) -> str:
 def build_step_evaluation_criteria(state: dict[str, Any]) -> dict[str, Any]:
     current_step = state["current_step"]
     return {
-        "step_goal": current_step.get("step_goal"),
-        "roleplay_guidance_text": current_step.get("roleplay_guidance_text"),
-        "acceptable_sample_answers": state.get("step_sample_answers", []),
+        "step_specific_guidance": current_step.get("roleplay_guidance_text"),
     }
+
+
+def build_judge_dialogue_context(state: dict[str, Any], limit: int = 4) -> list[dict[str, Any]]:
+    direct_message_types = {
+        "roleplay_character_dialogue_text",
+        "learner_input_text",
+        "hint",
+        "correction_feedback",
+    }
+    messages = [
+        {
+            "speaker": message.get("sender_type"),
+            "message_type": message.get("message_type"),
+            "text": message.get("text_content"),
+        }
+        for message in state.get("recent_messages", [])
+        if message.get("message_type") in direct_message_types
+    ]
+    return messages[-limit:]
+
+
+def build_role_pragmatics(state: dict[str, Any]) -> dict[str, Any]:
+    scenario_description = state["scenario"].get("description") or ""
+    character = state["character"]
+    return {
+        "learner_role": extract_labeled_line(scenario_description, "학습자 역할") or "roleplay learner",
+        "counterpart_role": character.get("role_name"),
+        "relationship": extract_labeled_line(scenario_description, "관계"),
+        "required_politeness": (
+            extract_labeled_line(scenario_description, "기본 말투")
+            or infer_required_politeness(character.get("persona_prompt") or "")
+        ),
+    }
+
+
+def extract_labeled_line(text: str, label: str) -> str | None:
+    lines = [line.strip() for line in (text or "").splitlines()]
+    for index, line in enumerate(lines):
+        if line.rstrip(":") != label:
+            continue
+        for value in lines[index + 1 :]:
+            if value:
+                return value
+            if value == "":
+                continue
+    return None
+
+
+def infer_required_politeness(persona_prompt: str) -> str | None:
+    if "해요체" in persona_prompt:
+        return "해요체"
+    if "반말" in persona_prompt and "사용하지" in persona_prompt:
+        return "polite speech; do not use 반말"
+    return None
 
 
 @st.cache_resource
