@@ -306,7 +306,7 @@ def build_llm_request_trace(
     if provider == "gemini":
         config["response_mime_type"] = "application/json"
         config["candidate_count"] = candidate_count
-        config["response_schema"] = "Pydantic output model"
+        config["response_json_schema"] = "Pydantic JSON schema"
     if provider == "openai":
         config["text_format"] = "Pydantic output model"
     if provider == "gemini" and thinking_budget is not None:
@@ -1043,7 +1043,7 @@ def generate_gemini_structured(
             "temperature": temperature,
             "candidate_count": candidate_count,
             "max_output_tokens": max_output_tokens,
-            "response_schema": output_model,
+            "response_json_schema": output_model.model_json_schema(),
         }
         if thinking_budget is not None:
             config_kwargs["thinking_config"] = types.ThinkingConfig(
