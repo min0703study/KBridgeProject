@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Callable, Generic, Literal, TypeVar
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 import streamlit as st
 
 try:
@@ -341,8 +341,14 @@ class JudgeLLMOutput(BaseModel):
 
     evaluation_result: EvaluationResult
     inferred_intent_text: str
-    issue_tags: list[IssueTag] = Field(default_factory=list)
+    issue_tags: list[IssueTag]
     evaluation_reason_text: str
+
+
+class TranslationLLMOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    en: str | None
 
 
 class ResponseMessageLLMOutput(BaseModel):
@@ -350,7 +356,7 @@ class ResponseMessageLLMOutput(BaseModel):
 
     message_type: MessageType
     text: str
-    translation_json: dict[str, Any] | None = None
+    translation_json: TranslationLLMOutput | None
 
 
 class CorrectionItemLLMOutput(BaseModel):
@@ -365,8 +371,8 @@ class CorrectionItemLLMOutput(BaseModel):
 class ResponsePackLLMOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    message_drafts: list[ResponseMessageLLMOutput] = Field(default_factory=list)
-    correction_items: list[CorrectionItemLLMOutput] = Field(default_factory=list)
+    message_drafts: list[ResponseMessageLLMOutput]
+    correction_items: list[CorrectionItemLLMOutput]
 
 
 class LLMStructuredResult(Generic[StructuredOutputT]):
@@ -386,6 +392,7 @@ class LLMStructuredResult(Generic[StructuredOutputT]):
 
 for output_model in (
     JudgeLLMOutput,
+    TranslationLLMOutput,
     ResponseMessageLLMOutput,
     CorrectionItemLLMOutput,
     ResponsePackLLMOutput,
