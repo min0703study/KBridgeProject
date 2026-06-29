@@ -685,18 +685,25 @@ def build_judge_prompt(state: dict[str, Any]) -> str:
     return compact_json(prompt_payload)
 
 
+@st.cache_resource
+def get_gemini_client(api_key_value: str):
+    return genai.Client(api_key=api_key_value)
+
+
 def generate_gemini_json(system_instruction: str, prompt: str) -> str | None:
     key = api_key()
     if not key or genai is None or types is None:
         return None
     try:
-        client = genai.Client(api_key=key)
+        client = get_gemini_client(key)
         response = client.models.generate_content(
             model=gemini_model(),
             contents=prompt,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 response_mime_type="application/json",
+                temperature=0,
+                max_output_tokens=256,
             ),
         )
         return response.text or ""
