@@ -20,4 +20,5 @@ dependencies = [
     "langgraph>=0.2.0",
     "openai>=2.44.0",
     "pydantic>=2.13.4",
+    "kiwipiepy>=0.23.2",
 ]

@@ -26,6 +26,11 @@ except Exception:  # pragma: no cover - OpenAI is optional for this sample.
     OpenAI = None
 
 try:
+    from kiwipiepy import Kiwi
+except Exception:  # pragma: no cover - Kiwi is optional for this sample.
+    Kiwi = None
+
+try:
     from langgraph.graph import END, START, StateGraph
 except Exception:  # pragma: no cover - sequential fallback keeps the sample usable.
     END = START = StateGraph = None
@@ -65,6 +70,7 @@ MessageType = Literal[
 StructuredOutputT = TypeVar("StructuredOutputT", bound=BaseModel)
 NODE_SEQUENCE = [
     "context_builder",
+    "extract_linguistic_features",
     "judge",
     "game_rule_engine",
     "response_pack",
@@ -84,6 +90,8 @@ Do not decide step advancement, chances, or session ending.
 
 Evaluate whether the learner input achieves the current step goal.
 Prioritize inferred intent over perfect grammar.
+Use linguistic_features only as deterministic evidence about morphology, vocabulary, particles, endings, and pragmatic signals.
+Do not treat linguistic_features as an evaluation result, ability score, or step advancement decision.
 If input_method is voice, do not penalize missing question marks or weak punctuation.
 If the meaning is understandable and the step goal is achieved, return pass or soft_pass.
 If the meaning is right but the expression is awkward, blunt, unnatural, or culturally risky, return soft_pass.
@@ -595,6 +603,7 @@ def build_initial_state(
         "location": {},
         "recent_messages": [],
         "step_sample_answers": [],
+        "linguistic_features": {},
         "last_character_message_text": None,
         "last_learner_message_text": None,
         "judge_result": None,
@@ -844,6 +853,196 @@ def extract_last_message(messages: list[dict[str, Any]], sender_type: str) -> st
     return None
 
 
+@st.cache_resource
+def get_kiwi_analyzer():
+    if Kiwi is None:
+        return None
+    return Kiwi()
+
+
+def extract_linguistic_features_node(state: dict[str, Any]) -> dict[str, Any]:
+    linguistic_features = extract_linguistic_features(
+        state["learner_input_text"],
+        state["scenario_version"].get("learning_language") or "ko",
+    )
+    state["linguistic_features"] = linguistic_features
+    set_node_output(state, {"linguistic_features": linguistic_features})
+    return state
+
+
+def extract_linguistic_features(text: str, learning_language: str) -> dict[str, Any]:
+    if learning_language != "ko":
+        return empty_linguistic_features()
+    kiwi = get_kiwi_analyzer()
+    if kiwi is None:
+        return fallback_linguistic_features(text)
+    try:
+        analyzed = kiwi.analyze(text, top_n=1)
+        tokens = analyzed[0][0] if analyzed else []
+        return linguistic_features_from_tokens(text, tokens)
+    except Exception:
+        return fallback_linguistic_features(text)
+
+
+def empty_linguistic_features() -> dict[str, Any]:
+    return {
+        "vocabulary": {
+            "content_lemmas": [],
+            "oov_terms": [],
+        },
+        "grammar_endings": {
+            "predicate_lemmas": [],
+            "final_endings": [],
+            "negation_markers": [],
+            "speech_level_candidates": [],
+        },
+        "particles_relations": {
+            "particles": [],
+            "clause_count": 0,
+            "predicate_count": 0,
+        },
+        "pragmatic_signals": {
+            "greeting_detected": False,
+            "request_detected": False,
+            "polite_ending_detected": False,
+            "mitigation_detected": False,
+        },
+    }
+
+
+def linguistic_features_from_tokens(text: str, tokens: list[Any]) -> dict[str, Any]:
+    content_lemmas: list[str] = []
+    oov_terms: list[str] = []
+    predicate_lemmas: list[str] = []
+    final_endings: list[str] = []
+    negation_markers: list[str] = []
+    particles: list[str] = []
+
+    for token in tokens:
+        form = str(getattr(token, "form", "") or "")
+        tag = str(getattr(token, "tag", "") or "")
+        if not form:
+            continue
+        if is_content_token(tag):
+            append_unique(content_lemmas, form)
+        if is_predicate_token(tag):
+            append_unique(predicate_lemmas, form)
+        if tag == "EF":
+            append_unique(final_endings, form)
+        if tag.startswith("J"):
+            append_unique(particles, f"{form}/{tag}")
+        if form in {"안", "못", "않", "말"}:
+            append_unique(negation_markers, form)
+        if tag in {"UNK", "UNKNOWN"}:
+            append_unique(oov_terms, form)
+
+    if "좀" in text and not any(item.startswith("좀/") for item in particles):
+        append_unique(particles, "좀/JX")
+    if not final_endings and text.rstrip().endswith(("요", "세요", "습니다", "습니까")):
+        final_endings.append(infer_final_ending(text))
+
+    speech_levels = infer_speech_levels(text, final_endings)
+    predicate_count = len(predicate_lemmas)
+    clause_count = max(1, predicate_count, text.count(",") + text.count("?") + text.count("."))
+    return {
+        "vocabulary": {
+            "content_lemmas": content_lemmas,
+            "oov_terms": oov_terms,
+        },
+        "grammar_endings": {
+            "predicate_lemmas": predicate_lemmas,
+            "final_endings": final_endings,
+            "negation_markers": negation_markers,
+            "speech_level_candidates": speech_levels,
+        },
+        "particles_relations": {
+            "particles": particles,
+            "clause_count": clause_count,
+            "predicate_count": predicate_count,
+        },
+        "pragmatic_signals": pragmatic_signals(text, final_endings, particles),
+    }
+
+
+def fallback_linguistic_features(text: str) -> dict[str, Any]:
+    normalized = normalize_text(text)
+    content_lemmas = [
+        lemma
+        for lemma, patterns in {
+            "안녕": ["안녕"],
+            "지우개": ["지우개"],
+            "빌리": ["빌려", "빌리"],
+            "주": ["주세요", "주세", "줘"],
+            "이름": ["이름"],
+            "사람": ["사람"],
+            "학생": ["학생"],
+            "회사원": ["회사원"],
+        }.items()
+        if any(pattern in normalized for pattern in patterns)
+    ]
+    predicate_lemmas = [lemma for lemma in ["빌리", "주"] if lemma in content_lemmas]
+    final_endings = [infer_final_ending(text)] if text.rstrip().endswith(("요", "세요", "습니다", "습니까")) else []
+    particles = [f"{particle}/JX" for particle in ["좀"] if particle in text]
+    return {
+        "vocabulary": {
+            "content_lemmas": content_lemmas,
+            "oov_terms": [],
+        },
+        "grammar_endings": {
+            "predicate_lemmas": predicate_lemmas,
+            "final_endings": final_endings,
+            "negation_markers": [marker for marker in ["안", "못"] if marker in text],
+            "speech_level_candidates": infer_speech_levels(text, final_endings),
+        },
+        "particles_relations": {
+            "particles": particles,
+            "clause_count": max(1, text.count(",") + text.count("?") + text.count(".")),
+            "predicate_count": len(predicate_lemmas),
+        },
+        "pragmatic_signals": pragmatic_signals(text, final_endings, particles),
+    }
+
+
+def is_content_token(tag: str) -> bool:
+    return tag.startswith(("N", "V", "XR", "SL"))
+
+
+def is_predicate_token(tag: str) -> bool:
+    return tag in {"VV", "VA", "VX", "VCP", "VCN"}
+
+
+def append_unique(items: list[str], value: str) -> None:
+    if value not in items:
+        items.append(value)
+
+
+def infer_final_ending(text: str) -> str:
+    stripped = text.rstrip(" .?!")
+    for ending in ("습니까", "습니다", "세요", "어요", "아요", "요"):
+        if stripped.endswith(ending):
+            return ending
+    return ""
+
+
+def infer_speech_levels(text: str, final_endings: list[str]) -> list[str]:
+    candidates = []
+    if any(ending.endswith(("요", "세요")) for ending in final_endings) or text.rstrip().endswith(("요", "세요")):
+        candidates.append("haeyo")
+    if any(ending.endswith(("습니다", "습니까")) for ending in final_endings) or text.rstrip().endswith(("습니다", "습니까")):
+        candidates.append("hapsyo")
+    return candidates
+
+
+def pragmatic_signals(text: str, final_endings: list[str], particles: list[str]) -> dict[str, bool]:
+    normalized = normalize_text(text)
+    return {
+        "greeting_detected": "안녕" in normalized or "반갑" in normalized,
+        "request_detected": any(pattern in normalized for pattern in ["주세요", "빌려", "부탁"]),
+        "polite_ending_detected": bool(infer_speech_levels(text, final_endings)),
+        "mitigation_detected": "좀" in normalized or "혹시" in normalized or any(item.startswith("좀/") for item in particles),
+    }
+
+
 def judge_node(state: dict[str, Any]) -> dict[str, Any]:
     prompt = build_judge_prompt(state)
     sample_config = state.get("_sample_config", {})
@@ -911,6 +1110,7 @@ def build_judge_prompt(state: dict[str, Any]) -> str:
         "input_method": state["input_method"],
         "current_step_goal": current_step.get("step_goal"),
         "evaluation_criteria": build_step_evaluation_criteria(state),
+        "linguistic_features": state.get("linguistic_features") or empty_linguistic_features(),
         "dialogue_context": build_judge_dialogue_context(state),
         "role_pragmatics": build_role_pragmatics(state),
         "representative_acceptable_answers": state.get("step_sample_answers", []),
@@ -1996,6 +2196,10 @@ def sender_type_for_message_type(message_type: str) -> str:
 def build_graph_runner() -> Callable[[dict[str, Any]], dict[str, Any]]:
     node_functions = {
         "context_builder": timed_node("context_builder", context_builder_node),
+        "extract_linguistic_features": timed_node(
+            "extract_linguistic_features",
+            extract_linguistic_features_node,
+        ),
         "judge": timed_node("judge", judge_node),
         "game_rule_engine": timed_node("game_rule_engine", game_rule_engine_node),
         "response_pack": timed_node("response_pack", response_pack_node),
@@ -2013,7 +2217,8 @@ def build_graph_runner() -> Callable[[dict[str, Any]], dict[str, Any]]:
     for node_name in NODE_SEQUENCE:
         graph.add_node(node_name, node_functions[node_name])
     graph.add_edge(START, "context_builder")
-    graph.add_edge("context_builder", "judge")
+    graph.add_edge("context_builder", "extract_linguistic_features")
+    graph.add_edge("extract_linguistic_features", "judge")
     graph.add_edge("judge", "game_rule_engine")
     graph.add_edge("game_rule_engine", "response_pack")
     graph.add_edge("response_pack", "response_validator")
