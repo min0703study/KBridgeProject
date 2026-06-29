@@ -7,9 +7,10 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Literal
 from uuid import uuid4
 
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 import streamlit as st
 
 try:
@@ -43,6 +44,24 @@ LLM_MODEL_OPTIONS = {
     "Gemini 3.1 Flash Lite": "gemini-3.1-flash-lite",
     "GPT-5.4 mini": "gpt-5.4-mini",
 }
+EvaluationResult = Literal["pass", "soft_pass", "fail"]
+IssueTag = Literal[
+    "grammar",
+    "vocabulary",
+    "politeness",
+    "naturalness",
+    "culturalContext",
+    "taskExpression",
+    "clarity",
+    "offTopic",
+]
+MessageType = Literal[
+    "scene_text",
+    "roleplay_character_action_text",
+    "roleplay_character_dialogue_text",
+    "hint",
+    "correction_feedback",
+]
 NODE_SEQUENCE = [
     "context_builder",
     "judge",
@@ -308,6 +327,60 @@ def build_llm_response_trace(
         "raw_response": raw_response or "",
         "raw_response_preview": (raw_response or "")[:1200],
     }
+
+
+class JudgeLLMOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    evaluation_result: EvaluationResult
+    inferred_intent_text: str
+    issue_tags: list[IssueTag] = Field(default_factory=list)
+    evaluation_reason_text: str
+
+
+class ResponseMessageLLMOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    message_type: MessageType
+    text: str
+    translation_json: dict[str, Any] | None = None
+
+
+class CorrectionItemLLMOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    type: IssueTag
+    original_text: str
+    corrected_text: str
+    reason_text: str
+
+
+class ResponsePackLLMOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    message_drafts: list[ResponseMessageLLMOutput] = Field(default_factory=list)
+    correction_items: list[CorrectionItemLLMOutput] = Field(default_factory=list)
+
+
+for output_model in (
+    JudgeLLMOutput,
+    ResponseMessageLLMOutput,
+    CorrectionItemLLMOutput,
+    ResponsePackLLMOutput,
+):
+    output_model.model_rebuild()
+
+
+def llm_parse_error_reason(exc: Exception) -> str:
+    if isinstance(exc, ValidationError):
+        messages = []
+        for error in exc.errors()[:3]:
+            location = ".".join(str(part) for part in error.get("loc", []))
+            messages.append(f"{location}: {error.get('msg')}")
+        detail = "; ".join(messages) or str(exc)
+    else:
+        detail = str(exc)
+    return f"invalid_llm_json_or_schema: {detail[:500]}"
 
 
 def ensure_runtime_tables() -> None:
@@ -577,7 +650,7 @@ def context_builder_node(state: dict[str, Any]) -> dict[str, Any]:
         "roleplay_location_id",
         scenario_location["roleplay_location_id"],
     )
-    recent_messages = messages_for_session(state["roleplay_session_id"])[-8:]
+    recent_messages = messages_for_session(state["roleplay_session_id"])[-3:]
     sample_answers = [
         item["sample_answer_text"]
         for item in sorted(sample_db.STEP_SAMPLE_ANSWERS, key=lambda row: int(row["display_order"]))
@@ -762,10 +835,10 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
         )
         if raw_response:
             try:
-                state["judge_result"] = normalize_judge_result(parse_json_response(raw_response))
+                state["judge_result"] = normalize_judge_result(parse_judge_response(raw_response))
                 used_fallback = False
-            except Exception:
-                fallback_reason = "invalid_llm_json_or_schema"
+            except Exception as exc:
+                fallback_reason = llm_parse_error_reason(exc)
                 state["judge_result"] = heuristic_judge_result(state)
         else:
             fallback_reason = st.session_state.get("last_provider_error") or "empty_llm_response"
@@ -1000,11 +1073,20 @@ def generate_openai_json(
         return None
 
 
-def parse_json_response(raw_text: str) -> dict[str, Any]:
+def clean_json_response_text(raw_text: str) -> str:
     cleaned = raw_text.strip()
     if cleaned.startswith("```"):
         cleaned = cleaned.strip("`").removeprefix("json").strip()
+    return cleaned
+
+
+def parse_json_response(raw_text: str) -> dict[str, Any]:
+    cleaned = clean_json_response_text(raw_text)
     return json.loads(cleaned)
+
+
+def parse_judge_response(raw_text: str) -> dict[str, Any]:
+    return JudgeLLMOutput.model_validate_json(clean_json_response_text(raw_text)).model_dump()
 
 
 def normalize_judge_result(result: dict[str, Any]) -> dict[str, Any]:
@@ -1224,8 +1306,8 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
             try:
                 response_pack = parse_response_pack_response(raw_response)
                 used_fallback = False
-            except Exception:
-                fallback_reason = "invalid_llm_json_or_schema"
+            except Exception as exc:
+                fallback_reason = llm_parse_error_reason(exc)
                 response_pack = {"message_drafts": [], "correction_items": []}
         else:
             fallback_reason = st.session_state.get("last_provider_error") or "empty_llm_response"
@@ -1354,12 +1436,7 @@ def response_main_task(progress_outcome: str) -> str:
 
 
 def parse_response_pack_response(raw_text: str) -> dict[str, Any]:
-    parsed = parse_json_response(raw_text)
-    drafts = parsed.get("message_drafts") or []
-    corrections = parsed.get("correction_items") or []
-    if not isinstance(drafts, list) or not isinstance(corrections, list):
-        raise ValueError("Response Pack Node returned an invalid response_pack.")
-    return {"message_drafts": drafts, "correction_items": corrections}
+    return ResponsePackLLMOutput.model_validate_json(clean_json_response_text(raw_text)).model_dump()
 
 
 def normalize_response_pack(state: dict[str, Any], response_pack: dict[str, Any]) -> dict[str, Any]:
@@ -2054,7 +2131,7 @@ def render_node_logs(logs: list[dict[str, Any]]) -> None:
 
 
 def render_fake_db() -> None:
-    with st.expander("Fake DB runtime variables", expanded=False):
+    with st.expander("DB runtime variables", expanded=False):
         st.json(
             {
                 "ROLEPLAY_SESSIONS": sample_db.ROLEPLAY_SESSIONS,
