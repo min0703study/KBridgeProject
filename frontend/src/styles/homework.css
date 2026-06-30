@@ -1105,6 +1105,44 @@ button {
   word-break: keep-all;
 }
 
+.feedback-support {
+  display: grid;
+  gap: 3px;
+  padding-top: 2px;
+}
+
+.feedback-support small {
+  color: #746d66;
+  font-size: clamp(10px, 2.7cqw, 12px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.feedback-support strong {
+  color: var(--color-text);
+  font-size: clamp(13px, 3.4cqw, 16px);
+  font-weight: 680;
+  line-height: 1.22;
+  word-break: keep-all;
+}
+
+.feedback-support em {
+  color: #536273;
+  font-size: clamp(12px, 3.2cqw, 14px);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.feedback-support span {
+  color: var(--color-muted);
+  font-size: clamp(12px, 3.2cqw, 14px);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
 .feedback.correct .feedback-copy b {
   color: #2f6f31;
 }
@@ -1126,9 +1164,12 @@ button {
   position: relative;
   min-height: 216px;
   padding: 4px 8px 28px;
+  overflow: hidden;
 }
 
 .mistake-hero h1 {
+  position: relative;
+  z-index: 1;
   margin-top: 26px;
   font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   font-size: 38px;
@@ -1136,6 +1177,8 @@ button {
 }
 
 .mistake-count {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -1469,20 +1512,22 @@ button {
 .unit-intro-unit_01 h2 {
   position: relative;
   z-index: 2;
-  max-width: 284px;
-  margin: 50px 0 12px;
-  font-size: 43px;
+  max-width: 236px;
+  margin: 50px 0 10px;
+  font-size: clamp(30px, 8.1cqw, 34px);
   font-weight: 820;
   line-height: 1.02;
+  white-space: nowrap;
+  word-break: normal;
 }
 
 .unit-intro-unit_01 > p {
   position: relative;
   z-index: 2;
-  max-width: 272px;
+  max-width: 214px;
   color: #536986;
-  font-size: 18px;
-  line-height: 1.48;
+  font-size: clamp(13px, 3.5cqw, 15px);
+  line-height: 1.34;
 }
 
 .unit-intro-unit_01 .unit-preview-unit_01 {
@@ -1564,15 +1609,27 @@ button {
 }
 
 img.clipboard-art {
-  right: 2px;
-  top: 0;
-  width: 174px;
-  height: 176px;
+  right: -24px;
+  top: 8px;
+  z-index: 0;
+  width: 190px;
+  height: 178px;
   border: 0;
   border-radius: 0;
   background: transparent;
   transform: none;
+  opacity: 0.5;
+  object-fit: contain;
   object-position: right top;
+  pointer-events: none;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.4) 22%, #000 48%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 14%, #000 78%, transparent 100%);
+  mask-image:
+    linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.4) 22%, #000 48%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 14%, #000 78%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 .mistake-term-icon {
@@ -1696,7 +1753,7 @@ img.clipboard-art {
 }
 
 .featured-copy h2 {
-  font-size: 31px;
+  font-size: 30px;
   line-height: 1.04;
   word-break: keep-all;
   overflow-wrap: normal;
@@ -1825,7 +1882,7 @@ img.clipboard-art {
 @media (max-width: 380px) {
   .homework-shell .screen { padding-inline: 13px; }
   .cover-greeting h1 { font-size: 48px; }
-  .featured-copy h2 { font-size: 33px; }
+  .featured-copy h2 { font-size: 32px; }
   .question-copy h2 { font-size: 30px; }
   .choice strong { font-size: 23px; }
   .lesson-progress-card { grid-template-columns: 78px 1fr 66px; padding-inline: 14px; }
@@ -3703,10 +3760,10 @@ img.clipboard-art {
   .question-card.question-type-sentence_order
   .question-hero {
   position: relative;
-  min-height: clamp(150px, 19vh, 184px);
+  min-height: clamp(118px, 15vh, 142px);
   display: block;
-  margin: 0 0 clamp(12px, 1.7vh, 17px);
-  padding: clamp(18px, 2.5vh, 24px);
+  margin: 0 0 clamp(9px, 1.2vh, 13px);
+  padding: clamp(13px, 1.8vh, 17px);
   overflow: hidden;
 }
 
@@ -3715,8 +3772,8 @@ img.clipboard-art {
   .question-copy {
   position: relative;
   z-index: 2;
-  width: 64%;
-  max-width: 64%;
+  width: 62%;
+  max-width: 62%;
   min-height: 0;
   padding: 0;
 }
@@ -3725,9 +3782,9 @@ img.clipboard-art {
   .question-card.question-type-sentence_order
   .question-copy h2 {
   max-width: 100%;
-  margin-bottom: clamp(9px, 1.3vh, 13px);
-  font-size: clamp(27px, 7.2cqw, 35px);
-  line-height: 1.08;
+  margin-bottom: clamp(6px, 0.8vh, 9px);
+  font-size: clamp(24px, 6.5cqw, 31px);
+  line-height: 1.04;
   text-wrap: balance;
 }
 
@@ -3735,28 +3792,34 @@ img.clipboard-art {
   .question-card.question-type-sentence_order
   .question-copy p {
   max-width: 100%;
-  font-size: clamp(14px, 3.7cqw, 18px);
-  line-height: 1.3;
+  font-size: clamp(12px, 3.3cqw, 16px);
+  line-height: 1.18;
 }
 
 .homework-shell .quiz-screen
   .question-card.question-type-sentence_order
   .question-art {
   position: absolute;
-  right: -2%;
+  right: -4%;
   bottom: 0;
   z-index: 1;
-  width: 42%;
-  height: 84%;
+  width: 46%;
+  height: 88%;
   min-height: 0;
   display: block;
   overflow: hidden;
   border-radius: 0;
   background: transparent;
-  opacity: 0.72;
+  opacity: 0.54;
   pointer-events: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.45) 22%, #000 52%);
-  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.45) 22%, #000 52%);
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0%, transparent 28%, rgba(0, 0, 0, 0.58) 52%, #000 72%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 18%, #000 86%, transparent 100%);
+  mask-image:
+    linear-gradient(90deg, transparent 0%, transparent 28%, rgba(0, 0, 0, 0.58) 52%, #000 72%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 18%, #000 86%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 .homework-shell .quiz-screen
@@ -3764,17 +3827,17 @@ img.clipboard-art {
   .question-art img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: right bottom;
 }
 
 .homework-shell .quiz-screen
   .question-card.question-type-sentence_order
   .meaning-strip {
-  min-height: clamp(64px, 8.5vh, 78px);
+  min-height: clamp(72px, 9.5vh, 86px);
   grid-template-columns: clamp(38px, 9cqw, 46px) minmax(0, 1fr);
   gap: clamp(9px, 2.3cqw, 13px);
-  padding: clamp(9px, 1.2vh, 12px) clamp(12px, 3cqw, 16px);
+  padding: clamp(12px, 1.6vh, 16px) clamp(12px, 3cqw, 16px);
   border-radius: 15px;
 }
 
@@ -3858,14 +3921,14 @@ img.clipboard-art {
   .homework-shell .quiz-screen
     .question-card.question-type-sentence_order
     .question-hero {
-    min-height: 136px;
-    padding: 15px;
+    min-height: 108px;
+    padding: 12px;
   }
 
   .homework-shell .quiz-screen
     .question-card.question-type-sentence_order
     .question-copy h2 {
-    font-size: clamp(24px, 6.5cqw, 31px);
+    font-size: clamp(22px, 5.9cqw, 28px);
   }
 
   .homework-shell .quiz-screen
@@ -3884,7 +3947,7 @@ img.clipboard-art {
   width: 100%;
   height: auto;
   min-height: 0;
-  margin: 0 0 clamp(12px, 1.7vh, 17px);
+  margin: 0 0 clamp(7px, 1vh, 10px);
   overflow: visible;
 }
 
@@ -3901,7 +3964,7 @@ img.clipboard-art {
 .homework-shell .quiz-screen
   .question-card.question-type-reading_choice
   .question-copy h2 {
-  margin-bottom: clamp(7px, 1vh, 10px);
+  margin-bottom: 0;
   font-size: clamp(27px, 7.2cqw, 36px);
   line-height: 1.08;
 }
@@ -3924,7 +3987,7 @@ img.clipboard-art {
   .homework-shell .quiz-screen
     .question-card.question-type-reading_choice
     .question-hero {
-    margin-bottom: 10px;
+    margin-bottom: 7px;
   }
 
   .homework-shell .quiz-screen
@@ -3996,6 +4059,42 @@ img.clipboard-art {
   }
 }
 
+/* Unit 01 Korean dialogue names need a wider speaker pill, and each line
+   should stay on one row by shrinking longer utterances instead of wrapping. */
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line {
+  grid-template-columns: clamp(48px, 11.5cqw, 58px) minmax(0, 1fr);
+  column-gap: clamp(7px, 1.7cqw, 10px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-speaker {
+  width: clamp(48px, 11.5cqw, 58px);
+  height: clamp(28px, 6.5cqw, 34px);
+  border-radius: 999px;
+  font-size: clamp(12px, 3cqw, 14px);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line {
+  letter-spacing: 0;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-short {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-medium {
+  font-size: clamp(11px, 3cqw, 14px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-long {
+  font-size: clamp(9px, 2.45cqw, 11px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-xlong {
+  font-size: clamp(7px, 1.95cqw, 9px);
+}
+
 /* Final lesson header layout: badge above, Korean title below. */
 .homework-shell .quiz-screen .lesson-progress-card {
   grid-template-columns: clamp(72px, 18cqw, 90px) minmax(0, 1fr) clamp(58px, 14cqw, 70px);
@@ -4062,4 +4161,1287 @@ img.clipboard-art {
   .homework-shell .quiz-screen .lesson-progress-title {
     font-size: clamp(13px, 3.6cqw, 16px);
   }
+}
+
+.homework-shell .quiz-screen .reading-label {
+  margin: 0 0 clamp(4px, 0.7vh, 7px);
+  color: var(--color-muted);
+  font-size: clamp(12px, 3.2cqw, 15px);
+  font-weight: 800;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-passage {
+  padding-top: clamp(9px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen .listening-question .question-hero {
+  margin-bottom: clamp(12px, 1.7vh, 17px);
+}
+
+.homework-shell .quiz-screen .listening-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  justify-items: center;
+  gap: clamp(12px, 2.8cqw, 16px);
+  margin-bottom: clamp(12px, 1.7vh, 17px);
+  padding: clamp(8px, 1.2vh, 12px) 0;
+  border: 0;
+  border-radius: 0;
+  background: #ffffff;
+}
+
+.homework-shell .quiz-screen .audio-player {
+  width: 100%;
+  min-height: clamp(56px, 7.4vh, 68px);
+  display: grid;
+  grid-template-columns: clamp(40px, 9.5cqw, 48px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(13px, 3.2cqw, 18px);
+  padding: clamp(9px, 1.2vh, 12px) clamp(16px, 4cqw, 22px);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(13, 58, 108, 0.08), 0 10px 24px rgba(13, 58, 108, 0.08);
+}
+
+.homework-shell .quiz-screen .speaker-button {
+  width: clamp(40px, 9.5cqw, 48px);
+  height: clamp(40px, 9.5cqw, 48px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  color: #ffffff;
+  background: #06386b;
+  box-shadow: 0 10px 18px rgba(6, 56, 107, 0.24);
+  cursor: pointer;
+}
+
+.homework-shell .quiz-screen .speaker-button svg {
+  flex: 0 0 auto;
+  width: clamp(18px, 4.4cqw, 22px);
+  height: clamp(18px, 4.4cqw, 22px);
+}
+
+.homework-shell .quiz-screen .audio-waveform {
+  min-width: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: clamp(2px, 0.55cqw, 4px);
+  overflow: hidden;
+}
+
+.homework-shell .quiz-screen .audio-waveform span {
+  width: 3px;
+  height: var(--wave-height);
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #cdd8e3;
+  transform-origin: center;
+}
+
+.homework-shell .quiz-screen .audio-waveform span:nth-child(-n + 13) {
+  background: #1178bf;
+}
+
+.homework-shell .quiz-screen .audio-waveform .wave-dot {
+  width: 10px;
+  height: 10px;
+  background: #1178bf;
+}
+
+.homework-shell .quiz-screen .audio-player.is-playing .audio-waveform span {
+  animation: audio-wave-pulse 0.95s ease-in-out infinite;
+  animation-delay: calc(var(--wave-height) * -0.012s);
+}
+
+.homework-shell .quiz-screen .audio-duration {
+  color: #6d7f92;
+  font-size: clamp(13px, 3.4cqw, 16px);
+  font-weight: 760;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@keyframes audio-wave-pulse {
+  0%, 100% {
+    transform: scaleY(0.72);
+    opacity: 0.72;
+  }
+
+  50% {
+    transform: scaleY(1.08);
+    opacity: 1;
+  }
+}
+
+.homework-shell .quiz-screen .listening-script {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--color-muted);
+  font-size: clamp(13px, 3.4cqw, 16px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.homework-shell .quiz-screen .listening-script small {
+  color: var(--color-primary);
+  font-size: clamp(11px, 2.9cqw, 13px);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.homework-shell .quiz-screen .listening-script strong {
+  color: var(--color-text);
+  font-size: clamp(15px, 4cqw, 19px);
+  font-weight: 900;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+.homework-shell .quiz-screen .listening-script .romanization {
+  color: #536273;
+  font-size: clamp(12px, 3.2cqw, 15px);
+  font-style: italic;
+}
+
+@media (max-width: 380px) {
+  .homework-shell .quiz-screen .listening-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .homework-shell .quiz-screen .listen-button {
+    width: 100%;
+  }
+}
+
+/* Gentler quiz typography: keep the mobile layout, but reduce the heavy,
+   oversized feeling on Unit 01 practice questions. */
+.homework-shell .quiz-screen .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-sentence_order .question-copy h2 {
+  font-size: clamp(21px, 5.4cqw, 26px);
+  font-weight: 680;
+  line-height: 1.16;
+}
+
+.homework-shell .quiz-screen .question-copy p,
+.homework-shell .quiz-screen .question-type-reading_choice .reading-question-prompt {
+  font-size: clamp(14px, 3.7cqw, 17px);
+  font-weight: 500;
+  line-height: 1.36;
+}
+
+.homework-shell .quiz-screen .korean-display,
+.homework-shell .quiz-screen .revised-unit-one-question .korean-display.support-removed {
+  font-size: clamp(32px, 8.8cqw, 40px);
+  font-weight: 680;
+  line-height: 1.12;
+}
+
+.homework-shell .quiz-screen .inline-focus {
+  font-size: clamp(16px, 4.2cqw, 20px);
+  font-weight: 640;
+}
+
+.homework-shell .quiz-screen .sentence-korean-line,
+.homework-shell .quiz-screen .question-card .sentence-focus .sentence-korean-line,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line {
+  font-weight: 660;
+  letter-spacing: 0;
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-short {
+  font-size: clamp(24px, 6.4cqw, 30px);
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-medium {
+  font-size: clamp(20px, 5.5cqw, 26px);
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-long {
+  font-size: clamp(17px, 4.7cqw, 22px);
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-xlong {
+  font-size: clamp(14px, 3.9cqw, 18px);
+}
+
+.homework-shell .quiz-screen .choice-number,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice-number {
+  width: clamp(23px, 5.7cqw, 28px);
+  height: clamp(23px, 5.7cqw, 28px);
+  font-size: clamp(12px, 3.2cqw, 15px);
+  font-weight: 680;
+}
+
+.homework-shell .quiz-screen .choice strong,
+.homework-shell .quiz-screen .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice-text-short,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-sentence {
+  font-weight: 640;
+  letter-spacing: 0;
+}
+
+.homework-shell .choice .choice-text-short,
+.homework-shell .quiz-screen .choice-text-short {
+  font-size: clamp(18px, 4.8cqw, 22px);
+}
+
+.homework-shell .choice .choice-text-medium,
+.homework-shell .quiz-screen .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-medium {
+  font-size: clamp(15px, 4.1cqw, 19px);
+}
+
+.homework-shell .choice .choice-text-long,
+.homework-shell .quiz-screen .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-long {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .choice .choice-text-sentence,
+.homework-shell .quiz-screen .choice-text-sentence,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-sentence {
+  font-size: clamp(11px, 3cqw, 14px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line {
+  font-size: clamp(13px, 3.5cqw, 16px);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-speaker,
+.homework-shell .quiz-screen .reading-label {
+  font-weight: 700;
+}
+
+.homework-shell .quiz-screen .listen-button,
+.homework-shell .quiz-screen .listening-script small,
+.homework-shell .quiz-screen .listening-script strong {
+  font-weight: 640;
+}
+
+.homework-shell .quiz-screen .listening-script strong {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .quiz-screen .feedback,
+.homework-shell .quiz-screen .feedback-copy b {
+  font-weight: 700;
+}
+
+.homework-shell .quiz-screen .feedback-copy strong {
+  font-weight: 680;
+}
+
+/* Keep checked feedback screens from feeling cramped at the top. */
+.homework-shell .quiz-screen .question-card.is-checked.choice-question .question-copy {
+  padding-top: clamp(7px, 1vh, 10px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .mode-dot {
+  margin-bottom: clamp(9px, 1.3vh, 13px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .question-copy h2 {
+  margin-bottom: clamp(9px, 1.3vh, 13px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .question-copy p {
+  margin-bottom: clamp(8px, 1.1vh, 12px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice).is-checked
+  .korean-display,
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice).is-checked
+  .inline-focus {
+  margin-top: clamp(9px, 1.3vh, 13px);
+}
+
+/* Prevent vocabulary focus text from colliding with the answer grid and make
+   answer cards shorter. */
+.homework-shell .quiz-screen .question-type-word_meaning_choice .question-hero,
+.homework-shell .quiz-screen .question-type-korean_word_choice .question-hero {
+  margin-bottom: clamp(18px, 2.4vh, 26px);
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice .korean-display,
+.homework-shell .quiz-screen .question-type-korean_word_choice .inline-focus {
+  margin-top: clamp(5px, 0.8vh, 9px);
+  margin-bottom: clamp(16px, 2.2vh, 24px);
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-grid,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-grid {
+  height: clamp(172px, 22.5vh, 204px);
+  row-gap: clamp(9px, 1.2vh, 13px);
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice {
+  min-height: 0;
+  padding: clamp(25px, 3.2vh, 30px) clamp(8px, 2.1cqw, 12px) clamp(8px, 1.1vh, 12px);
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice.is-checked .choice-grid,
+.homework-shell .quiz-screen .question-type-korean_word_choice.is-checked .choice-grid {
+  height: clamp(166px, 21.5vh, 194px);
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-text-long,
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-text-sentence,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-text-long,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-text-sentence {
+  font-size: clamp(12px, 3.25cqw, 15px);
+  line-height: 1.15;
+  overflow: visible;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+/* Final reading dialogue fit pass: keep Korean dialogue on one line without
+   clipping, including longer Nana/Michael lines. */
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line {
+  grid-template-columns: clamp(48px, 11.5cqw, 58px) minmax(0, 1fr);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-speaker {
+  width: clamp(48px, 11.5cqw, 58px);
+  height: clamp(28px, 6.5cqw, 34px);
+  border-radius: 999px;
+  font-size: clamp(12px, 3cqw, 14px);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  letter-spacing: 0;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line.dialogue-text-short {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line.dialogue-text-medium {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line.dialogue-text-long {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line.dialogue-text-xlong {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+/* Daily Practice layout safety net: every quiz type should preserve spacing
+   between prompt, choices, feedback, and fixed bottom actions. */
+.homework-shell .quiz-screen .question-card {
+  gap: clamp(7px, 1vh, 12px);
+  padding-bottom: clamp(104px, 12.5vh, 120px);
+  scroll-padding-bottom: clamp(104px, 12.5vh, 120px);
+}
+
+.homework-shell .quiz-screen .question-card > * {
+  flex-shrink: 0;
+}
+
+.homework-shell .quiz-screen .question-hero,
+.homework-shell .quiz-screen .question-card.is-checked .question-hero,
+.homework-shell .quiz-screen .question-card.is-checked.choice-question .question-hero {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.homework-shell .quiz-screen .question-copy,
+.homework-shell .quiz-screen .question-card.is-checked.choice-question .question-copy {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.homework-shell .quiz-screen .choice-grid,
+.homework-shell .quiz-screen .question-card.is-checked .choice-grid,
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-grid,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-grid,
+.homework-shell .quiz-screen .question-type-word_meaning_choice.is-checked .choice-grid,
+.homework-shell .quiz-screen .question-type-korean_word_choice.is-checked .choice-grid,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice-grid,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .choice-grid,
+.homework-shell .quiz-screen .listening-question .choice-grid {
+  height: auto !important;
+  min-height: 0;
+  grid-template-rows: repeat(2, minmax(clamp(58px, 7.7vh, 72px), auto));
+  align-items: stretch;
+  gap: clamp(8px, 1vh, 11px);
+  margin-top: 0;
+}
+
+.homework-shell .quiz-screen .choice,
+.homework-shell .quiz-screen .question-card.is-checked .choice,
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice {
+  height: auto;
+  min-height: clamp(58px, 7.7vh, 72px);
+  overflow: visible;
+  padding: clamp(10px, 1.4vh, 13px) clamp(9px, 2.3cqw, 13px);
+}
+
+.homework-shell .quiz-screen .choice .choice-text {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-text-long,
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-text-sentence,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-text-long,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-text-sentence,
+.homework-shell .quiz-screen .listening-question .choice-text-long,
+.homework-shell .quiz-screen .listening-question .choice-text-sentence {
+  font-size: clamp(11px, 3cqw, 14px);
+  line-height: 1.16;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+.homework-shell .quiz-screen .sentence-focus,
+.homework-shell .quiz-screen .reading-passage,
+.homework-shell .quiz-screen .listening-panel,
+.homework-shell .quiz-screen .meaning-strip,
+.homework-shell .quiz-screen .block-order,
+.homework-shell .quiz-screen .feedback {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.homework-shell .quiz-screen .feedback {
+  margin-bottom: clamp(3px, 0.5vh, 7px);
+}
+
+/* Keep pre-check and post-check choice screens visually consistent. */
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .question-hero,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .question-hero {
+  margin-bottom: clamp(13px, 1.8vh, 18px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .question-copy h2,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .question-copy h2 {
+  max-width: 285px;
+  margin-bottom: clamp(9px, 1.2vh, 12px);
+  font-size: clamp(30px, 8.2cqw, 38px);
+  line-height: 1.06;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .question-copy p,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .question-copy p {
+  margin-bottom: clamp(12px, 1.7vh, 16px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  ).is-checked
+  .sentence-focus {
+  margin-top: 0;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .choice-grid,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .choice-grid {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .choice-grid,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .choice-grid {
+  grid-template-rows: repeat(2, 64px);
+  gap: 9px;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .choice,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .choice {
+  height: 64px;
+  min-height: 64px;
+  padding-top: 25px;
+  padding-bottom: 8px;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .choice.active,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .choice.active {
+  transform: none;
+}
+
+/* Apply the same tab rhythm to every choice-based Daily Practice question,
+   not only the sentence-completion set. */
+.homework-shell .quiz-screen .question-card.choice-question .choice-grid,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .choice-grid {
+  grid-template-rows: repeat(2, 64px);
+  gap: 9px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .choice,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .choice {
+  height: 64px;
+  min-height: 64px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .choice {
+  justify-content: center;
+  align-items: center;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .choice.active,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .choice.active {
+  transform: none;
+}
+
+/* Sentence-order feedback should appear immediately after checking: show the
+   corrected order in the tray while keeping the word bank visible below. */
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .question-hero {
+  min-height: clamp(96px, 13vh, 124px);
+  margin-bottom: clamp(6px, 0.8vh, 9px);
+  padding: clamp(11px, 1.5vh, 15px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .question-copy h2 {
+  margin-bottom: 6px;
+  font-size: clamp(22px, 5.8cqw, 28px);
+  line-height: 1.04;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .question-copy p {
+  font-size: clamp(12px, 3.2cqw, 15px);
+  line-height: 1.18;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .meaning-strip {
+  min-height: clamp(62px, 8vh, 72px);
+  padding-block: clamp(10px, 1.3vh, 13px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .meaning-strip svg {
+  width: 24px;
+  height: 24px;
+  padding: 6px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .meaning-strip small {
+  margin-bottom: 1px;
+  font-size: clamp(9px, 2.4cqw, 11px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .meaning-strip strong {
+  font-size: clamp(13px, 3.5cqw, 17px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .block-order {
+  gap: 0;
+  margin: clamp(5px, 0.7vh, 8px) 0;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray {
+  min-height: clamp(46px, 6vh, 56px);
+  padding: 6px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray .pill {
+  min-height: clamp(34px, 4.6vh, 44px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-content: center;
+  gap: clamp(6px, 1.4cqw, 9px);
+  overflow: visible;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray .pill {
+  width: 100%;
+  min-width: clamp(64px, 16cqw, 96px);
+  padding-inline: clamp(7px, 1.8cqw, 10px);
+  white-space: normal;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray .korean-romanized {
+  width: 100%;
+  min-width: 0;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray .korean-line {
+  overflow: hidden;
+  font-size: clamp(13px, 3.4cqw, 17px);
+  line-height: 1.1;
+  text-align: center;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .block-bank {
+  display: none;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .feedback {
+  margin-top: 0;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order:is(.is-incorrect, .is-dont-know)
+  .feedback {
+  margin-top: clamp(5px, 0.7vh, 8px);
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order.is-checked
+    .question-hero {
+    min-height: 92px;
+    padding: 10px;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order.is-checked
+    .question-copy h2 {
+    font-size: clamp(23px, 6.1cqw, 29px);
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order.is-checked
+    .question-copy p {
+    font-size: clamp(13px, 3.4cqw, 16px);
+  }
+}
+
+/* Final compact height for every Arrange the sentence hero tab. */
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-hero {
+  min-height: clamp(98px, 12.5vh, 118px);
+  margin-bottom: clamp(8px, 1vh, 11px);
+  padding: clamp(8px, 1.1vh, 11px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .mode-dot {
+  width: 22px;
+  height: 22px;
+  margin-bottom: 2px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .mode-dot svg {
+  width: 17px;
+  height: 17px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-copy h2 {
+  margin-bottom: 0;
+  font-size: clamp(20px, 5.3cqw, 25px);
+  line-height: 1;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-copy p {
+  font-size: clamp(11px, 2.9cqw, 14px);
+  line-height: 1.08;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-art {
+  height: 84%;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order
+    .question-hero {
+    min-height: 96px;
+    padding: 8px;
+  }
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .question-hero {
+  min-height: clamp(98px, 12.5vh, 118px);
+  margin-bottom: clamp(8px, 1vh, 11px);
+  padding: clamp(8px, 1.1vh, 11px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .question-copy h2 {
+  margin-bottom: 0;
+  font-size: clamp(20px, 5.3cqw, 25px);
+  line-height: 1;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order.is-checked
+    .question-hero {
+    min-height: 96px;
+    padding: 8px;
+  }
+}
+
+/* Remove the gray instruction subtitles from quiz headers and let the
+   exercise body sit naturally under the title. */
+.homework-shell .quiz-screen
+  .question-card:not(.question-type-reading_choice):not(.question-type-sentence_order):not(.question-type-situation_expression_choice)
+  .question-copy h2,
+.homework-shell .quiz-screen
+  .question-card:not(.question-type-reading_choice):not(.question-type-sentence_order):not(.question-type-situation_expression_choice).is-checked
+  .question-copy h2 {
+  margin-bottom: clamp(6px, 0.8vh, 9px);
+}
+
+.homework-shell .quiz-screen
+  .question-card:not(.question-type-reading_choice):not(.question-type-sentence_order):not(.question-type-situation_expression_choice)
+  .question-hero,
+.homework-shell .quiz-screen
+  .question-card:not(.question-type-reading_choice):not(.question-type-sentence_order):not(.question-type-situation_expression_choice).is-checked
+  .question-hero {
+  margin-bottom: clamp(9px, 1.2vh, 13px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.listening-question
+  .listening-panel {
+  margin-top: clamp(2px, 0.4vh, 5px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .question-copy h2 {
+  max-width: 260px;
+  margin-bottom: clamp(9px, 1.2vh, 13px);
+  line-height: 1.04;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .inline-focus,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .inline-focus {
+  display: block;
+  max-width: 100%;
+  margin-top: clamp(5px, 0.8vh, 9px);
+  margin-bottom: clamp(12px, 1.6vh, 17px);
+  color: var(--navy);
+  font-size: clamp(30px, 7.8cqw, 38px);
+  font-weight: 760;
+  line-height: 1.08;
+  text-align: left;
+  word-break: keep-all;
+}
+
+/* Final choice-card alignment pass: every answer option uses the same text
+   size, stays centered, and avoids the number badge. */
+.homework-shell .quiz-screen .question-card.choice-question .choice,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .choice {
+  display: grid;
+  place-items: center;
+  height: 64px;
+  min-height: 64px;
+  padding-block: 8px;
+  padding-inline: clamp(34px, 8.5cqw, 40px);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .choice-number {
+  top: 10px;
+  left: 12px;
+  z-index: 2;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .choice .choice-text,
+.homework-shell .quiz-screen .question-card.choice-question .choice-text-short,
+.homework-shell .quiz-screen .question-card.choice-question .choice-text-medium,
+.homework-shell .quiz-screen .question-card.choice-question .choice-text-long,
+.homework-shell .quiz-screen .question-card.choice-question .choice-text-sentence {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  display: block;
+  color: var(--navy);
+  font-size: clamp(14px, 3.6cqw, 17px);
+  font-weight: 680;
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice-grid,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice.is-checked .choice-grid {
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(4, minmax(62px, auto));
+  gap: clamp(8px, 1vh, 10px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice.is-checked .choice {
+  min-height: 62px;
+  height: auto;
+  padding-inline: clamp(46px, 11cqw, 56px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice.is-checked .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice-text-short,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice-text-sentence {
+  font-size: clamp(15px, 3.9cqw, 18px);
+  line-height: 1.12;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice-grid,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice.is-checked .choice-grid {
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(4, minmax(56px, auto));
+  gap: clamp(8px, 1vh, 10px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice.is-checked .choice {
+  min-height: 56px;
+  height: auto;
+  padding-inline: clamp(46px, 11cqw, 56px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice.is-checked .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice-text-short,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice-text-sentence {
+  font-size: clamp(15px, 3.9cqw, 18px);
+  line-height: 1.12;
+}
+
+/* Korean-word questions keep the same prominent header and prompt size before
+   and after checking, so the screen does not visually jump. */
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .question-copy h2 {
+  max-width: 320px;
+  margin-bottom: clamp(24px, 3.1vh, 32px);
+  color: var(--navy);
+  font-size: clamp(36px, 9.6cqw, 43px);
+  font-weight: 760;
+  line-height: 1.02;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .inline-focus,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .inline-focus {
+  margin-top: 0;
+  margin-bottom: clamp(18px, 2.4vh, 24px);
+  color: var(--navy);
+  font-size: clamp(29px, 7.5cqw, 34px);
+  font-weight: 720;
+  line-height: 1.02;
+}
+
+/* Keep a clear visual gap between the question-type title and the actual
+   prompt content across all Daily Practice question layouts. */
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.is-checked .question-copy h2 {
+  margin-bottom: clamp(22px, 2.8vh, 30px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice .korean-display,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.is-checked .korean-display {
+  margin-top: 0;
+  margin-bottom: clamp(18px, 2.4vh, 24px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .question-copy h2,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  ).is-checked
+  .question-copy h2 {
+  margin-bottom: clamp(20px, 2.5vh, 27px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  ).is-checked
+  .sentence-focus {
+  margin-top: 0;
+  margin-bottom: clamp(16px, 2vh, 22px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice.is-checked .question-copy h2,
+.homework-shell .quiz-screen .question-card.listening-question .question-copy h2,
+.homework-shell .quiz-screen .question-card.listening-question.is-checked .question-copy h2 {
+  margin-bottom: clamp(18px, 2.3vh, 25px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .situation-copy,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice.is-checked .situation-copy {
+  margin-top: 0;
+  margin-bottom: clamp(14px, 1.8vh, 20px);
+}
+
+.homework-shell .quiz-screen .question-card.listening-question .listening-panel,
+.homework-shell .quiz-screen .question-card.listening-question.is-checked .listening-panel {
+  margin-top: 0;
+}
+
+/* Checked parity: the question title and actual prompt keep identical
+   typography and coordinates before and after answer checking. */
+.homework-shell .quiz-screen .question-card.choice-question .question-hero,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .question-hero {
+  height: auto;
+  min-height: 0;
+  margin-bottom: clamp(9px, 1.2vh, 13px);
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .question-copy,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .question-copy {
+  min-height: 0;
+  display: block;
+  padding: 0 4px;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .mode-dot,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .mode-dot {
+  width: 28px;
+  height: 28px;
+  margin-bottom: clamp(9px, 1.3vh, 13px);
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .mode-dot svg,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .mode-dot svg {
+  width: 22px;
+  height: 22px;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .question-copy h2,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .question-copy h2 {
+  font-size: clamp(21px, 5.4cqw, 26px);
+  font-weight: 680;
+  line-height: 1.16;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.is-checked .question-copy h2 {
+  margin-bottom: clamp(22px, 2.8vh, 30px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice .korean-display,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.is-checked .korean-display,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.revised-unit-one-question .korean-display.support-removed,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.revised-unit-one-question.is-checked .korean-display.support-removed {
+  margin-top: 0;
+  margin-bottom: clamp(18px, 2.4vh, 24px);
+  font-size: clamp(32px, 8.8cqw, 40px);
+  font-weight: 680;
+  line-height: 1.12;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .question-copy h2 {
+  max-width: 320px;
+  margin-bottom: clamp(24px, 3.1vh, 32px);
+  font-size: clamp(36px, 9.6cqw, 43px);
+  font-weight: 760;
+  line-height: 1.02;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .inline-focus,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .inline-focus {
+  margin-top: 0;
+  margin-bottom: clamp(18px, 2.4vh, 24px);
+  font-size: clamp(29px, 7.5cqw, 34px);
+  font-weight: 720;
+  line-height: 1.02;
+}
+
+/* Final before/after parity for prompt blocks that previously had checked-only
+   spacing tweaks. The title, actual question, and choices now keep the same
+   coordinates after checking; only feedback is appended below. */
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  ).is-checked
+  .sentence-focus {
+  margin-top: 0;
+  margin-bottom: clamp(16px, 2vh, 22px);
+}
+
+.homework-shell .quiz-screen .question-card .sentence-korean-line.sentence-text-short,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-short {
+  font-size: clamp(24px, 6.4cqw, 30px);
+}
+
+.homework-shell .quiz-screen .question-card .sentence-korean-line.sentence-text-medium,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-medium {
+  font-size: clamp(20px, 5.5cqw, 26px);
+}
+
+.homework-shell .quiz-screen .question-card .sentence-korean-line.sentence-text-long,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-long {
+  font-size: clamp(17px, 4.7cqw, 22px);
+}
+
+.homework-shell .quiz-screen .question-card .sentence-korean-line.sentence-text-xlong,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-xlong {
+  font-size: clamp(15px, 4.1cqw, 19px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .question-hero,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .question-hero {
+  margin-bottom: clamp(7px, 1vh, 10px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .reading-passage,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .reading-passage {
+  margin-top: 0;
+  margin-bottom: clamp(13px, 1.8vh, 18px);
+}
+
+.homework-shell .quiz-screen
+  .question-card:is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus,
+.homework-shell .quiz-screen
+  .question-card:is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  ).is-checked
+  .sentence-focus {
+  margin-top: clamp(12px, 1.7vh, 18px) !important;
+  margin-bottom: clamp(8px, 1.3vh, 12px) !important;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .question-hero,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .question-hero {
+  margin-bottom: clamp(7px, 1vh, 10px) !important;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .question-copy h2 {
+  margin-bottom: 0 !important;
+}
+
+/* Visually separate the question type from the actual prompt content. */
+.homework-shell .quiz-screen .question-card .question-copy .korean-display,
+.homework-shell .quiz-screen .question-card.is-checked .question-copy .korean-display,
+.homework-shell .quiz-screen .question-card .question-copy .inline-focus,
+.homework-shell .quiz-screen .question-card.is-checked .question-copy .inline-focus,
+.homework-shell .quiz-screen .question-card .question-copy .sentence-korean-line,
+.homework-shell .quiz-screen .question-card.is-checked .question-copy .sentence-korean-line,
+.homework-shell .quiz-screen .question-card .question-copy .situation-copy,
+.homework-shell .quiz-screen .question-card.is-checked .question-copy .situation-copy,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .reading-question-prompt,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .reading-question-prompt {
+  color: #4f7f42;
 }

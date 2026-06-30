@@ -37,12 +37,13 @@ export default function MistakeReview({ mistakes, onContinue }) {
           const reviewLabel = String(question.review_label ?? question.target_item)
           const [reviewKorean, embeddedRomanization] = reviewLabel.split('/').map((item) => item?.trim())
           const reviewRomanization = embeddedRomanization || question.romanization
+          const shouldHideEmbeddedRomanization = question.unit_id === 'unit_01' && question.question_type === 'korean_word_choice'
           const studentAnswer = result.answer_status === 'dontKnow'
             ? 'Not answered yet'
-            : question.unit_id === 'unit_01'
+            : shouldHideEmbeddedRomanization
               ? String(formatAnswer(result.student_answer)).split('/')[0].trim()
               : formatAnswer(result.student_answer)
-          const correctAnswer = question.unit_id === 'unit_01'
+          const correctAnswer = shouldHideEmbeddedRomanization
             ? String(formatAnswer(question.correct_answer)).split('/')[0].trim()
             : formatAnswer(question.correct_answer)
 

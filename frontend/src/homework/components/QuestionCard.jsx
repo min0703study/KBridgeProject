@@ -1,22 +1,36 @@
-import React from 'react'
-import { CheckCircle2, HelpCircle, MessageCircle, Target, XCircle } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import { CheckCircle2, HelpCircle, MessageCircle, Target, Volume2, XCircle } from 'lucide-react'
 import BlockOrder from './BlockOrder'
 import { getUnitAssets } from '../assets/unitAssets'
 import { SemanticText } from '../utils/koreanText.jsx'
 
 function questionTitle(question) {
+  if (question.question_type === 'korean_word_choice') {
+    return (
+      <>
+        Choose the
+        <br />
+        Korean word
+      </>
+    )
+  }
+
   const titles = {
     word_meaning_choice: 'Choose the meaning',
-    korean_word_choice: 'Choose the Korean word',
     context_fill_choice: 'Complete the sentence',
     grammar_ending_choice: 'Choose the ending',
     sentence_structure_choice: 'Build the sentence',
     sentence_order: 'Arrange the sentence',
     reading_choice: 'Read and answer',
     situation_expression_choice: 'Choose the expression',
+    listening_card_choice: 'Listen and choose',
+    listening_response_choice: 'Listen and answer',
+    listening_sentence_choice: 'Listen and choose',
   }
   return titles[question.question_type] ?? 'Daily Practice'
 }
+
+const mockWaveform = [18, 30, 12, 40, 24, 34, 16, 28, 12, 22, 36, 18, 14, 10, 26, 12, 18, 32, 14, 12, 18, 10, 16, 12, 20, 14, 12, 16]
 
 function choiceTextSizeClass(text) {
   const normalized = String(text ?? '').split('/')[0].trim()
@@ -51,7 +65,7 @@ function situationTextSizeClass(text) {
 }
 
 function splitDialogueLine(text) {
-  const match = String(text ?? '').match(/^([A-Z]):\s*(.+)$/)
+  const match = String(text ?? '').match(/^([^:：]{1,12})[:：]\s*(.+)$/)
 
   return match
     ? { speaker: match[1], content: match[2] }
@@ -61,35 +75,109 @@ function splitDialogueLine(text) {
 function dialogueTextSizeClass(text) {
   const length = String(text ?? '').replace(/\s+/g, '').length
 
-  if (length >= 16) return 'dialogue-text-long'
-  if (length >= 12) return 'dialogue-text-medium'
+  if (length >= 26) return 'dialogue-text-xlong'
+  if (length >= 19) return 'dialogue-text-long'
+  if (length >= 13) return 'dialogue-text-medium'
   return 'dialogue-text-short'
 }
 
+function primaryAnswer(answer) {
+  return Array.isArray(answer)
+    ? answer.join(' ')
+    : String(answer ?? '').split('/')[0].trim()
+}
+
+function fillBlank(text, answer) {
+  const value = primaryAnswer(answer)
+  return String(text ?? '').replace(/_{2,}/g, value)
+}
+
+function feedbackSupport(question) {
+  if (question.question_type?.startsWith('listening_')) {
+    return {
+      label: 'Audio script',
+      korean: question.korean,
+      romanization: question.romanization,
+      english: question.english_meaning,
+    }
+  }
+
+  const correct = primaryAnswer(question.correct_answer)
+  const korean = question.question_type === 'word_meaning_choice'
+    ? question.korean
+    : question.question_type === 'korean_word_choice'
+      ? correct
+      : question.blocks?.length
+        ? question.korean
+        : fillBlank(question.korean, correct)
+
+  const romanization = question.question_type === 'korean_word_choice'
+    ? String(question.correct_answer ?? '').split('/')[1]?.trim()
+    : question.feedback_romanization
+      ? question.feedback_romanization
+      : question.romanization && !String(question.romanization).includes('___')
+      ? question.romanization
+      : null
+
+  const english = question.feedback_english ?? question.english_meaning ?? question.english
+
+  if (!korean && !romanization && !english) return null
+
+  return { korean, romanization, english }
+}
+
 export default function QuestionCard({ question, answer, setAnswer, checked, grade, onCheck, onDontKnow, onNext, isLast }) {
+  const cardRef = useRef(null)
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false)
   const isChoice = Boolean(question.choices?.length)
   const isOrder = Boolean(question.blocks?.length)
   const isMeaningChoice = question.question_type === 'word_meaning_choice'
   const isKoreanChoice = question.question_type === 'korean_word_choice'
   const isReading = question.question_type === 'reading_choice'
+  const isListening = question.question_type?.startsWith('listening_')
   const isSituationExpression = question.question_type === 'situation_expression_choice'
   const isSituation = Boolean(question.situation)
   const sourceQuestionId = question.source_question_id ?? question.question_id
   const isRevisedUnitOne = question.unit_id === 'unit_01'
   const showRomanization = !isRevisedUnitOne
-  const showSentenceEnglish = !isRevisedUnitOne || ['u01_q13', 'u01_q15'].includes(sourceQuestionId)
-  const showSentenceFocus = !isReading && !isOrder && !isSituationExpression
+  const showSentenceEnglish = !isRevisedUnitOne || ['u01_q10', 'u01_q13', 'u01_q15'].includes(sourceQuestionId)
+  const showSentenceFocus = !isReading && !isOrder && !isSituationExpression && !isListening
   const isSentenceSupportRemoved = !showRomanization && !showSentenceEnglish
   const sentenceSizeClass = sentenceTextSizeClass(question.korean)
   const assets = getUnitAssets(question.unit_id)
   const feedbackCorrectAnswer = Array.isArray(question.correct_answer)
     ? question.correct_answer.join(' ')
-    : isRevisedUnitOne
+    : isRevisedUnitOne && !isListening
       ? String(question.correct_answer).split('/')[0].trim()
       : question.correct_answer
+  const support = feedbackSupport(question)
+  const visibleSupport = support && isOrder
+    ? { ...support, korean: null }
+    : support
+  const displayedOrderAnswer = isOrder && checked && Array.isArray(question.correct_answer)
+    ? question.correct_answer
+    : Array.isArray(answer)
+      ? answer
+      : []
+
+  const gradeClass = checked
+    ? grade.is_correct
+      ? 'is-correct'
+      : grade.is_dont_know
+        ? 'is-dont-know'
+        : 'is-incorrect'
+    : ''
+
+  useEffect(() => {
+    cardRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [checked, question.question_id])
+
+  useEffect(() => {
+    setIsAudioPlaying(false)
+  }, [question.question_id])
 
   return (
-    <section className={`question-card ${isOrder ? 'order-question' : 'choice-question'} question-type-${question.question_type} ${isReading ? 'reading-question' : ''} ${isRevisedUnitOne ? 'revised-unit-one-question' : ''} ${checked ? 'is-checked' : ''}`}>
+    <section ref={cardRef} className={`question-card ${isOrder ? 'order-question' : 'choice-question'} question-type-${question.question_type} ${isReading ? 'reading-question' : ''} ${isListening ? 'listening-question' : ''} ${isRevisedUnitOne ? 'revised-unit-one-question' : ''} ${checked ? 'is-checked' : ''} ${gradeClass}`}>
       <div className="question-hero">
         <div className="question-art" aria-hidden="true">
           <img src={isOrder ? assets.orderArt : assets.questionArt} alt="" />
@@ -97,7 +185,6 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
         <div className="question-copy">
           <div className="mode-dot"><Target size={22} /></div>
           <h2>{questionTitle(question)}</h2>
-          <p>{question.prompt}</p>
           {isSituation ? (
             <p className={`situation-copy ${situationTextSizeClass(question.situation)}`}>
               {question.situation}
@@ -150,6 +237,32 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
         </div>
       ) : null}
 
+      {isListening ? (
+        <div className={`listening-panel ${checked ? 'is-revealed' : ''}`}>
+          <div className={`audio-player ${isAudioPlaying ? 'is-playing' : ''}`}>
+            <button
+              className="speaker-button"
+              type="button"
+              aria-label={isAudioPlaying ? 'Pause listening prompt' : 'Play listening prompt'}
+              aria-pressed={isAudioPlaying}
+              onClick={() => setIsAudioPlaying((value) => !value)}
+            >
+              <Volume2 size={30} />
+            </button>
+            <div className="audio-waveform" aria-hidden="true">
+              {mockWaveform.map((height, index) => (
+                <span
+                  className={index === 12 ? 'wave-dot' : ''}
+                  key={`${height}-${index}`}
+                  style={{ '--wave-height': `${height}px` }}
+                />
+              ))}
+            </div>
+            <span className="audio-duration">0:06</span>
+          </div>
+        </div>
+      ) : null}
+
       {isChoice ? (
         <div className="choice-grid">
           {question.choices.map((choice, index) => {
@@ -185,7 +298,7 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
             <MessageCircle size={32} />
             <span><small>English meaning</small><strong>{question.english_meaning}</strong></span>
           </div>
-          <BlockOrder blocks={question.blocks} selected={Array.isArray(answer) ? answer : []} onChange={setAnswer} disabled={checked} />
+          <BlockOrder blocks={question.blocks} selected={displayedOrderAnswer} onChange={setAnswer} disabled={checked} />
         </>
       ) : null}
 
@@ -206,6 +319,14 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
               <small>Correct answer</small>
               <b>{feedbackCorrectAnswer}</b>
             </span>
+            {visibleSupport ? (
+              <span className="feedback-support">
+                {visibleSupport.label ? <small>{visibleSupport.label}</small> : null}
+                {visibleSupport.korean ? <strong lang="ko">{visibleSupport.korean}</strong> : null}
+                {visibleSupport.romanization ? <em>{visibleSupport.romanization}</em> : null}
+                {visibleSupport.english ? <span>{visibleSupport.english}</span> : null}
+              </span>
+            ) : null}
           </span>
         </div>
       ) : null}

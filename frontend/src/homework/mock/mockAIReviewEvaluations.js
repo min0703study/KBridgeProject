@@ -3,39 +3,33 @@
 // when the real evaluation distribution should be displayed.
 export const MOCK_AI_REVIEW_EVALUATIONS = [
   {
-    skill: 'Vocabulary Understanding',
+    skill: 'Words',
     failure_count: 0,
     status: 'Strong',
     review_items: [],
   },
   {
-    skill: 'Vocabulary Use',
+    skill: 'Grammar & Sentences',
     failure_count: 1,
     status: 'Keep Practicing',
-    review_items: ['기자'],
+    review_items: ['N입니다', '직업은 무엇입니까?'],
   },
   {
-    skill: 'Grammar Ending',
-    failure_count: 3,
-    status: 'Needs Review',
-    review_items: ['N입니다', 'N입니까?', 'N이/가 아닙니다'],
-  },
-  {
-    skill: 'Sentence Structure',
+    skill: 'Reading',
     failure_count: 0,
     status: 'Strong',
     review_items: [],
   },
   {
-    skill: 'Reading Check',
+    skill: 'Listening',
     failure_count: 1,
     status: 'Keep Practicing',
-    review_items: ['국적 정보 찾기'],
+    review_items: ['직업은 무엇입니까?'],
   },
   {
-    skill: 'Situation Expression',
-    failure_count: 2,
-    status: 'Needs Review',
-    review_items: ['안녕히 가세요.', '안녕히 계세요.'],
+    skill: 'Conversation',
+    failure_count: 1,
+    status: 'Keep Practicing',
+    review_items: ['반갑습니다.'],
   },
 ]

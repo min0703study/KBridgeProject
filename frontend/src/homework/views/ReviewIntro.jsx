@@ -9,8 +9,8 @@ export default function ReviewIntro({ unit, total, onStart }) {
   const title = unit.unit_title.replace(/^Unit \d+\.\s*/, '')
   const assets = getUnitAssets(unit.unit_id)
   const isUnitOne = unit.unit_id === 'unit_01'
-  const introCopy = isUnitOne ? 'Learn greetings, self-introduction, nationality, and jobs.' : unit.unit_goal
-  const coreWords = isUnitOne ? '학생, 선생님, 기자, 영국 사람' : unit.vocabulary_list.slice(0, 3).map((item) => item.korean).join(', ')
+  const introCopy = isUnitOne ? 'Review greetings, self-introduction, nationality, and jobs.' : unit.unit_goal
+  const coreWords = isUnitOne ? '학생, 회사원, 호주 사람, 영국 사람' : unit.vocabulary_list.slice(0, 3).map((item) => item.korean).join(', ')
   const sentencePattern = isUnitOne ? 'N입니다 / N입니까? / N이·가 아닙니다' : (unit.sentence_patterns[0] ?? unit.expression_list[0]?.korean)
   const dialogueFocus = isUnitOne ? 'Greetings and self-introduction' : (unit.dialogue_flow[0] ?? 'Practice short conversations')
   const totalDisplay = isUnitOne ? 20 : total

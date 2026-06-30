@@ -1,10 +1,9 @@
 export const EVALUATION_SKILLS = [
-  'Vocabulary Understanding',
-  'Vocabulary Use',
-  'Grammar Ending',
-  'Sentence Structure',
-  'Reading Check',
-  'Situation Expression',
+  'Words',
+  'Grammar & Sentences',
+  'Reading',
+  'Listening',
+  'Conversation',
 ]
 
 export function statusForFailureCount(count) {
@@ -96,7 +95,7 @@ export function buildPersonalizedReview({ questions, results }) {
     .map((result) => questions.find((question) => question.question_id === result.question_id))
     .filter(Boolean)
     .map((source, index) => (
-      source.evaluation_skill === 'Vocabulary Understanding'
+      ['word_meaning_choice', 'korean_word_choice'].includes(source.question_type)
         ? buildVocabularyVariant(source, index)
         : buildParallelVariant(source, index)
     ))

@@ -32,7 +32,7 @@ export default function ResultsView({ summary, reviewItems, onContinue }) {
         {Object.keys(groups).length === 0 ? (
           <article className="review-card">
             <h2>No review items today</h2>
-            <p className="meaning">All six learning skills were completed without a miss.</p>
+            <p className="meaning">All five review areas were completed without a miss.</p>
           </article>
         ) : Object.entries(groups).map(([skill, items]) => (
           <article className="review-card" key={skill}>
