@@ -21,6 +21,7 @@ class Settings(BaseModel):
     elevenlabs_voice_id: str = getenv("ELEVENLABS_VOICE_ID", "iP95p4xoKVk53GoZ742B")
     google_stt_language_code: str = getenv("GOOGLE_STT_LANGUAGE_CODE", "ko-KR")
     google_stt_model: str = getenv("GOOGLE_STT_MODEL", "latest_short")
+    database_url: str | None = getenv("DATABASE_URL")
     gemini_api_key: str | None = getenv("GEMINI_API_KEY") or getenv("GOOGLE_API_KEY")
     elevenlabs_api_key: str | None = getenv("ELEVENLABS_API_KEY")
 
