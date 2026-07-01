@@ -2,6 +2,7 @@ import {
   Battery,
   ChevronLeft,
   ChevronRight,
+  Gamepad2,
   LayoutGrid,
   Signal,
   Sun,
@@ -201,7 +202,8 @@ function BottomNavigation({ items, onMockNavigate }) {
             if (
               item.tab === 'dashboard' ||
               item.tab === 'homework' ||
-              item.tab === 'chatbot'
+              item.tab === 'chatbot' ||
+              item.tab === 'game'
             ) {
               onMockNavigate(item.tab);
             }
@@ -209,6 +211,8 @@ function BottomNavigation({ items, onMockNavigate }) {
         >
           {item.iconSrc ? (
             <img src={item.iconSrc} alt={item.iconAlt} />
+          ) : item.lucide === 'game' ? (
+            <Gamepad2 size={30} strokeWidth={1.9} aria-hidden="true" />
           ) : (
             <LayoutGrid size={30} strokeWidth={1.9} aria-hidden="true" />
           )}
