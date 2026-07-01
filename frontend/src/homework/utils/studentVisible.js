@@ -10,6 +10,8 @@ export function toStudentVisibleQuestion(question, showAnswer = false) {
     passage: question.passage,
     choices: question.choices,
     blocks: question.blocks,
+    audioText: showAnswer ? question.audioText : undefined,
+    audioSrc: question.audioSrc,
     korean: question.korean,
     romanization: question.romanization,
     english_meaning: question.english_meaning,
