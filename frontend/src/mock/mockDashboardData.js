@@ -120,12 +120,6 @@ export const MOCK_BOTTOM_NAV_ITEMS = [
     active: true,
   },
   {
-    id: 'mock-nav-game',
-    tab: 'game',
-    label: 'Game',
-    lucide: 'game',
-  },
-  {
     id: 'mock-nav-settings',
     tab: 'settings',
     label: 'Settings',
