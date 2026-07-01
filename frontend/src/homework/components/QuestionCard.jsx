@@ -154,6 +154,17 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
   const visibleSupport = support && isOrder
     ? { ...support, korean: null }
     : support
+  const dialogueFeedback = question.feedback_dialogue && Array.isArray(question.passage)
+    ? question.passage.map((line) => {
+      const dialogue = splitDialogueLine(line.korean)
+      return {
+        speaker: dialogue.speaker,
+        korean: dialogue.content,
+        romanization: splitDialogueLine(line.romanization).content,
+        english: splitDialogueLine(line.english).content,
+      }
+    })
+    : []
   const displayedOrderAnswer = isOrder && checked && Array.isArray(question.correct_answer)
     ? question.correct_answer
     : Array.isArray(answer)
@@ -325,6 +336,21 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
                 {visibleSupport.korean ? <strong lang="ko">{visibleSupport.korean}</strong> : null}
                 {visibleSupport.romanization ? <em>{visibleSupport.romanization}</em> : null}
                 {visibleSupport.english ? <span>{visibleSupport.english}</span> : null}
+              </span>
+            ) : null}
+            {dialogueFeedback.length ? (
+              <span className="feedback-dialogue">
+                <small>Dialogue meaning</small>
+                {dialogueFeedback.map((line, index) => (
+                  <span className="feedback-dialogue-line" key={`${line.korean}-${index}`}>
+                    <b>{line.speaker}</b>
+                    <span>
+                      <strong lang="ko">{line.korean}</strong>
+                      {line.romanization ? <em>{line.romanization}</em> : null}
+                      {line.english ? <span>{line.english}</span> : null}
+                    </span>
+                  </span>
+                ))}
               </span>
             ) : null}
           </span>

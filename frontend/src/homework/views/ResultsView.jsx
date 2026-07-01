@@ -1,50 +1,92 @@
 import React from 'react'
-import { CheckCircle2, HelpCircle, RotateCcw, XCircle } from 'lucide-react'
+import { CheckCircle2, CircleAlert, HelpCircle, RotateCcw, Sparkles, XCircle } from 'lucide-react'
 
-function reviewGroups(reviewItems) {
-  return reviewItems.reduce((groups, { question }) => {
-    const key = question.evaluation_skill
-    groups[key] = groups[key] ?? []
-    groups[key].push(question.review_label ?? question.target_item)
-    return groups
-  }, {})
+const statusIcon = {
+  Strong: CheckCircle2,
+  'Keep Practicing': Sparkles,
+  'Needs Review': CircleAlert,
 }
 
-export default function ResultsView({ summary, reviewItems, onContinue }) {
-  const groups = reviewGroups(reviewItems)
+function focusItemSizeClass(item) {
+  const length = String(item ?? '').replace(/\s+/g, '').length
+
+  if (length >= 9) return 'focus-item-long'
+  if (length >= 6) return 'focus-item-medium'
+  return 'focus-item-short'
+}
+
+export default function ResultsView({ summary, reviewItems, evaluations, onDone }) {
+  const nextFocus = evaluations.flatMap((evaluation) => evaluation.review_items)
+  const uniqueFocus = [...new Set(nextFocus)]
+  const stats = [
+    { label: 'Correct', value: summary.correct, Icon: CheckCircle2, tone: 'correct' },
+    { label: 'Incorrect', value: summary.incorrect, Icon: XCircle, tone: 'incorrect' },
+    { label: 'Not sure yet', value: summary.dontKnow, Icon: HelpCircle, tone: 'unsure' },
+    { label: 'Need review', value: summary.needsReview, Icon: RotateCcw, tone: 'review' },
+  ]
 
   return (
     <main className="screen results-screen">
+      <div className="result-page-title">
+        <span className="result-status-pill">Today’s AI result</span>
+      </div>
       <section className="hero-panel compact">
-        <p className="eyebrow">Today’s Review Result</p>
-        <h1>{summary.correct}/{summary.total} correct</h1>
-        <p>Great work. Ko-pilot is checking what to review next.</p>
+        <div className="result-hero-copy">
+          <div className="result-score-line">
+            <strong>{summary.correct}</strong>
+            <span>/ {summary.total} correct</span>
+          </div>
+        </div>
         <div className="result-stat-grid">
-          <span><CheckCircle2 size={24} /><strong>{summary.correct}</strong> Correct</span>
-          <span><XCircle size={24} /><strong>{summary.incorrect}</strong> Incorrect</span>
-          <span><HelpCircle size={24} /><strong>{summary.dontKnow}</strong> Not sure yet</span>
-          <span><RotateCcw size={24} /><strong>{summary.needsReview}</strong> Need review</span>
+          {stats.map(({ label, value, Icon, tone }) => (
+            <span className={`result-stat-card ${tone}`} key={label}>
+              <span className="result-stat-icon"><Icon size={20} /></span>
+              <span className="result-stat-copy">
+                <strong>{value}</strong>
+                <small>{label}</small>
+              </span>
+            </span>
+          ))}
         </div>
       </section>
 
-      <section className="generated-list">
-        <h2 className="section-title">Review again next time</h2>
-        {Object.keys(groups).length === 0 ? (
-          <article className="review-card">
-            <h2>No review items today</h2>
-            <p className="meaning">All five review areas were completed without a miss.</p>
-          </article>
-        ) : Object.entries(groups).map(([skill, items]) => (
-          <article className="review-card" key={skill}>
-            <p className="eyebrow">{skill}</p>
-            <div className="chip-row">
-              {[...new Set(items)].map((item) => <span key={item}>{item}</span>)}
-            </div>
-          </article>
-        ))}
+      <section className="skill-result-list">
+        {evaluations.map((evaluation) => {
+          const Icon = statusIcon[evaluation.status]
+          return (
+            <article className="review-card skill-result-card" key={evaluation.skill}>
+              <Icon size={24} />
+              <div>
+                <h2>{evaluation.skill}</h2>
+                <p>{evaluation.failure_count} item{evaluation.failure_count === 1 ? '' : 's'} to review</p>
+              </div>
+              <span className={`skill-status ${evaluation.status.toLowerCase().replaceAll(' ', '-')}`}>
+                {evaluation.status}
+              </span>
+            </article>
+          )
+        })}
       </section>
 
-      <button className="primary-button wide" onClick={onContinue} type="button">View AI Review Result</button>
+      <section className="review-card next-focus-card">
+        <h2>Next Review Focus</h2>
+        {uniqueFocus.length ? (
+          <div className="chip-row next-focus-grid">
+            {uniqueFocus.map((item) => (
+              <span className={focusItemSizeClass(item)} key={item}>{item}</span>
+            ))}
+          </div>
+        ) : (
+          <p className="meaning">No extra review is needed today.</p>
+        )}
+        <p className="ready-copy">
+          {uniqueFocus.length
+            ? 'Your personalized review will be ready on the home screen.'
+            : 'Your next regular Daily Practice is ready whenever you are.'}
+        </p>
+      </section>
+
+      <button className="primary-button wide" onClick={onDone} type="button">Done</button>
     </main>
   )
 }

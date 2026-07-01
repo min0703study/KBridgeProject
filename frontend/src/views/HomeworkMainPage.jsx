@@ -218,7 +218,14 @@ function HomeworkFlow() {
   }
 
   if (screen === 'results') {
-    return <ResultsView summary={summary} reviewItems={reviewItems} onContinue={() => setScreen('ai-review')} />;
+    return (
+      <ResultsView
+        summary={summary}
+        reviewItems={reviewItems}
+        evaluations={USE_MOCK_AI_REVIEW ? MOCK_AI_REVIEW_EVALUATIONS : skillEvaluations}
+        onDone={finishSession}
+      />
+    );
   }
 
   return (
