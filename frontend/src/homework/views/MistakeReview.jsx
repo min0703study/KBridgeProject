@@ -21,7 +21,6 @@ export default function MistakeReview({ mistakes, onContinue }) {
       <section className="mistake-hero">
         <div>
           <h1>Review Items</h1>
-          <p>Check what we’ll practice again.</p>
           <span className="mistake-count"><ClipboardCheck size={24} /> {mistakes.length} items to revisit</span>
         </div>
         <img className="clipboard-art asset-illustration" src={mistakeClipboardSearch} alt="" />

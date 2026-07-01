@@ -138,8 +138,8 @@ button {
 
 .featured-lesson-card {
   position: relative;
-  min-height: 360px;
-  padding: 31px 22px 22px;
+  min-height: 338px;
+  padding: 26px 22px 18px;
   overflow: hidden;
 }
 
@@ -266,7 +266,7 @@ button {
 .cover-cta {
   position: absolute;
   right: 18px;
-  bottom: 22px;
+  bottom: 14px;
   left: 18px;
 }
 
@@ -274,7 +274,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 38px 8px 18px;
+  margin: 22px 8px 16px;
 }
 
 .more-lessons-head h2 {
@@ -577,7 +577,7 @@ button {
 }
 
 .glance-card {
-  margin-top: 16px;
+  margin-top: 12px;
   padding: 21px;
 }
 
@@ -1143,6 +1143,70 @@ button {
   line-height: 1.25;
 }
 
+.feedback-dialogue {
+  display: grid;
+  gap: 6px;
+  width: calc(100% + 28px);
+  margin-top: 4px;
+  margin-left: -28px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(116, 109, 102, 0.2);
+}
+
+.feedback-dialogue > small {
+  color: #746d66;
+  font-size: clamp(10px, 2.7cqw, 12px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.feedback-dialogue-line {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.feedback-dialogue-line > b {
+  min-width: 42px;
+  color: #4f7f42;
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 850;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.feedback-dialogue-line > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.feedback-dialogue-line strong {
+  color: var(--navy);
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 760;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+
+.feedback-dialogue-line em {
+  color: #536273;
+  font-size: clamp(11px, 2.9cqw, 13px);
+  font-style: normal;
+  font-weight: 520;
+  line-height: 1.2;
+}
+
+.feedback-dialogue-line span span {
+  color: var(--color-muted);
+  font-size: clamp(11px, 2.9cqw, 13px);
+  font-weight: 520;
+  line-height: 1.2;
+}
+
 .feedback.correct .feedback-copy b {
   color: #2f6f31;
 }
@@ -1162,8 +1226,8 @@ button {
 
 .mistake-hero {
   position: relative;
-  min-height: 216px;
-  padding: 4px 8px 28px;
+  min-height: 166px;
+  padding: 4px 8px 12px;
   overflow: hidden;
 }
 
@@ -1181,22 +1245,25 @@ button {
   z-index: 1;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 26px;
-  padding: 12px 20px;
-  border-radius: 24px;
-  background: white;
+  gap: 9px;
+  margin-top: 18px;
+  padding: 9px 15px 9px 10px;
+  border-radius: 999px;
+  background: rgba(91, 132, 72, 0.12);
   color: var(--navy);
-  box-shadow: 0 12px 28px rgba(24, 32, 45, 0.08);
-  font-size: 18px;
-  font-weight: 800;
+  box-shadow: inset 0 0 0 1px rgba(91, 132, 72, 0.05);
+  font-size: 15px;
+  font-weight: 760;
+  line-height: 1;
 }
 
 .mistake-count svg {
-  padding: 7px;
+  width: 18px;
+  height: 18px;
+  padding: 6px;
   border-radius: 50%;
-  color: white;
-  background: var(--orange);
+  color: #4f7f42;
+  background: rgba(255, 255, 255, 0.76);
   box-sizing: content-box;
 }
 
@@ -1245,7 +1312,8 @@ button {
 
 .mistake-list {
   display: grid;
-  gap: 14px;
+  gap: 12px;
+  margin-top: 4px;
 }
 
 .review-card {
@@ -1371,18 +1439,47 @@ button {
   color: var(--navy);
 }
 
+.result-review-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px 14px 18px;
+}
+
+.result-review-header {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.result-review-header span {
+  min-height: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2px;
+  color: var(--navy);
+  background: transparent;
+  font-size: clamp(15px, 3.9cqw, 18px);
+  font-weight: 760;
+  line-height: 1.2;
+}
+
 .chip-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px 7px;
 }
 
 .chip-row span {
-  padding: 10px 12px;
+  padding: 8px 11px;
   border-radius: 999px;
   background: var(--sage-soft);
   color: var(--sage);
+  font-size: clamp(13px, 3.4cqw, 15px);
   font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  word-break: keep-all;
 }
 
 .hint {
@@ -1469,7 +1566,7 @@ button {
 }
 
 .featured-lesson-card:has(.unit-hero-unit_01) .cover-cta {
-  bottom: 18px;
+  bottom: 12px;
   background: linear-gradient(120deg, rgba(9, 47, 96, 0.98), rgba(5, 39, 79, 0.98));
 }
 
@@ -1496,14 +1593,14 @@ button {
 }
 
 .unit-intro-unit_01 {
-  min-height: 312px;
-  padding: 24px 22px 24px;
+  min-height: 232px;
+  padding: 18px 22px 16px;
 }
 
 .unit-intro-unit_01 .lesson-badge {
   position: relative;
   z-index: 2;
-  min-height: 36px;
+  min-height: 34px;
   padding-inline: 16px;
   font-size: 16px;
   border-radius: 15px;
@@ -1513,8 +1610,8 @@ button {
   position: relative;
   z-index: 2;
   max-width: 236px;
-  margin: 50px 0 10px;
-  font-size: clamp(30px, 8.1cqw, 34px);
+  margin: 34px 0 7px;
+  font-size: clamp(28px, 7.6cqw, 32px);
   font-weight: 820;
   line-height: 1.02;
   white-space: nowrap;
@@ -1524,19 +1621,20 @@ button {
 .unit-intro-unit_01 > p {
   position: relative;
   z-index: 2;
-  max-width: 214px;
+  max-width: 230px;
+  margin-top: -3px;
   color: #536986;
   font-size: clamp(13px, 3.5cqw, 15px);
-  line-height: 1.34;
+  line-height: 1.28;
 }
 
 .unit-intro-unit_01 .unit-preview-unit_01 {
   top: 0;
   right: 0;
-  width: 61%;
+  width: 58%;
   height: 100%;
   object-fit: cover;
-  object-position: right bottom;
+  object-position: right center;
   mix-blend-mode: multiply;
   -webkit-mask-image: linear-gradient(90deg, transparent 0, rgba(0,0,0,0.2) 10%, #000 28%, #000 100%);
   mask-image: linear-gradient(90deg, transparent 0, rgba(0,0,0,0.2) 10%, #000 28%, #000 100%);
@@ -1555,29 +1653,41 @@ button {
 }
 
 .intro-screen .glance-card {
-  padding: 22px 24px 20px;
+  margin-top: 14px;
+  padding: 16px 22px 20px;
+}
+
+.intro-screen .glance-card h3 {
+  margin-bottom: 22px;
 }
 
 .intro-screen .mini-stats span {
-  min-height: 92px;
-  gap: 8px;
-  font-size: 18px;
+  min-height: 98px;
+  display: grid;
+  grid-template-rows: 38px 32px 20px;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+  padding: 0 8px;
+  font-size: 15px;
+  line-height: 1.1;
 }
 
 .intro-screen .mini-stats svg {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
+  transform: translateY(-1px);
 }
 
 .intro-screen .mini-stats strong {
   font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-  font-size: 42px;
+  font-size: 28px;
   font-weight: 800;
 }
 
 .intro-screen .wide {
   min-height: 64px;
-  margin-top: 18px;
+  margin-top: 22px;
   font-size: 26px;
   border-radius: 18px;
 }
@@ -1956,11 +2066,11 @@ img.clipboard-art {
 }
 
 .intro-screen .mini-stats strong {
-  font-size: 34px;
+  font-size: 28px;
 }
 
 .intro-screen .mini-stats span {
-  min-height: 78px;
+  min-height: 98px;
   font-size: 15px;
 }
 
@@ -2009,7 +2119,7 @@ img.clipboard-art {
 }
 
 .hero-panel.compact {
-  padding: 18px 20px 16px;
+  padding: 18px 20px 18px;
   margin-bottom: 14px;
 }
 
@@ -2020,6 +2130,70 @@ img.clipboard-art {
 
 .hero-panel.compact > p {
   margin: 0 0 10px;
+}
+
+.result-page-title {
+  display: flex;
+  justify-content: center;
+  margin: clamp(4px, 0.8vh, 8px) 0 clamp(12px, 1.8vh, 18px);
+}
+
+.results-screen .hero-panel.compact {
+  padding-block: 14px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 241, 0.94)),
+    radial-gradient(circle at 92% 12%, rgba(91, 132, 72, 0.18), transparent 7rem);
+}
+
+.result-hero-copy {
+  display: grid;
+  justify-items: center;
+  gap: 0;
+  margin-bottom: 14px;
+}
+
+.result-status-pill {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  color: #4f7f42;
+  background: rgba(91, 132, 72, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(91, 132, 72, 0.05);
+  font-size: clamp(22px, 5.8cqw, 28px);
+  font-weight: 860;
+  line-height: 1;
+}
+
+.result-score-line {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  color: var(--navy);
+}
+
+.result-score-line strong {
+  font-size: clamp(46px, 12cqw, 58px);
+  font-weight: 860;
+  line-height: 0.95;
+}
+
+.result-score-line span {
+  color: #3d587a;
+  font-size: clamp(18px, 4.8cqw, 23px);
+  font-weight: 760;
+}
+
+.result-hero-copy p {
+  max-width: 300px;
+  margin: 0;
+  color: #5f7899;
+  font-size: clamp(14px, 3.7cqw, 16px);
+  font-weight: 560;
+  line-height: 1.35;
 }
 
 .hero-panel.compact .mini-stats span {
@@ -2412,36 +2586,91 @@ img.clipboard-art {
   gap: 8px;
 }
 
-.result-stat-grid span {
-  min-height: 76px;
-  border-radius: 14px;
+.result-stat-card {
+  min-height: 70px;
+  border-radius: 16px;
   display: grid;
-  grid-template-columns: 24px 1fr;
+  grid-template-columns: 36px minmax(0, 1fr);
   align-items: center;
-  gap: 2px 10px;
-  padding: 12px;
-  background: var(--sage-soft);
+  gap: 10px;
+  padding: 10px 13px;
+  background: #f3f7ef;
   color: var(--muted);
-  font-size: 13px;
+  box-shadow: inset 0 0 0 1px rgba(91, 132, 72, 0.06);
 }
 
-.result-stat-grid span:nth-child(2),
-.result-stat-grid span:nth-child(3) {
-  background: var(--orange-soft);
+.result-stat-card.incorrect,
+.result-stat-card.unsure {
+  background: #fff1e4;
+  box-shadow: inset 0 0 0 1px rgba(243, 154, 52, 0.08);
 }
 
-.result-stat-grid svg {
-  grid-row: 1 / 3;
+.result-stat-card.review {
+  background: #f0f4ec;
+}
+
+.result-stat-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
   color: var(--sage);
+  background: rgba(255, 255, 255, 0.72);
 }
 
-.result-stat-grid strong {
+.result-stat-card.incorrect .result-stat-icon,
+.result-stat-card.unsure .result-stat-icon {
+  color: #a45a2d;
+}
+
+.result-stat-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  align-content: center;
+}
+
+.result-stat-copy strong {
   color: var(--navy);
-  font-size: 24px;
+  font-size: clamp(24px, 6.4cqw, 30px);
+  font-weight: 820;
+  line-height: 1;
+}
+
+.result-stat-copy small {
+  color: #5f7899;
+  font-size: clamp(12px, 3.2cqw, 14px);
+  font-weight: 650;
+  line-height: 1.2;
 }
 
 .ai-review-hero {
   margin-top: 36px;
+}
+
+.merged-ai-review-hero {
+  margin-top: 0;
+  margin-bottom: 14px;
+}
+
+.merged-ai-review-hero .ai-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+}
+
+.merged-ai-review-hero h1 {
+  margin: 10px 0 8px;
+  font-size: clamp(22px, 5.8cqw, 28px);
+}
+
+.merged-ai-review-hero p {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(13px, 3.5cqw, 16px);
+  line-height: 1.42;
 }
 
 .ai-review-hero h1 {
@@ -2467,7 +2696,7 @@ img.clipboard-art {
 
 .skill-result-card {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) auto;
+  grid-template-columns: 30px minmax(0, 1fr) clamp(104px, 25cqw, 116px);
   align-items: center;
   gap: 10px;
 }
@@ -2493,14 +2722,20 @@ img.clipboard-art {
 }
 
 .skill-status {
-  max-width: 112px;
-  padding: 8px 10px;
+  width: clamp(104px, 25cqw, 116px);
+  min-height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
   border-radius: 999px;
   background: var(--sage-soft);
   color: var(--sage);
   font-size: 12px;
   font-weight: 900;
+  line-height: 1.18;
   text-align: center;
+  white-space: normal;
 }
 
 .skill-status.keep-practicing {
@@ -2514,12 +2749,14 @@ img.clipboard-art {
 }
 
 .next-focus-card {
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .next-focus-card h2 {
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   color: var(--navy);
+  font-size: clamp(21px, 5.5cqw, 27px);
+  line-height: 1.15;
 }
 
 .ready-copy {
@@ -2529,48 +2766,48 @@ img.clipboard-art {
 }
 
 .next-focus-card {
-  padding: clamp(18px, 4.6vw, 24px);
+  padding: clamp(13px, 3.4vw, 17px);
 }
 
 .next-focus-card .next-focus-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px 10px;
+  gap: 7px 8px;
   align-items: stretch;
 }
 
 .next-focus-card .next-focus-grid span {
   min-width: 0;
-  min-height: 42px;
+  min-height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 10px;
-  border-radius: 16px;
-  font-size: clamp(13px, 3.5vw, 16px);
-  line-height: 1.2;
-  letter-spacing: -0.035em;
+  padding: 6px 9px;
+  border-radius: 14px;
+  font-size: clamp(11px, 3vw, 14px);
+  line-height: 1.15;
+  letter-spacing: 0;
   text-align: center;
   white-space: nowrap;
 }
 
 .next-focus-card .next-focus-grid .focus-item-short {
-  font-size: clamp(14px, 3.8vw, 17px);
+  font-size: clamp(12px, 3.2vw, 15px);
 }
 
 .next-focus-card .next-focus-grid .focus-item-medium {
-  font-size: clamp(13px, 3.4vw, 15px);
+  font-size: clamp(11px, 3vw, 14px);
 }
 
 .next-focus-card .next-focus-grid .focus-item-long {
-  font-size: clamp(11px, 3vw, 14px);
-  letter-spacing: -0.055em;
+  font-size: clamp(10px, 2.7vw, 12px);
+  letter-spacing: 0;
 }
 
 .next-focus-card .ready-copy {
-  margin-top: 18px;
-  font-size: clamp(13px, 3.4vw, 16px);
-  line-height: 1.45;
+  margin-top: 11px;
+  font-size: clamp(11px, 3vw, 14px);
+  line-height: 1.32;
 }
 
 @media (max-width: 380px) {
@@ -4440,6 +4677,13 @@ img.clipboard-art {
   font-weight: 700;
 }
 
+.homework-shell .quiz-screen .feedback-dialogue-line > b {
+  min-width: 42px;
+  color: #4f7f42;
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 850;
+}
+
 .homework-shell .quiz-screen .feedback-copy strong {
   font-weight: 680;
 }
@@ -5318,6 +5562,13 @@ img.clipboard-art {
   line-height: 1.16;
 }
 
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice.is-checked .question-copy h2 {
+  max-width: none;
+  font-size: clamp(20px, 5.1cqw, 24px);
+  white-space: nowrap;
+}
+
 .homework-shell .quiz-screen .question-card.question-type-word_meaning_choice .question-copy h2,
 .homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.is-checked .question-copy h2 {
   margin-bottom: clamp(22px, 2.8vh, 30px);
@@ -5432,6 +5683,59 @@ img.clipboard-art {
   margin-bottom: 0 !important;
 }
 
+/* Keep question-type labels on one line across quiz pages. The Korean-word
+   prompt intentionally keeps its two-line "Choose the / Korean word" layout. */
+.homework-shell .quiz-screen .question-card:not(.question-type-korean_word_choice) .question-copy h2,
+.homework-shell .quiz-screen .question-card:not(.question-type-korean_word_choice).is-checked .question-copy h2 {
+  max-width: none;
+  font-size: clamp(20px, 5.1cqw, 25px);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+/* Q4/Q5 use the same visual hierarchy as the rest of the quiz: compact
+   question-type title first, then a slightly smaller green prompt. */
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .question-copy h2 {
+  max-width: 270px;
+  margin-bottom: clamp(14px, 1.9vh, 20px);
+  font-size: clamp(26px, 6.9cqw, 32px);
+  font-weight: 720;
+  line-height: 1.07;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .inline-focus,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .inline-focus {
+  margin-top: 0;
+  margin-bottom: clamp(14px, 1.9vh, 20px);
+  color: #4f7f42;
+  font-size: clamp(24px, 6.2cqw, 30px);
+  font-weight: 680;
+  line-height: 1.08;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice.is-checked .question-copy h2 {
+  margin-bottom: clamp(14px, 1.9vh, 20px);
+  font-size: clamp(20px, 5.1cqw, 25px);
+  font-weight: 680;
+  line-height: 1.1;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice .sentence-focus,
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice.is-checked .sentence-focus {
+  margin-top: clamp(8px, 1.1vh, 12px) !important;
+  margin-bottom: clamp(12px, 1.6vh, 18px) !important;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice .sentence-korean-line,
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice.is-checked .sentence-korean-line {
+  color: #4f7f42;
+  font-size: clamp(22px, 5.8cqw, 28px);
+  font-weight: 680;
+  line-height: 1.12;
+}
+
 /* Visually separate the question type from the actual prompt content. */
 .homework-shell .quiz-screen .question-card .question-copy .korean-display,
 .homework-shell .quiz-screen .question-card.is-checked .question-copy .korean-display,
@@ -5444,4 +5748,111 @@ img.clipboard-art {
 .homework-shell .quiz-screen .question-card.question-type-reading_choice .reading-question-prompt,
 .homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .reading-question-prompt {
   color: #4f7f42;
+}
+
+/* Review Items should feel like a calm app summary, not a compressed report.
+   Unit 01 cards use a vertical rhythm so long Korean sentences can breathe. */
+.homework-shell .mistakes-screen .revised-unit-one-review {
+  padding: 14px 14px 15px;
+  border-radius: 22px;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-label {
+  gap: 9px;
+  padding: 7px 13px;
+  border-radius: 14px;
+  color: #4f7f42;
+  background: rgba(91, 132, 72, 0.12);
+  font-size: clamp(13px, 3.4cqw, 15px);
+  font-weight: 760;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-label strong {
+  font-size: clamp(19px, 4.9cqw, 23px);
+  font-weight: 820;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 11px;
+  min-height: 0;
+  margin-top: 13px;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-term {
+  min-height: 0;
+  padding-left: 12px;
+  gap: 5px;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-term h2 {
+  max-width: 100%;
+  color: var(--navy);
+  font-size: clamp(19px, 4.9cqw, 23px);
+  font-weight: 760;
+  line-height: 1.18;
+  word-break: keep-all;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-term .romanization {
+  max-width: 100%;
+  color: #667b9b;
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 560;
+  line-height: 1.25;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .compare-grid {
+  display: grid;
+  grid-template-columns: minmax(88px, 0.42fr) minmax(0, 1fr);
+  gap: 7px 10px;
+  align-items: baseline;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(250, 247, 240, 0.78);
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .compare-grid span {
+  color: #667b9b;
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 560;
+  line-height: 1.2;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .compare-grid strong {
+  color: var(--navy);
+  font-size: clamp(13px, 3.4cqw, 15px);
+  font-weight: 720;
+  line-height: 1.22;
+  overflow: visible;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .compare-grid .compare-answer-long,
+.homework-shell .mistakes-screen .revised-unit-one-review .compare-grid .compare-answer-xlong {
+  font-size: clamp(12px, 3.1cqw, 14px);
+  letter-spacing: 0;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .why-strip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 9px 12px;
+  border-radius: 13px;
+  color: #173f73;
+  background: rgba(255, 240, 238, 0.72);
+  font-size: clamp(12px, 3.1cqw, 14px);
+  line-height: 1.2;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .why-strip strong {
+  margin-right: 0;
+  color: #d94d42;
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 760;
 }

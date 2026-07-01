@@ -262,6 +262,7 @@ export const mockDraftQuestions = [
     english: 'I am Chinese.',
     choices: ['중국 사람', '미국 사람', '일본 사람', '한국 사람'],
     correct_answer: '중국 사람',
+    feedback_dialogue: true,
   }),
   choiceQuestion({
     question_id: 'u01_q15',
@@ -283,6 +284,7 @@ export const mockDraftQuestions = [
     english: 'I am a reporter.',
     choices: ['기자', '학생', '의사', '회사원'],
     correct_answer: '기자',
+    feedback_dialogue: true,
   }),
 
   choiceQuestion({
