@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from uuid import uuid4
 
+from backend.app.agents.roleplay.logging import log_node_event
+from backend.app.core.config import get_settings
 from backend.app.schemas.roleplay import (
     AssistantMessage,
     CorrectionFeedback,
@@ -131,7 +133,7 @@ def _run_sample_turn(
         final_state = sample_backend.run_roleplay_turn(
             text,
             roleplay_session_id=roleplay_session_id,
-            use_llm=False,
+            use_llm=True,
             judge_model=sample_backend.default_judge_model(),
             response_model=sample_backend.default_response_model(),
             input_method=input_method,
@@ -141,6 +143,7 @@ def _run_sample_turn(
     except Exception as exc:
         raise SampleRoleplayingTurnError(str(exc)) from exc
 
+    _log_node_trace_if_enabled(final_state)
     return _turn_response(final_state, text)
 
 
@@ -228,6 +231,32 @@ def _turn_response(final_state: dict, transcript: str) -> RoleplayTurnResponse:
             created_turn_id=persistence.get("created_turn_id"),
         ),
     )
+
+
+def _log_node_trace_if_enabled(final_state: dict) -> None:
+    if not _node_trace_log_enabled():
+        return
+
+    node_logs = final_state.get("_node_logs") or []
+    if not node_logs:
+        return
+
+    persistence = final_state.get("persistence_result") or {}
+    session_after = persistence.get("session_after") or final_state.get("session") or {}
+    log_node_event(
+        "sample_node_trace",
+        "sample_roleplaying",
+        {
+            "roleplay_session_id": final_state.get("roleplay_session_id"),
+            "created_turn_id": persistence.get("created_turn_id"),
+            "end_status": session_after.get("end_status"),
+            "node_logs": node_logs,
+        },
+    )
+
+
+def _node_trace_log_enabled() -> bool:
+    return get_settings().roleplay_node_trace_log
 
 
 def _assistant_dialogue(response_pack: dict) -> tuple[str, str]:
