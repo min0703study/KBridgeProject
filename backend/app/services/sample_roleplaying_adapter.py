@@ -25,6 +25,10 @@ from backend.app.schemas.roleplay import (
     RoleplayVersionSummary,
     StepSampleAnswerSummary,
 )
+from backend.app.services.roleplay_voice_service import (
+    MissingProviderKeyError,
+    text_to_speech_base64,
+)
 from samples.agents.sample_roleplaying import sample_roleplaying_backend as sample_backend
 
 sample_db = sample_backend.sample_db
@@ -40,6 +44,10 @@ class SampleRoleplayingNotFoundError(SampleRoleplayingAdapterError):
 
 class SampleRoleplayingTurnError(SampleRoleplayingAdapterError):
     status_code = 422
+
+
+class SampleRoleplayingProviderError(SampleRoleplayingAdapterError):
+    status_code = 503
 
 
 def create_sample_roleplay_session(
@@ -91,7 +99,12 @@ async def run_sample_roleplay_session_text_turn(
     text_content = (payload.text_content or "").strip()
     if not text_content:
         raise SampleRoleplayingTurnError("text_content is required.")
-    return _run_sample_turn(roleplay_session_id, text_content, input_method="text")
+    return _run_sample_turn(
+        roleplay_session_id,
+        text_content,
+        input_method="text",
+        include_tts=True,
+    )
 
 
 async def run_sample_roleplay_session_dev_perfect_answer_turn(
@@ -101,7 +114,12 @@ async def run_sample_roleplay_session_dev_perfect_answer_turn(
     del payload
     state = _build_context_state(roleplay_session_id)
     sample_answer = _dev_perfect_answer_text(state)
-    return _run_sample_turn(roleplay_session_id, sample_answer, input_method="text")
+    return _run_sample_turn(
+        roleplay_session_id,
+        sample_answer,
+        input_method="text",
+        include_tts=False,
+    )
 
 
 async def run_sample_roleplay_session_turn(
@@ -119,7 +137,12 @@ async def run_sample_roleplay_session_turn(
         raise SampleRoleplayingTurnError(str(exc)) from exc
     if not transcript.strip():
         raise SampleRoleplayingTurnError("Speech transcript was empty.")
-    return _run_sample_turn(roleplay_session_id, transcript.strip(), input_method="voice")
+    return _run_sample_turn(
+        roleplay_session_id,
+        transcript.strip(),
+        input_method="voice",
+        include_tts=True,
+    )
 
 
 def _run_sample_turn(
@@ -127,6 +150,7 @@ def _run_sample_turn(
     text: str,
     *,
     input_method: str,
+    include_tts: bool,
 ) -> RoleplayTurnResponse:
     _session(roleplay_session_id)
     try:
@@ -144,7 +168,7 @@ def _run_sample_turn(
         raise SampleRoleplayingTurnError(str(exc)) from exc
 
     _log_node_trace_if_enabled(final_state)
-    return _turn_response(final_state, text)
+    return _turn_response(final_state, text, include_tts=include_tts)
 
 
 def _build_context_state(roleplay_session_id: str) -> dict:
@@ -162,7 +186,12 @@ def _build_context_state(roleplay_session_id: str) -> dict:
         raise SampleRoleplayingTurnError(str(exc)) from exc
 
 
-def _turn_response(final_state: dict, transcript: str) -> RoleplayTurnResponse:
+def _turn_response(
+    final_state: dict,
+    transcript: str,
+    *,
+    include_tts: bool,
+) -> RoleplayTurnResponse:
     response_pack = final_state.get("response_pack") or {}
     rule_decision = final_state.get("rule_decision") or {}
     judge_result = final_state.get("judge_result") or {}
@@ -173,6 +202,7 @@ def _turn_response(final_state: dict, transcript: str) -> RoleplayTurnResponse:
     correction_item = correction_items[0] if correction_items else None
     feedback = _feedback(correction_item) if correction_item else None
     assistant_text, assistant_translation = _assistant_dialogue(response_pack)
+    audio_base64 = _assistant_audio_base64(assistant_text, include_tts=include_tts)
     end_status = session_after.get("end_status") or "in_progress"
 
     return RoleplayTurnResponse(
@@ -180,7 +210,7 @@ def _turn_response(final_state: dict, transcript: str) -> RoleplayTurnResponse:
         assistant_message=AssistantMessage(
             ko=assistant_text,
             en=assistant_translation,
-            audio_base64="",
+            audio_base64=audio_base64,
         ),
         evaluation=Evaluation(
             result=judge_result.get("evaluation_result") or "soft_pass",
@@ -231,6 +261,16 @@ def _turn_response(final_state: dict, transcript: str) -> RoleplayTurnResponse:
             created_turn_id=persistence.get("created_turn_id"),
         ),
     )
+
+
+def _assistant_audio_base64(assistant_text: str, *, include_tts: bool) -> str:
+    if not include_tts or not assistant_text:
+        return ""
+
+    try:
+        return text_to_speech_base64(assistant_text)
+    except (MissingProviderKeyError, TypeError) as exc:
+        raise SampleRoleplayingProviderError(str(exc)) from exc
 
 
 def _log_node_trace_if_enabled(final_state: dict) -> None:
@@ -495,6 +535,7 @@ def _find(table: list[dict], key: str, value: str) -> dict:
 __all__ = [
     "SampleRoleplayingAdapterError",
     "SampleRoleplayingNotFoundError",
+    "SampleRoleplayingProviderError",
     "SampleRoleplayingTurnError",
     "create_sample_roleplay_session",
     "get_sample_convenience_store_ingame",
