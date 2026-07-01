@@ -4,8 +4,8 @@ import App from './App.jsx';
 import './styles/global.css';
 import './styles/dashboard.css';
 import './styles/chatbot.css';
-import './styles/game.css';
 import './styles/homework.css';
+import './styles/game.css';
 import './styles/roleplayIngame.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(

@@ -124,6 +124,7 @@ export const MOCK_BOTTOM_NAV_ITEMS = [
     tab: 'game',
     label: 'Game',
     lucide: 'game',
+    active: true,
   },
   {
     id: 'mock-nav-settings',

@@ -80,11 +80,11 @@ export const MOCK_GAME_BOTTOM_NAV_ITEMS = [
     iconAlt: 'Homework',
   },
   {
-    id: 'mock-nav-chatbot',
-    tab: 'chatbot',
-    label: 'Chatbot',
-    iconSrc: '/11_nav_chatbot.png',
-    iconAlt: 'Chatbot',
+    id: 'mock-nav-vocabulary',
+    tab: 'vocabulary',
+    label: 'Vocabulary',
+    iconSrc: '/09_nav_vocabulary_book_aa.png',
+    iconAlt: 'Vocabulary',
   },
   {
     id: 'mock-nav-dashboard',

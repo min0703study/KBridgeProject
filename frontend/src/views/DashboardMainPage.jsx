@@ -201,9 +201,9 @@ function BottomNavigation({ items, onMockNavigate }) {
           onClick={() => {
             if (
               item.tab === 'dashboard' ||
-              item.tab === 'game' ||
               item.tab === 'homework' ||
-              item.tab === 'chatbot'
+              item.tab === 'chatbot' ||
+              item.tab === 'game'
             ) {
               onMockNavigate(item.tab);
             }

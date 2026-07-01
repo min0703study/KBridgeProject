@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Gamepad2, LayoutGrid } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 import { buildPersonalizedReview, evaluateSkills } from '../homework/agent/reviewBuilderAgent.js';
 import {
   MOCK_AI_REVIEW_EVALUATIONS,
@@ -30,7 +30,6 @@ function HomeworkBottomNavigation({ onMockNavigate }) {
           onClick={() => {
             if (
               item.tab === 'dashboard' ||
-              item.tab === 'game' ||
               item.tab === 'homework' ||
               item.tab === 'chatbot'
             ) {
@@ -40,8 +39,6 @@ function HomeworkBottomNavigation({ onMockNavigate }) {
         >
           {item.iconSrc ? (
             <img src={item.iconSrc} alt={item.iconAlt} />
-          ) : item.lucide === 'game' ? (
-            <Gamepad2 size={30} strokeWidth={1.9} aria-hidden="true" />
           ) : (
             <LayoutGrid size={30} strokeWidth={1.9} aria-hidden="true" />
           )}
