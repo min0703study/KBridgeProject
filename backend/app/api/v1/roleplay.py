@@ -1,11 +1,9 @@
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
-from backend.app.db.session import get_db_session
 from backend.app.schemas.roleplay import RoleplayIngameResponse, RoleplayTurnResponse
-from backend.app.services.roleplay_ingame_service import (
-    RoleplayIngameNotFoundError,
-    get_convenience_store_ingame,
+from backend.app.services.sample_roleplaying_adapter import (
+    SampleRoleplayingAdapterError,
+    get_sample_convenience_store_ingame,
 )
 
 
@@ -13,13 +11,11 @@ router = APIRouter(prefix="/roleplay", tags=["roleplay"])
 
 
 @router.get("/convenience-store/ingame", response_model=RoleplayIngameResponse)
-async def convenience_store_ingame(
-    session: AsyncSession = Depends(get_db_session),
-) -> RoleplayIngameResponse:
+async def convenience_store_ingame() -> RoleplayIngameResponse:
     try:
-        return await get_convenience_store_ingame(session)
-    except RoleplayIngameNotFoundError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
+        return get_sample_convenience_store_ingame()
+    except SampleRoleplayingAdapterError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
 
 @router.post("/convenience-store/turn", response_model=RoleplayTurnResponse)
