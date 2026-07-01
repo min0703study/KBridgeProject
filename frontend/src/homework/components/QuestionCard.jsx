@@ -96,7 +96,7 @@ function feedbackSupport(question) {
   if (question.question_type?.startsWith('listening_')) {
     return {
       label: 'Audio script',
-      korean: question.korean,
+      korean: question.audioText ?? question.korean,
       romanization: question.romanization,
       english: question.english_meaning,
     }
@@ -128,6 +128,7 @@ function feedbackSupport(question) {
 
 export default function QuestionCard({ question, answer, setAnswer, checked, grade, onCheck, onDontKnow, onNext, isLast }) {
   const cardRef = useRef(null)
+  const audioRef = useRef(null)
   const [isAudioPlaying, setIsAudioPlaying] = useState(false)
   const isChoice = Boolean(question.choices?.length)
   const isOrder = Boolean(question.blocks?.length)
@@ -137,6 +138,7 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
   const isListening = question.question_type?.startsWith('listening_')
   const isSituationExpression = question.question_type === 'situation_expression_choice'
   const isSituation = Boolean(question.situation)
+  const canPlayAudio = isListening && Boolean(question.audioSrc)
   const sourceQuestionId = question.source_question_id ?? question.question_id
   const isRevisedUnitOne = question.unit_id === 'unit_01'
   const showRomanization = !isRevisedUnitOne
@@ -184,8 +186,32 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
   }, [checked, question.question_id])
 
   useEffect(() => {
+    const audio = audioRef.current
+    if (audio) {
+      audio.pause()
+      audio.currentTime = 0
+    }
     setIsAudioPlaying(false)
-  }, [question.question_id])
+  }, [question.audioSrc, question.question_id])
+
+  const playListeningAudio = () => {
+    const audio = audioRef.current
+
+    if (!audio || !question.audioSrc) return
+
+    audio.pause()
+    audio.currentTime = 0
+
+    const playPromise = audio.play()
+
+    if (playPromise?.then) {
+      playPromise
+        .then(() => setIsAudioPlaying(true))
+        .catch(() => setIsAudioPlaying(false))
+    } else {
+      setIsAudioPlaying(true)
+    }
+  }
 
   return (
     <section ref={cardRef} className={`question-card ${isOrder ? 'order-question' : 'choice-question'} question-type-${question.question_type} ${isReading ? 'reading-question' : ''} ${isListening ? 'listening-question' : ''} ${isRevisedUnitOne ? 'revised-unit-one-question' : ''} ${checked ? 'is-checked' : ''} ${gradeClass}`}>
@@ -251,12 +277,22 @@ export default function QuestionCard({ question, answer, setAnswer, checked, gra
       {isListening ? (
         <div className={`listening-panel ${checked ? 'is-revealed' : ''}`}>
           <div className={`audio-player ${isAudioPlaying ? 'is-playing' : ''}`}>
+            <audio
+              ref={audioRef}
+              src={question.audioSrc}
+              preload="none"
+              onEnded={() => setIsAudioPlaying(false)}
+              onError={() => setIsAudioPlaying(false)}
+              onPause={() => setIsAudioPlaying(false)}
+              onPlay={() => setIsAudioPlaying(true)}
+            />
             <button
               className="speaker-button"
               type="button"
-              aria-label={isAudioPlaying ? 'Pause listening prompt' : 'Play listening prompt'}
+              aria-label="Play listening prompt"
               aria-pressed={isAudioPlaying}
-              onClick={() => setIsAudioPlaying((value) => !value)}
+              disabled={!canPlayAudio}
+              onClick={playListeningAudio}
             >
               <Volume2 size={30} />
             </button>
