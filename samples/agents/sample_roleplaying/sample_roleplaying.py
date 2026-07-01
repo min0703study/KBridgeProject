@@ -45,6 +45,7 @@ import sample_roleplaying_db as sample_db
 
 LEARNER_ID = "23978a46-2c8e-4e2c-aa1d-4c37380b436e"
 INPUT_METHOD = "text"
+RESPONSE_PACK_MAX_OUTPUT_TOKENS = 1200
 LLM_MODEL_OPTIONS = {
     "Gemini 3.1 Flash Lite": "gemini-3.1-flash-lite",
     "GPT-5.4 mini": "gpt-5.4-mini",
@@ -396,6 +397,13 @@ class LLMStructuredResult(Generic[StructuredOutputT]):
         self.raw_text = raw_text
         self.provider = provider
         self.model = model
+
+
+class LLMStructuredParseError(Exception):
+    def __init__(self, exc: Exception, raw_text: str) -> None:
+        self.raw_text = raw_text
+        self.original_error = exc
+        super().__init__(f"{type(exc).__name__}: {exc}")
 
 
 for output_model in (
@@ -1058,14 +1066,19 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
     used_fallback = True
     fallback_reason = None
     if sample_config.get("use_llm"):
-        llm_result = generate_llm_structured(
-            JUDGE_SYSTEM_INSTRUCTION,
-            prompt,
-            model_name=model_name,
-            output_model=JudgeLLMOutput,
-            max_output_tokens=200,
-            thinking_budget=0,
-        )
+        try:
+            llm_result = generate_llm_structured(
+                JUDGE_SYSTEM_INSTRUCTION,
+                prompt,
+                model_name=model_name,
+                output_model=JudgeLLMOutput,
+                max_output_tokens=200,
+                thinking_budget=0,
+            )
+        except LLMStructuredParseError as exc:
+            raw_response = exc.raw_text
+            fallback_reason = llm_parse_error_reason(exc)
+            llm_result = None
         if llm_result:
             raw_response = llm_result.raw_text
             try:
@@ -1075,7 +1088,7 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
                 fallback_reason = llm_parse_error_reason(exc)
                 state["judge_result"] = heuristic_judge_result(state)
         else:
-            fallback_reason = st.session_state.get("last_provider_error") or "empty_llm_response"
+            fallback_reason = fallback_reason or st.session_state.get("last_provider_error") or "empty_llm_response"
             state["judge_result"] = heuristic_judge_result(state)
     else:
         fallback_reason = "llm_disabled"
@@ -1273,14 +1286,20 @@ def generate_gemini_structured(
             )
         raw_text = response.text or ""
         parsed = getattr(response, "parsed", None)
-        if not isinstance(parsed, output_model):
-            parsed = output_model.model_validate_json(raw_text)
+        try:
+            if not isinstance(parsed, output_model):
+                parsed = output_model.model_validate_json(raw_text)
+        except Exception as exc:
+            raise LLMStructuredParseError(exc, raw_text) from exc
         return LLMStructuredResult(
             parsed=parsed,
             raw_text=raw_text,
             provider="gemini",
             model=model_name,
         )
+    except LLMStructuredParseError as exc:
+        set_llm_error(exc)
+        raise
     except Exception as exc:
         set_llm_error(exc)
         return None
@@ -1311,14 +1330,20 @@ def generate_openai_structured(
         output_text = getattr(response, "output_text", None)
         raw_text = output_text or ""
         parsed = getattr(response, "output_parsed", None)
-        if not isinstance(parsed, output_model):
-            parsed = output_model.model_validate_json(raw_text)
+        try:
+            if not isinstance(parsed, output_model):
+                parsed = output_model.model_validate_json(raw_text)
+        except Exception as exc:
+            raise LLMStructuredParseError(exc, raw_text) from exc
         return LLMStructuredResult(
             parsed=parsed,
             raw_text=raw_text,
             provider="openai",
             model=model_name,
         )
+    except LLMStructuredParseError as exc:
+        set_llm_error(exc)
+        raise
     except Exception as exc:
         set_llm_error(exc)
         return None
@@ -1526,18 +1551,25 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
         RESPONSE_PACK_SYSTEM_INSTRUCTION,
         prompt,
         model_name=model_name,
+        max_output_tokens=RESPONSE_PACK_MAX_OUTPUT_TOKENS,
     )
     raw_response = None
     used_fallback = True
     fallback_reason = None
     response_pack = {"message_drafts": [], "correction_items": []}
     if sample_config.get("use_llm"):
-        llm_result = generate_llm_structured(
-            RESPONSE_PACK_SYSTEM_INSTRUCTION,
-            prompt,
-            model_name=model_name,
-            output_model=ResponsePackLLMOutput,
-        )
+        try:
+            llm_result = generate_llm_structured(
+                RESPONSE_PACK_SYSTEM_INSTRUCTION,
+                prompt,
+                model_name=model_name,
+                output_model=ResponsePackLLMOutput,
+                max_output_tokens=RESPONSE_PACK_MAX_OUTPUT_TOKENS,
+            )
+        except LLMStructuredParseError as exc:
+            raw_response = exc.raw_text
+            fallback_reason = llm_parse_error_reason(exc)
+            llm_result = None
         if llm_result:
             raw_response = llm_result.raw_text
             try:
@@ -1547,7 +1579,7 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
                 fallback_reason = llm_parse_error_reason(exc)
                 response_pack = {"message_drafts": [], "correction_items": []}
         else:
-            fallback_reason = st.session_state.get("last_provider_error") or "empty_llm_response"
+            fallback_reason = fallback_reason or st.session_state.get("last_provider_error") or "empty_llm_response"
     else:
         fallback_reason = "llm_disabled"
     if not used_fallback:
