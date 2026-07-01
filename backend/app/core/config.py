@@ -2,13 +2,12 @@ from functools import lru_cache
 from os import getenv
 
 from dotenv import load_dotenv
-from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-load_dotenv()
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-
-class Settings(BaseModel):
     app_title: str = "KBridge API"
     cors_origins: list[str] = [
         "http://localhost:5173",
@@ -17,6 +16,18 @@ class Settings(BaseModel):
         "http://127.0.0.1:3000",
     ]
     database_url: str | None = getenv("DATABASE_URL")
+    gemini_model: str = "gemini-3.1-pro-preview"
+    elevenlabs_model: str = "eleven_flash_v2_5"
+    elevenlabs_voice_id: str = "iP95p4xoKVk53GoZ742B"
+    google_stt_language_code: str = "ko-KR"
+    google_stt_model: str = "latest_short"
+    gemini_api_key: str | None = None
+    google_api_key: str | None = None
+    elevenlabs_api_key: str | None = None
+
+    @property
+    def resolved_gemini_api_key(self) -> str | None:
+        return self.gemini_api_key or self.google_api_key
 
 
 @lru_cache
