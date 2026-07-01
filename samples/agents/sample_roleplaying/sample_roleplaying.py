@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import base64
+import hashlib
+import io
 import json
 import os
 import re
 import sys
 import time
+import wave
+from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Generic, Literal, TypeVar
@@ -12,6 +17,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 import streamlit as st
+import streamlit.components.v1 as components
 
 try:
     from google import genai
@@ -24,6 +30,16 @@ try:
     from openai import OpenAI
 except Exception:  # pragma: no cover - OpenAI is optional for this sample.
     OpenAI = None
+
+try:
+    from elevenlabs.client import ElevenLabs
+except Exception:  # pragma: no cover - TTS is optional for this sample.
+    ElevenLabs = None
+
+try:
+    from google.cloud import speech
+except Exception:  # pragma: no cover - STT is optional for this sample.
+    speech = None
 
 try:
     from kiwipiepy import Kiwi
@@ -45,6 +61,8 @@ import sample_roleplaying_db as sample_db
 
 LEARNER_ID = "23978a46-2c8e-4e2c-aa1d-4c37380b436e"
 INPUT_METHOD = "text"
+ELEVENLABS_MODEL = "eleven_flash_v2_5"
+ELEVENLABS_VOICE_ID = "iP95p4xoKVk53GoZ742B"
 RESPONSE_PACK_MAX_OUTPUT_TOKENS = 1200
 LLM_MODEL_OPTIONS = {
     "Gemini 3.1 Flash Lite": "gemini-3.1-flash-lite",
@@ -212,6 +230,112 @@ def api_key() -> str | None:
 
 def openai_api_key() -> str | None:
     return load_dotenv_value("OPENAI_API_KEY")
+
+
+def elevenlabs_api_key() -> str | None:
+    return load_dotenv_value("ELEVENLABS_API_KEY")
+
+
+def google_stt_language_code() -> str:
+    return load_dotenv_value("GOOGLE_STT_LANGUAGE_CODE") or "ko-KR"
+
+
+def google_stt_model() -> str:
+    return load_dotenv_value("GOOGLE_STT_MODEL") or "latest_short"
+
+
+@st.cache_resource
+def get_speech_client() -> Any:
+    if speech is None:
+        raise RuntimeError("google-cloud-speech package is not available.")
+    return speech.SpeechClient()
+
+
+@st.cache_resource
+def get_elevenlabs_client(api_key_value: str) -> Any:
+    if ElevenLabs is None:
+        raise RuntimeError("elevenlabs package is not available.")
+    return ElevenLabs(api_key=api_key_value)
+
+
+def transcribe_recorded_audio(audio_bytes: bytes) -> str:
+    if speech is None:
+        raise RuntimeError("google-cloud-speech package is not available.")
+
+    try:
+        with wave.open(io.BytesIO(audio_bytes), "rb") as wav_file:
+            sample_rate_hertz = wav_file.getframerate()
+            channel_count = wav_file.getnchannels()
+    except (EOFError, wave.Error) as exc:
+        raise ValueError("Only WAV audio from st.audio_input() is supported.") from exc
+
+    stt_response = get_speech_client().recognize(
+        config=speech.RecognitionConfig(
+            sample_rate_hertz=sample_rate_hertz,
+            audio_channel_count=channel_count,
+            language_code=google_stt_language_code(),
+            enable_automatic_punctuation=True,
+            model=google_stt_model(),
+        ),
+        audio=speech.RecognitionAudio(content=audio_bytes),
+    )
+    return " ".join(
+        result.alternatives[0].transcript
+        for result in stt_response.results
+        if result.alternatives
+    ).strip()
+
+
+def text_to_speech_base64(text: str) -> tuple[str, str]:
+    api_key_value = elevenlabs_api_key()
+    if not api_key_value:
+        raise RuntimeError("ELEVENLABS_API_KEY is required for TTS mode.")
+
+    elevenlabs = get_elevenlabs_client(api_key_value)
+    tts_audio = elevenlabs.text_to_speech.convert(
+        text=text,
+        voice_id=load_dotenv_value("ELEVENLABS_VOICE_ID") or ELEVENLABS_VOICE_ID,
+        model_id=load_dotenv_value("ELEVENLABS_MODEL") or ELEVENLABS_MODEL,
+        output_format="mp3_44100_128",
+    )
+
+    if isinstance(tts_audio, bytes):
+        audio_bytes = tts_audio
+    elif isinstance(tts_audio, Iterable):
+        audio_bytes = b"".join(chunk for chunk in tts_audio if isinstance(chunk, bytes))
+    else:
+        raise TypeError(f"Unsupported TTS response type: {type(tts_audio)!r}")
+
+    audio_hash = hashlib.sha256(audio_bytes).hexdigest()
+    audio_base64 = base64.b64encode(audio_bytes).decode("ascii")
+    return audio_base64, audio_hash
+
+
+def render_audio_player(audio_base64: str, autoplay: bool = False) -> None:
+    autoplay_attr = "autoplay" if autoplay else ""
+    html = (
+        f"""
+        <audio controls {autoplay_attr} style="width: 100%; margin-top: 8px;">
+          <source src="data:audio/mpeg;base64,{audio_base64}" type="audio/mpeg">
+        </audio>
+        """
+    )
+    if not autoplay:
+        st.markdown(html, unsafe_allow_html=True)
+        return
+
+    components.html(
+        html
+        + """
+        <script>
+          const audio = document.querySelector("audio");
+          if (audio) {
+            audio.play().catch(() => {});
+          }
+        </script>
+        """,
+        height=64,
+    )
 
 
 def default_judge_model() -> str:
@@ -2266,12 +2390,13 @@ def run_roleplay_turn(
     use_llm: bool,
     judge_model: str,
     response_model: str,
+    input_method: str = INPUT_METHOD,
 ) -> dict[str, Any]:
     state = build_initial_state(
         roleplay_session_id=st.session_state["roleplay_session_id"],
         learner_id=LEARNER_ID,
         learner_input_text=text,
-        input_method=INPUT_METHOD,
+        input_method=input_method,
     )
     state["_sample_config"] = {
         "use_llm": use_llm,
@@ -2291,7 +2416,54 @@ def current_step_for_ui() -> dict[str, Any]:
     return find_one(sample_db.STEPS, "step_id", session["current_step_id"])
 
 
-def render_chat_message(message: dict[str, Any]) -> None:
+def render_message_tts(message: dict[str, Any], *, tts_enabled: bool) -> None:
+    if not tts_enabled or message.get("message_type") != "roleplay_character_dialogue_text":
+        return
+
+    audio_by_message_id = st.session_state.get("tts_audio_by_message_id", {})
+    audio = audio_by_message_id.get(message.get("message_id"))
+    if not audio:
+        try:
+            with st.spinner("Generating character voice with ElevenLabs..."):
+                audio_base64, audio_hash = text_to_speech_base64(message["text_content"])
+            audio = {
+                "audio_base64": audio_base64,
+                "audio_hash": audio_hash,
+            }
+            audio_by_message_id[message["message_id"]] = audio
+        except Exception as exc:
+            st.warning(f"TTS failed: {exc}")
+            return
+
+    autoplay = message.get("message_id") == st.session_state.get("last_autoplay_message_id")
+    render_audio_player(audio["audio_base64"], autoplay=autoplay)
+    if autoplay:
+        st.session_state["last_autoplay_message_id"] = None
+
+
+def generate_tts_for_messages(messages: list[dict[str, Any]]) -> None:
+    audio_by_message_id = st.session_state.setdefault("tts_audio_by_message_id", {})
+    newest_message_id = None
+    for message in messages:
+        if message.get("message_type") != "roleplay_character_dialogue_text":
+            continue
+        message_id = message["message_id"]
+        if message_id in audio_by_message_id:
+            newest_message_id = message_id
+            continue
+
+        audio_base64, audio_hash = text_to_speech_base64(message["text_content"])
+        audio_by_message_id[message_id] = {
+            "audio_base64": audio_base64,
+            "audio_hash": audio_hash,
+        }
+        newest_message_id = message_id
+
+    if newest_message_id:
+        st.session_state["last_autoplay_message_id"] = newest_message_id
+
+
+def render_chat_message(message: dict[str, Any], *, tts_enabled: bool = False) -> None:
     message_type = message["message_type"]
     sender = message["sender_type"]
     if sender == "learner":
@@ -2317,6 +2489,7 @@ def render_chat_message(message: dict[str, Any]) -> None:
             translation = parse_json_maybe(message.get("translation_json"))
             if isinstance(translation, dict) and translation.get("en"):
                 st.caption(translation["en"])
+            render_message_tts(message, tts_enabled=tts_enabled)
 
 
 def render_llm_request(llm_request: dict[str, Any]) -> None:
@@ -2421,6 +2594,14 @@ def main() -> None:
         st.session_state["last_node_logs"] = []
     if "last_provider_error" not in st.session_state:
         st.session_state["last_provider_error"] = None
+    if "last_voice_error" not in st.session_state:
+        st.session_state["last_voice_error"] = None
+    if "last_autoplay_message_id" not in st.session_state:
+        st.session_state["last_autoplay_message_id"] = None
+    if "tts_audio_by_message_id" not in st.session_state:
+        st.session_state["tts_audio_by_message_id"] = {}
+    if "voice_input_key" not in st.session_state:
+        st.session_state["voice_input_key"] = 0
 
     session = current_session()
     step = current_step_for_ui()
@@ -2435,8 +2616,14 @@ def main() -> None:
             st.session_state["roleplay_session_id"] = reset_fake_db()
             st.session_state["last_node_logs"] = []
             st.session_state["last_provider_error"] = None
+            st.session_state["last_voice_error"] = None
+            st.session_state["last_autoplay_message_id"] = None
+            st.session_state["tts_audio_by_message_id"] = {}
+            st.session_state["voice_input_key"] += 1
             st.rerun()
         use_llm = st.checkbox("Use LLM nodes", value=use_llm_default)
+        stt_enabled = st.toggle("STT mode", value=False)
+        tts_enabled = st.toggle("TTS mode", value=False)
         model_labels = list(LLM_MODEL_OPTIONS)
         judge_model_label = st.selectbox(
             "Judge node model",
@@ -2461,6 +2648,15 @@ def main() -> None:
                     st.warning(f"{node_label} model fallback: {provider_error}")
         if st.session_state.get("last_provider_error"):
             st.warning(f"Provider fallback: {st.session_state['last_provider_error']}")
+        if st.session_state.get("last_voice_error"):
+            st.warning(st.session_state["last_voice_error"])
+        if stt_enabled and speech is None:
+            st.warning("STT mode requires google-cloud-speech.")
+        if tts_enabled:
+            if ElevenLabs is None:
+                st.warning("TTS mode requires elevenlabs.")
+            elif not elevenlabs_api_key():
+                st.warning("TTS mode requires ELEVENLABS_API_KEY.")
         st.metric("Life", session["remaining_chances"])
         st.metric("Step", f"{step['step_order']} / {total_steps}")
         st.caption(f"Status: {session['end_status']}")
@@ -2479,9 +2675,37 @@ def main() -> None:
     with left:
         st.subheader("Roleplay Chat")
         for message in messages_for_session(st.session_state["roleplay_session_id"]):
-            render_chat_message(message)
+            render_chat_message(message, tts_enabled=tts_enabled)
         if session["end_status"] == "in_progress":
-            learner_text = st.chat_input("Type your Korean reply")
+            learner_text = None
+            input_method = "text"
+            if stt_enabled:
+                recorded_audio = st.audio_input(
+                    "Record your Korean reply",
+                    key=f"voice_reply_{st.session_state['voice_input_key']}",
+                )
+                if recorded_audio is not None:
+                    audio_bytes = recorded_audio.getvalue()
+                    try:
+                        with st.spinner("Converting speech to text with Google STT..."):
+                            learner_text = transcribe_recorded_audio(audio_bytes)
+                        if not learner_text:
+                            st.session_state["last_voice_error"] = "Google STT returned an empty transcript. Please record again."
+                            st.session_state["voice_input_key"] += 1
+                            st.rerun()
+                        st.session_state["last_voice_error"] = None
+                        input_method = "voice"
+                        st.caption(f"Transcript: {learner_text}")
+                    except Exception as exc:
+                        st.session_state["last_voice_error"] = f"STT failed: {exc}"
+                        st.session_state["voice_input_key"] += 1
+                        st.rerun()
+                    finally:
+                        del audio_bytes
+                        del recorded_audio
+                    st.session_state["voice_input_key"] += 1
+            else:
+                learner_text = st.chat_input("Type your Korean reply")
             if learner_text:
                 try:
                     final_state = run_roleplay_turn(
@@ -2489,9 +2713,15 @@ def main() -> None:
                         use_llm=use_llm,
                         judge_model=judge_model,
                         response_model=response_model,
+                        input_method=input_method,
                     )
                     st.session_state["last_node_logs"] = final_state.get("_node_logs", [])
+                    if tts_enabled:
+                        with st.spinner("Generating character voice with ElevenLabs..."):
+                            generate_tts_for_messages(final_state.get("turn_messages", []))
+                        st.session_state["last_voice_error"] = None
                 except Exception as exc:
+                    st.session_state["last_voice_error"] = str(exc)
                     st.error(str(exc))
                 st.rerun()
         else:
