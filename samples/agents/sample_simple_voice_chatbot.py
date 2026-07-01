@@ -50,7 +50,7 @@ from google.genai import types
 # ============================================================
 load_dotenv()
 
-GEMINI_MODEL = "gemini-2.5-flash-lite"
+GEMINI_MODEL = "gemini-3.1-flash-lite"
 ELEVENLABS_MODEL = "eleven_flash_v2_5"
 ELEVENLABS_VOICE_ID = "iP95p4xoKVk53GoZ742B"
 SYSTEM_INSTRUCTION = "당신은 매우 불친절합니다. 반드시 30자 이내로만 답해주세요."
@@ -60,6 +60,33 @@ GOOGLE_STT_MODEL = os.getenv("GOOGLE_STT_MODEL", "latest_short")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+
+
+@st.cache_resource
+def get_speech_client() -> speech.SpeechClient:
+    return speech.SpeechClient()
+
+
+@st.cache_resource
+def get_gemini_client() -> genai.Client:
+    return genai.Client()
+
+
+@st.cache_resource
+def get_elevenlabs_client(api_key: str) -> ElevenLabs:
+    return ElevenLabs(api_key=api_key)
+
+
+def render_audio_player(audio_base64: str, autoplay: bool = False) -> None:
+    autoplay_attr = "autoplay" if autoplay else ""
+    st.markdown(
+        f"""
+        <audio controls {autoplay_attr} style="width: 100%; margin-top: 8px;">
+          <source src="data:audio/mpeg;base64,{audio_base64}" type="audio/mpeg">
+        </audio>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # ============================================================
@@ -104,15 +131,7 @@ for message in st.session_state.messages:
             autoplay = (
                 message.get("audio_hash") == st.session_state.last_autoplay_audio_hash
             )
-            autoplay_attr = "autoplay" if autoplay else ""
-            st.markdown(
-                f"""
-                <audio controls {autoplay_attr} style="width: 100%; margin-top: 8px;">
-                  <source src="data:audio/mpeg;base64,{message['audio_base64']}" type="audio/mpeg">
-                </audio>
-                """,
-                unsafe_allow_html=True,
-            )
+            render_audio_player(message["audio_base64"], autoplay=autoplay)
 
             # Autoplay should happen only once for the newest assistant message.
             if autoplay:
@@ -139,7 +158,7 @@ st.session_state.last_audio_hash = audio_hash
 
 
 # ============================================================
-# 6. STT -> LLM -> TTS
+# 6. STT -> render user text -> LLM -> render answer text -> TTS
 # ============================================================
 try:
     with st.spinner("Google STT로 음성을 텍스트로 변환하는 중입니다..."):
@@ -148,7 +167,7 @@ try:
             sample_rate_hertz = wav_file.getframerate()
             channel_count = wav_file.getnchannels()
 
-        speech_client = speech.SpeechClient()
+        speech_client = get_speech_client()
         stt_response = speech_client.recognize(
             config=speech.RecognitionConfig(
                 sample_rate_hertz=sample_rate_hertz,
@@ -171,17 +190,29 @@ try:
         st.stop()
 
     with st.spinner("Gemini가 답변을 생성하는 중입니다..."):
-        # Create Gemini client/chat inside the request flow.
-        # This avoids reusing a Streamlit session object whose internal client was closed.
-        gemini_client = genai.Client()
+        st.session_state.messages.append({"role": "user", "text": transcript})
+        with st.chat_message("user"):
+            st.write(transcript)
+
+        gemini_client = get_gemini_client()
         gemini_chat = gemini_client.chats.create(
             model=GEMINI_MODEL,
             config=types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION),
         )
         answer = gemini_chat.send_message(transcript).text.strip()
 
+        if not answer:
+            st.warning("Gemini returned an empty answer. Please try again.")
+            st.stop()
+
+        assistant_message = {"role": "assistant", "text": answer}
+        st.session_state.messages.append(assistant_message)
+        with st.chat_message("assistant"):
+            st.write(answer)
+            audio_slot = st.empty()
+
     with st.spinner("ElevenLabs가 답변 음성을 생성하는 중입니다..."):
-        elevenlabs = ElevenLabs(api_key=ELEVENLABS_API_KEY)
+        elevenlabs = get_elevenlabs_client(ELEVENLABS_API_KEY)
         tts_audio = elevenlabs.text_to_speech.convert(
             text=answer,
             voice_id=ELEVENLABS_VOICE_ID,
@@ -206,25 +237,25 @@ except (GoogleAPICallError, RetryError) as exc:
     st.error(f"Google STT API 호출에 실패했습니다: {exc}")
     st.stop()
 except Exception as exc:
+    if "assistant_message" in locals():
+        st.warning(f"Text answer was saved, but ElevenLabs TTS failed: {exc}")
+        st.stop()
+
     st.error(f"음성 챗봇 처리 중 오류가 발생했습니다: {exc}")
     st.stop()
 
 
 # ============================================================
-# 7. Save messages and rerun to render the new chat bubbles
+# 7. Attach generated audio and rerun to render autoplay once
 # ============================================================
 tts_audio_hash = hashlib.sha256(tts_audio_bytes).hexdigest()
 tts_audio_base64 = base64.b64encode(tts_audio_bytes).decode("ascii")
 
-st.session_state.messages.append({"role": "user", "text": transcript})
-st.session_state.messages.append(
-    {
-        "role": "assistant",
-        "text": answer,
-        "audio_base64": tts_audio_base64,
-        "audio_hash": tts_audio_hash,
-    }
-)
+assistant_message["audio_base64"] = tts_audio_base64
+assistant_message["audio_hash"] = tts_audio_hash
 st.session_state.last_autoplay_audio_hash = tts_audio_hash
+
+with audio_slot:
+    render_audio_player(tts_audio_base64, autoplay=True)
 
 st.rerun()
