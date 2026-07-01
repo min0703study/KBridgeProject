@@ -1,6 +1,6 @@
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, HTTPException
 
-from backend.app.schemas.roleplay import RoleplayIngameResponse, RoleplayTurnResponse
+from backend.app.schemas.roleplay import RoleplayIngameResponse
 from backend.app.services.sample_roleplaying_adapter import (
     SampleRoleplayingAdapterError,
     get_sample_convenience_store_ingame,
@@ -17,16 +17,3 @@ async def convenience_store_ingame() -> RoleplayIngameResponse:
     except SampleRoleplayingAdapterError as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
-
-@router.post("/convenience-store/turn", response_model=RoleplayTurnResponse)
-async def convenience_store_turn(
-    audio_file: UploadFile = File(...),
-    scenario_id: str | None = Form(default=None),
-    step_id: str | None = Form(default=None),
-    client_turn_id: str | None = Form(default=None),
-) -> RoleplayTurnResponse:
-    del audio_file, scenario_id, step_id, client_turn_id
-    raise HTTPException(
-        status_code=status.HTTP_410_GONE,
-        detail="Use POST /api/v1/roleplay-sessions/{roleplay_session_id}/turns.",
-    )
