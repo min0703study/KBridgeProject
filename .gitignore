@@ -25,6 +25,7 @@ frontend/.env.*
 # local storage
 storage/
 backend/storage/
+logs/
 
 # samples / local-only
 sample_codes/
@@ -63,11 +64,6 @@ frontend/.env.*
 # local storage
 storage/
 backend/storage/
-
-# samples / local-only
-sample_codes/
-sample/
-samples/*
 
 # frontend
 frontend/node_modules/

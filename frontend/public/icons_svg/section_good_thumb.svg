@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="18" y1="14" x2="110" y2="113" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#79DC79"/>
+      <stop offset="1" stop-color="#25A83E"/>
+    </linearGradient>
+    <filter id="sh" x="8" y="8" width="112" height="112" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#159831" flood-opacity="0.23"/>
+    </filter>
+  </defs>
+  <g filter="url(#sh)">
+    <circle cx="64" cy="64" r="52" fill="url(#bg)"/>
+  </g>
+  <path d="M41 57H29C26.8 57 25 58.8 25 61V90C25 92.2 26.8 94 29 94H41C43.2 94 45 92.2 45 90V61C45 58.8 43.2 57 41 57Z" fill="white"/>
+  <path d="M51 92H82.4C89.2 92 93.2 88.1 94.2 82.8L98.1 62.5C99 57.6 95.3 53 90.4 53H75.6L78.1 41.2C79.3 35.2 75.2 30 69.2 30H66.4C64.9 30 63.6 30.9 62.9 32.3L53 53.6C52.1 55.5 50.7 57 49 58V88.3C49 90.3 49.8 91.5 51 92Z" fill="white"/>
+  <rect x="32" y="64" width="7" height="23" rx="3.5" fill="#28A747" opacity="0.22"/>
+  <path d="M32 28C34.2 38.1 39.3 43.2 49.4 45.4C39.3 47.6 34.2 52.7 32 62.8C29.8 52.7 24.7 47.6 14.6 45.4C24.7 43.2 29.8 38.1 32 28Z" fill="white" opacity="0.95"/>
+  <circle cx="50" cy="33" r="3" fill="white" opacity="0.82"/>
+</svg>

@@ -1,6 +1,4 @@
 from functools import lru_cache
-from os import getenv
-
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -15,6 +13,7 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ]
+    
     database_url: str | None = getenv("DATABASE_URL")
     gemini_model: str = "gemini-3.1-pro-preview"
     elevenlabs_model: str = "eleven_flash_v2_5"
