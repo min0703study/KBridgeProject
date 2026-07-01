@@ -2,6 +2,7 @@ import { useState } from 'react';
 import DashboardMainPage from './views/DashboardMainPage.jsx';
 import ChatbotMainPage from './views/ChatbotMainPage.jsx';
 import HomeworkMainPage from './views/HomeworkMainPage.jsx';
+import GameMainPage from './views/GameMainPage.jsx';
 
 export default function App() {
   const [activeMockTab, setActiveMockTab] = useState('dashboard');
@@ -14,5 +15,9 @@ export default function App() {
     return <ChatbotMainPage onMockNavigate={setActiveMockTab} />;
   }
 
+  if (activeMockTab === 'game') {
+    return <GameMainPage onMockNavigate={setActiveMockTab} />;
+  }
+  
   return <DashboardMainPage onMockNavigate={setActiveMockTab} />;
 }
