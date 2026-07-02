@@ -1,5 +1,3 @@
-const CHAT_API_BASE_URL = import.meta.env.VITE_CHAT_API_BASE_URL || 'http://127.0.0.1:8050';
-
 async function unwrapChatResponse(response) {
   const payload = await response.json();
 
@@ -18,12 +16,12 @@ async function unwrapChatResponse(response) {
 }
 
 export async function getChatStudents() {
-  const response = await fetch(`${CHAT_API_BASE_URL}/api/chat/students`);
+  const response = await fetch('/api/chat/students');
   return unwrapChatResponse(response);
 }
 
 export async function sendChatMessage({ studentId, conversationId, text }) {
-  const response = await fetch(`${CHAT_API_BASE_URL}/api/chat/message`, {
+  const response = await fetch('/api/chat/message', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
