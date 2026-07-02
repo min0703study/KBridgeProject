@@ -320,7 +320,7 @@
 
 .safety-action-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 12px;
 }
 
@@ -363,9 +363,10 @@
 
 .safety-action-card strong {
   color: #d83f4b;
-  font-size: 26px;
-  line-height: 1;
+  font-size: clamp(13px, 3.5vw, 22px);
+  line-height: 1.15;
   font-weight: 900;
+  word-break: keep-all;
 }
 
 .safety-action-card > svg {
@@ -545,6 +546,6 @@
   }
 
   .safety-action-card strong {
-    font-size: 23px;
+    font-size: clamp(12px, 3vw, 20px);
   }
 }

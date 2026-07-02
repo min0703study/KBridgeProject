@@ -34,16 +34,23 @@ const SAFETY_QUICK_ACTIONS_BY_SUBTYPE = {
     { label: '자살예방상담', tel: '1393', icon: 'heart' },
     { label: '응급', tel: '119', icon: 'siren' },
     { label: '통역', tel: '1330', icon: 'heart' },
+    { label: '다누리(위기)', tel: '1366', icon: 'heart' },
+    { label: '학교 담당자', tel: '02-1234-5678', icon: 'briefcase' },
+    { label: '운영자', tel: '010-9876-5432', icon: 'heart' },
   ],
   external_threat: [
     { label: '경찰', tel: '112', icon: 'siren' },
     { label: '통역', tel: '1330', icon: 'heart' },
     { label: '출입국·체류', tel: '1345', icon: 'briefcase' },
+    { label: '다누리(폭력)', tel: '1366', icon: 'siren' },
+    { label: '운영자', tel: '010-9876-5432', icon: 'heart' },
   ],
   labor_exploitation: [
     { label: '노동상담', tel: '1350', icon: 'briefcase' },
     { label: '경찰', tel: '112', icon: 'siren' },
     { label: '통역', tel: '1330', icon: 'heart' },
+    { label: '다누리(착취)', tel: '1366', icon: 'briefcase' },
+    { label: '운영자', tel: '010-9876-5432', icon: 'heart' },
   ],
   medical_emergency: [
     { label: '응급', tel: '119', icon: 'siren' },
@@ -59,6 +66,9 @@ const SAFETY_QUICK_ACTIONS_BY_SUBTYPE = {
     { label: '경찰', tel: '112', icon: 'siren' },
     { label: '응급', tel: '119', icon: 'siren' },
     { label: '통역', tel: '1330', icon: 'heart' },
+    { label: '다누리', tel: '1366', icon: 'heart' },
+    { label: '학교 담당자', tel: '02-1234-5678', icon: 'briefcase' },
+    { label: '운영자', tel: '010-9876-5432', icon: 'heart' },
   ],
 };
 
