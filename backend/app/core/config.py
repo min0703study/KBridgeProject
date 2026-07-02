@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     gemini_api_key: str | None = None
     google_api_key: str | None = None
     elevenlabs_api_key: str | None = None
+    roleplay_node_trace_log: bool = False
 
     @property
     def resolved_gemini_api_key(self) -> str | None:
