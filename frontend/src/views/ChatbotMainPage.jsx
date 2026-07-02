@@ -4,7 +4,6 @@ import {
   Briefcase,
   ChevronRight,
   HeartPulse,
-  LayoutGrid,
   Mic,
   Phone,
   RefreshCw,
@@ -15,7 +14,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import { getChatStudents, sendChatMessage } from '../api/chatApi.js';
-import { MOCK_BOTTOM_NAV_ITEMS } from '../mock/mockDashboardData.js';
+import AppBottomNavigation from '../components/AppBottomNavigation.jsx';
 
 const DEFAULT_GREETING = {
   id: 'bot-greeting',
@@ -327,37 +326,7 @@ function ChatInput({ value, busy, disabled, onChange, onSubmit }) {
   );
 }
 
-function ChatbotBottomNavigation({ onMockNavigate }) {
-  return (
-    <nav className="bottom-nav" aria-label="Mock app navigation">
-      {MOCK_BOTTOM_NAV_ITEMS.map((item) => (
-        <button
-          className={`nav-item ${item.tab === 'chatbot' ? 'is-active' : ''}`}
-          type="button"
-          key={item.id}
-          onClick={() => {
-            if (
-              item.tab === 'dashboard' ||
-              item.tab === 'homework' ||
-              item.tab === 'chatbot'
-            ) {
-              onMockNavigate(item.tab);
-            }
-          }}
-        >
-          {item.iconSrc ? (
-            <img src={item.iconSrc} alt={item.iconAlt} />
-          ) : (
-            <LayoutGrid size={30} strokeWidth={1.9} aria-hidden="true" />
-          )}
-          <span>{item.label}</span>
-        </button>
-      ))}
-    </nav>
-  );
-}
-
-export default function ChatbotMainPage({ onMockNavigate }) {
+export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
   const [students, setStudents] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [conversationId, setConversationId] = useState(() => makeId('conversation'));
@@ -505,7 +474,7 @@ export default function ChatbotMainPage({ onMockNavigate }) {
           onChange={setInput}
           onSubmit={handleSubmit}
         />
-        <ChatbotBottomNavigation onMockNavigate={onMockNavigate} />
+        <AppBottomNavigation activeTab={activeTab} onNavigate={onMockNavigate} />
       </div>
     </main>
   );

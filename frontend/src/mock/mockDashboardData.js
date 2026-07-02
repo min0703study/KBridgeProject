@@ -97,44 +97,6 @@ export const MOCK_UPCOMING_SCHEDULE = [
   },
 ];
 
-export const MOCK_BOTTOM_NAV_ITEMS = [
-  {
-    id: 'mock-nav-homework',
-    tab: 'homework',
-    label: 'Homework',
-    iconSrc: '/08_nav_homework_note.png',
-    iconAlt: 'Homework',
-  },
-  {
-    id: 'mock-nav-chatbot',
-    tab: 'chatbot',
-    label: 'Chatbot',
-    iconSrc: '/11_nav_chatbot.png',
-    iconAlt: 'Chatbot',
-  },
-  {
-    id: 'mock-nav-dashboard',
-    tab: 'dashboard',
-    label: 'Dashboard',
-    lucide: 'dashboard',
-    active: true,
-  },
-  {
-    id: 'mock-nav-game',
-    tab: 'game',
-    label: 'Game',
-    lucide: 'game',
-    active: true,
-  },
-  {
-    id: 'mock-nav-settings',
-    tab: 'settings',
-    label: 'Settings',
-    iconSrc: '/10_nav_settings_gear.png',
-    iconAlt: 'Settings',
-  },
-];
-
 export function getMockDashboardData() {
   return {
     profileInitial: 'H',
@@ -143,6 +105,5 @@ export function getMockDashboardData() {
     statusItems: MOCK_DASHBOARD_STATUS,
     calendarDays: MOCK_CALENDAR_DAYS,
     upcomingSchedule: MOCK_UPCOMING_SCHEDULE,
-    bottomNavItems: MOCK_BOTTOM_NAV_ITEMS,
   };
 }

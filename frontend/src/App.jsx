@@ -8,16 +8,16 @@ export default function App() {
   const [activeMockTab, setActiveMockTab] = useState('dashboard');
 
   if (activeMockTab === 'homework') {
-    return <HomeworkMainPage onMockNavigate={setActiveMockTab} />;
+    return <HomeworkMainPage activeTab={activeMockTab} onMockNavigate={setActiveMockTab} />;
   }
 
   if (activeMockTab === 'chatbot') {
-    return <ChatbotMainPage onMockNavigate={setActiveMockTab} />;
+    return <ChatbotMainPage activeTab={activeMockTab} onMockNavigate={setActiveMockTab} />;
   }
 
   if (activeMockTab === 'game') {
-    return <GameMainPage onMockNavigate={setActiveMockTab} />;
+    return <GameMainPage activeTab={activeMockTab} onMockNavigate={setActiveMockTab} />;
   }
   
-  return <DashboardMainPage onMockNavigate={setActiveMockTab} />;
+  return <DashboardMainPage activeTab={activeMockTab} onMockNavigate={setActiveMockTab} />;
 }

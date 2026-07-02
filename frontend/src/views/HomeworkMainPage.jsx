@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { LayoutGrid } from 'lucide-react';
+import AppBottomNavigation from '../components/AppBottomNavigation.jsx';
 import { buildPersonalizedReview, evaluateSkills } from '../homework/agent/reviewBuilderAgent.js';
 import {
   MOCK_AI_REVIEW_EVALUATIONS,
@@ -13,7 +13,6 @@ import QuizView from '../homework/views/QuizView.jsx';
 import ResultsView from '../homework/views/ResultsView.jsx';
 import ReviewIntro from '../homework/views/ReviewIntro.jsx';
 import UnitSelect from '../homework/views/UnitSelect.jsx';
-import { MOCK_BOTTOM_NAV_ITEMS } from '../mock/mockDashboardData.js';
 
 const STUDENT_ID = 'student_demo';
 const SESSION_ID = 'session_homework_001';
@@ -29,36 +28,6 @@ function firstQuestionPerType(questions) {
     seenTypes.add(question.question_type);
     return true;
   });
-}
-
-function HomeworkBottomNavigation({ onMockNavigate }) {
-  return (
-    <nav className="bottom-nav" aria-label="Mock app navigation">
-      {MOCK_BOTTOM_NAV_ITEMS.map((item) => (
-        <button
-          className={`nav-item ${item.tab === 'homework' ? 'is-active' : ''}`}
-          type="button"
-          key={item.id}
-          onClick={() => {
-            if (
-              item.tab === 'dashboard' ||
-              item.tab === 'homework' ||
-              item.tab === 'chatbot'
-            ) {
-              onMockNavigate(item.tab);
-            }
-          }}
-        >
-          {item.iconSrc ? (
-            <img src={item.iconSrc} alt={item.iconAlt} />
-          ) : (
-            <LayoutGrid size={30} strokeWidth={1.9} aria-hidden="true" />
-          )}
-          <span>{item.label}</span>
-        </button>
-      ))}
-    </nav>
-  );
 }
 
 function HomeworkFlow() {
@@ -257,12 +226,12 @@ function HomeworkFlow() {
   );
 }
 
-export default function HomeworkMainPage({ onMockNavigate }) {
+export default function HomeworkMainPage({ activeTab, onMockNavigate }) {
   return (
     <main className="app-stage">
       <div className="mobile-shell homework-shell">
         <HomeworkFlow />
-        <HomeworkBottomNavigation onMockNavigate={onMockNavigate} />
+        <AppBottomNavigation activeTab={activeTab} onNavigate={onMockNavigate} />
       </div>
     </main>
   );

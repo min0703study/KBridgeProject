@@ -8,7 +8,6 @@ import {
   Factory,
   Gamepad2,
   Hotel,
-  LayoutGrid,
   Settings,
   ShoppingBag,
   Signal,
@@ -18,6 +17,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import { createRoleplaySession, getConvenienceStoreIngame } from '../api/roleplayApi.js';
+import AppBottomNavigation from '../components/AppBottomNavigation.jsx';
 import { getMockGameData } from '../mock/mockGameData.js';
 import RoleplayIngamePage from './RoleplayIngamePage.jsx';
 
@@ -135,35 +135,7 @@ function MockRoleplayCard({ game, onStart, isStarting }) {
   );
 }
 
-function MockGameBottomNavigation({ items, onMockNavigate }) {
-  return (
-    <nav className="bottom-nav" aria-label="Mock app navigation">
-      {items.map((item) => (
-        <button
-          className={`nav-item ${item.active ? 'is-active' : ''}`}
-          type="button"
-          key={item.id}
-          onClick={() => {
-            if (item.tab === 'dashboard' || item.tab === 'game') {
-              onMockNavigate(item.tab);
-            }
-          }}
-        >
-          {item.iconSrc ? (
-            <img src={item.iconSrc} alt={item.iconAlt} />
-          ) : item.lucide === 'game' ? (
-            <Gamepad2 size={30} strokeWidth={1.9} aria-hidden="true" />
-          ) : (
-            <LayoutGrid size={30} strokeWidth={1.9} aria-hidden="true" />
-          )}
-          <span>{item.label}</span>
-        </button>
-      ))}
-    </nav>
-  );
-}
-
-export default function GameMainPage({ onMockNavigate }) {
+export default function GameMainPage({ activeTab, onMockNavigate }) {
   const [activeRoleplay, setActiveRoleplay] = useState(null);
   const [startError, setStartError] = useState('');
   const [startingRoleplayId, setStartingRoleplayId] = useState(null);
@@ -220,10 +192,7 @@ export default function GameMainPage({ onMockNavigate }) {
             ))}
           </section>
         </div>
-        <MockGameBottomNavigation
-          items={mockGameData.bottomNavItems}
-          onMockNavigate={onMockNavigate}
-        />
+        <AppBottomNavigation activeTab={activeTab} onNavigate={onMockNavigate} />
       </div>
     </main>
   );

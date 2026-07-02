@@ -71,48 +71,10 @@ export const MOCK_ROLEPLAY_GAMES = [
   },
 ];
 
-export const MOCK_GAME_BOTTOM_NAV_ITEMS = [
-  {
-    id: 'mock-nav-homework',
-    tab: 'homework',
-    label: 'Homework',
-    iconSrc: '/08_nav_homework_note.png',
-    iconAlt: 'Homework',
-  },
-  {
-    id: 'mock-nav-vocabulary',
-    tab: 'vocabulary',
-    label: 'Vocabulary',
-    iconSrc: '/09_nav_vocabulary_book_aa.png',
-    iconAlt: 'Vocabulary',
-  },
-  {
-    id: 'mock-nav-dashboard',
-    tab: 'dashboard',
-    label: 'Dashboard',
-    lucide: 'dashboard',
-  },
-  {
-    id: 'mock-nav-game',
-    tab: 'game',
-    label: 'Game',
-    lucide: 'game',
-    active: true,
-  },
-  {
-    id: 'mock-nav-settings',
-    tab: 'settings',
-    label: 'Settings',
-    iconSrc: '/10_nav_settings_gear.png',
-    iconAlt: 'Settings',
-  },
-];
-
 export function getMockGameData() {
   return {
     profileInitial: 'H',
     filters: MOCK_GAME_FILTERS,
     roleplayGames: MOCK_ROLEPLAY_GAMES,
-    bottomNavItems: MOCK_GAME_BOTTOM_NAV_ITEMS,
   };
 }
