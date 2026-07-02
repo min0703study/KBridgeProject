@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://172.16.15.75:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://172.16.15.128:8000';
 
 export async function createRoleplaySession({ learnerId, scenarioVersionId } = {}) {
   const body = {};
