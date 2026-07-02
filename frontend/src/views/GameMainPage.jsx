@@ -1,19 +1,14 @@
 import { useState } from 'react';
 import {
   Battery,
-  Bell,
+  BookOpen,
   ChevronRight,
   Clock3,
-  Coffee,
-  Factory,
-  Gamepad2,
-  Hotel,
-  Settings,
+  Cloud,
+  GraduationCap,
+  Luggage,
   ShoppingBag,
   Signal,
-  Star,
-  Utensils,
-  Waves,
   Wifi,
 } from 'lucide-react';
 import { createRoleplaySession, getConvenienceStoreIngame } from '../api/roleplayApi.js';
@@ -22,12 +17,11 @@ import { getMockGameData } from '../mock/mockGameData.js';
 import RoleplayIngamePage from './RoleplayIngamePage.jsx';
 
 const MOCK_FILTER_ICONS = {
-  retail: ShoppingBag,
-  dining: Utensils,
-  hospitality: Bell,
-  resort: Waves,
-  manufacturing: Settings,
-  beginner: Star,
+  campus: GraduationCap,
+  dailyLife: BookOpen,
+  travel: Luggage,
+  weather: Cloud,
+  shopping: ShoppingBag,
 };
 
 function MockPhoneStatusBar() {
@@ -95,16 +89,6 @@ function MockGameFilters({ filters }) {
 }
 
 function MockRoleplayCard({ game, onStart, isStarting }) {
-  const categoryIcon = {
-    'Convenience Store': ShoppingBag,
-    Restaurant: Utensils,
-    Hotel,
-    Resort: Waves,
-    'Factory Visit': Factory,
-    Cafe: Coffee,
-  }[game.title];
-  const CategoryIcon = categoryIcon || Gamepad2;
-
   return (
     <article className="roleplay-card">
       <img className="roleplay-image" src={game.imageSrc} alt={game.imageAlt} />
@@ -127,7 +111,6 @@ function MockRoleplayCard({ game, onStart, isStarting }) {
           disabled={isStarting}
           onClick={() => onStart(game)}
         >
-          <CategoryIcon className="roleplay-start-icon" size={18} strokeWidth={2} aria-hidden="true" />
           <ChevronRight size={23} strokeWidth={2.8} aria-hidden="true" />
         </button>
       </div>
@@ -142,7 +125,7 @@ export default function GameMainPage({ activeTab, onMockNavigate }) {
   const mockGameData = getMockGameData();
 
   async function handleStartRoleplay(game) {
-    if (game.id !== 'mock-roleplay-convenience-store') {
+    if (game.id !== 'mock-roleplay-first-day-college') {
       setStartError('This roleplay is not connected yet.');
       return;
     }
@@ -163,7 +146,7 @@ export default function GameMainPage({ activeTab, onMockNavigate }) {
     }
   }
 
-  if (activeRoleplay?.game?.id === 'mock-roleplay-convenience-store') {
+  if (activeRoleplay?.game?.id === 'mock-roleplay-first-day-college') {
     return (
       <RoleplayIngamePage
         roleplaySessionId={activeRoleplay.session.roleplay_session_id}

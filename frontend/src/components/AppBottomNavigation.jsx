@@ -9,11 +9,12 @@ const NAV_ITEMS = [
     iconAlt: 'Homework',
   },
   {
-    id: 'nav-chatbot',
-    tab: 'chatbot',
-    label: 'Chatbot',
-    iconSrc: '/11_nav_chatbot.png',
-    iconAlt: 'Chatbot',
+    id: 'nav-vocabulary',
+    tab: 'vocabulary',
+    label: 'Vocabulary',
+    iconSrc: '/09_nav_vocabulary_book_aa.png',
+    iconAlt: 'Vocabulary',
+    disabled: true,
   },
   {
     id: 'nav-dashboard',
@@ -26,6 +27,14 @@ const NAV_ITEMS = [
     tab: 'game',
     label: 'Game',
     icon: 'game',
+  },
+  {
+    id: 'nav-settings',
+    tab: 'settings',
+    label: 'Settings',
+    iconSrc: '/10_nav_settings_gear.png',
+    iconAlt: 'Settings',
+    disabled: true,
   },
 ];
 
@@ -50,7 +59,12 @@ export default function AppBottomNavigation({ activeTab, onNavigate }) {
           type="button"
           key={item.id}
           aria-current={item.tab === activeTab ? 'page' : undefined}
-          onClick={() => onNavigate(item.tab)}
+          aria-disabled={item.disabled ? 'true' : undefined}
+          onClick={() => {
+            if (!item.disabled) {
+              onNavigate(item.tab);
+            }
+          }}
         >
           <NavIcon item={item} />
           <span>{item.label}</span>
