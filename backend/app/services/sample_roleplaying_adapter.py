@@ -81,6 +81,7 @@ def create_sample_roleplay_session(
     }
     sample_db.ROLEPLAY_SESSIONS.append(session)
     sample_backend.add_initial_step_messages(session["roleplay_session_id"], first_step)
+    sample_backend.warmup_sample_roleplay_runtime()
 
     return _session_create_response(session)
 

@@ -61,7 +61,7 @@ import sample_roleplaying_db as sample_db
 LEARNER_ID = "23978a46-2c8e-4e2c-aa1d-4c37380b436e"
 INPUT_METHOD = "text"
 ELEVENLABS_MODEL = "eleven_flash_v2_5"
-ELEVENLABS_VOICE_ID = "iP95p4xoKVk53GoZ742B"
+ELEVENLABS_VOICE_ID = "IKne3meq5aSn9XLyUdCD"
 RESPONSE_PACK_MAX_OUTPUT_TOKENS = 1200
 LLM_MODEL_OPTIONS = {
     "Gemini 3.1 Flash Lite": "gemini-3.1-flash-lite",
@@ -221,6 +221,13 @@ def load_dotenv_value(name: str) -> str | None:
         if key.strip() == name:
             return value.strip().strip('"').strip("'")
     return None
+
+
+def load_dotenv_bool(name: str, default: bool = False) -> bool:
+    value = load_dotenv_value(name)
+    if value is None:
+        return default
+    return value.strip().casefold() in {"1", "true", "yes", "y", "on"}
 
 
 def api_key() -> str | None:
@@ -2338,6 +2345,7 @@ def sender_type_for_message_type(message_type: str) -> str:
     return "learner"
 
 
+@lru_cache(maxsize=1)
 def build_graph_runner() -> Callable[[dict[str, Any]], dict[str, Any]]:
     node_functions = {
         "context_builder": timed_node("context_builder", context_builder_node),
@@ -2371,6 +2379,162 @@ def build_graph_runner() -> Callable[[dict[str, Any]], dict[str, Any]]:
     graph.add_edge("domain_persistence", END)
     compiled = graph.compile()
     return compiled.invoke
+
+
+def warmup_sample_roleplay_runtime(
+    *,
+    include_llm: bool | None = None,
+    judge_model: str | None = None,
+    response_model: str | None = None,
+) -> dict[str, Any]:
+    if include_llm is None:
+        include_llm = load_dotenv_bool("ROLEPLAY_SAMPLE_LLM_WARMUP", True)
+    return _cached_warmup_sample_roleplay_runtime(
+        include_llm,
+        judge_model or default_judge_model(),
+        response_model or default_response_model(),
+    )
+
+
+@lru_cache(maxsize=8)
+def _cached_warmup_sample_roleplay_runtime(
+    include_llm: bool,
+    judge_model: str,
+    response_model: str,
+) -> dict[str, Any]:
+    started = time.perf_counter()
+    steps: list[dict[str, Any]] = []
+
+    def record(name: str, fn: Callable[[], Any]) -> None:
+        step_started = time.perf_counter()
+        try:
+            fn()
+            steps.append(
+                {
+                    "name": name,
+                    "ok": True,
+                    "elapsed_ms": round((time.perf_counter() - step_started) * 1000, 2),
+                }
+            )
+        except Exception as exc:
+            steps.append(
+                {
+                    "name": name,
+                    "ok": False,
+                    "elapsed_ms": round((time.perf_counter() - step_started) * 1000, 2),
+                    "error": f"{type(exc).__name__}: {exc}",
+                }
+            )
+
+    record("runtime_tables", ensure_runtime_tables)
+    record("graph_runner", build_graph_runner)
+    record("kiwi_analyzer", get_kiwi_analyzer)
+    if speech is not None:
+        record("google_speech_client", get_speech_client)
+    if elevenlabs_api_key():
+        record("elevenlabs_client", lambda: get_elevenlabs_client(elevenlabs_api_key() or ""))
+    if llm_provider_error(judge_model) is None:
+        record("judge_llm_client", lambda: _warmup_llm_client(judge_model))
+    if response_model != judge_model and llm_provider_error(response_model) is None:
+        record("response_llm_client", lambda: _warmup_llm_client(response_model))
+    if include_llm:
+        record("judge_llm_network", lambda: _warmup_judge_llm_network(judge_model))
+        record("response_llm_network", lambda: _warmup_response_llm_network(response_model))
+
+    return {
+        "include_llm": include_llm,
+        "judge_model": judge_model,
+        "response_model": response_model,
+        "elapsed_ms": round((time.perf_counter() - started) * 1000, 2),
+        "steps": steps,
+    }
+
+
+def _warmup_llm_client(model_name: str) -> None:
+    provider = model_provider(model_name)
+    if provider == "gemini":
+        key = api_key()
+        if key:
+            get_gemini_client(key)
+    elif provider == "openai":
+        key = openai_api_key()
+        if key:
+            get_openai_client(key)
+
+
+def _warmup_judge_llm_network(model_name: str) -> None:
+    clear_provider_error()
+    result = generate_llm_structured(
+        JUDGE_SYSTEM_INSTRUCTION,
+        compact_json(
+            {
+                "learner_input_text": "안녕하세요.",
+                "learning_language": "ko",
+                "input_method": "text",
+                "current_step_goal": "Warm up the roleplay judge model.",
+                "evaluation_criteria": {"step_specific_guidance": "Return a valid pass judgment."},
+                "linguistic_features": empty_linguistic_features(),
+                "dialogue_context": [],
+                "role_pragmatics": {"required_politeness": "polite speech"},
+                "representative_acceptable_answers": ["안녕하세요."],
+            }
+        ),
+        model_name=model_name,
+        output_model=JudgeLLMOutput,
+        max_output_tokens=160,
+        thinking_budget=0,
+    )
+    if result is None:
+        raise RuntimeError(last_provider_error() or "judge LLM warm-up returned no response.")
+
+
+def _warmup_response_llm_network(model_name: str) -> None:
+    clear_provider_error()
+    result = generate_llm_structured(
+        RESPONSE_PACK_SYSTEM_INSTRUCTION,
+        compact_json(
+            {
+                "languages": {
+                    "learning_language": "ko",
+                    "system_language": "en",
+                },
+                "current_step": {
+                    "step_goal": "Warm up the response model.",
+                    "guidance": "Return one short character dialogue.",
+                },
+                "next_step": None,
+                "character": {
+                    "character_name": "Yujin",
+                    "role_name": "classmate",
+                    "persona_prompt": "Use short, friendly, polite Korean.",
+                },
+                "location": {"location_prompt": "A campus classroom."},
+                "recent_messages": [],
+                "learner_input_text": "안녕하세요.",
+                "judge_result": normalize_judge_result(
+                    {
+                        "evaluation_result": "pass",
+                        "inferred_intent_text": "The learner greets the character.",
+                        "issue_tags": [],
+                        "evaluation_reason_text": "Warm-up prompt.",
+                    }
+                ),
+                "generation_policy": {
+                    "main_task": "Continue the roleplay naturally.",
+                    "should_generate_hint": False,
+                    "hint_level": None,
+                    "should_generate_correction": False,
+                    "should_generate_completion": False,
+                },
+                "progress_outcome": "stay_current_step",
+            }
+        ),
+        model_name=model_name,
+        output_model=ResponsePackLLMOutput,
+        max_output_tokens=260,
+    )
+    if result is None:
+        raise RuntimeError(last_provider_error() or "response LLM warm-up returned no response.")
 
 
 def run_roleplay_turn(
