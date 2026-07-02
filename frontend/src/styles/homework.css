@@ -2806,8 +2806,10 @@ img.clipboard-art {
 
 .next-focus-card .ready-copy {
   margin-top: 11px;
-  font-size: clamp(11px, 3vw, 14px);
-  line-height: 1.32;
+  font-size: clamp(10px, 2.55vw, 12px);
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
 }
 
 @media (max-width: 380px) {
@@ -5693,6 +5695,11 @@ img.clipboard-art {
   white-space: nowrap;
 }
 
+.homework-shell .quiz-screen .question-card.question-type-sentence_order .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-sentence_order.is-checked .question-copy h2 {
+  transform: translateY(7px);
+}
+
 /* Q4/Q5 use the same visual hierarchy as the rest of the quiz: compact
    question-type title first, then a slightly smaller green prompt. */
 .homework-shell .quiz-screen .question-card.question-type-korean_word_choice .question-copy h2,
@@ -5855,4 +5862,13 @@ img.clipboard-art {
   color: #d94d42;
   font-size: clamp(12px, 3.1cqw, 14px);
   font-weight: 760;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-short,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-sentence {
+  font-size: clamp(13px, 3.5cqw, 16px);
+  line-height: 1.12;
 }

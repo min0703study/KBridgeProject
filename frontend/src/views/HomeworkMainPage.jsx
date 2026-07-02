@@ -18,6 +18,18 @@ import { MOCK_BOTTOM_NAV_ITEMS } from '../mock/mockDashboardData.js';
 const STUDENT_ID = 'student_demo';
 const SESSION_ID = 'session_homework_001';
 const USE_MOCK_AI_REVIEW = true;
+const USE_DEMO_FIRST_QUESTION_PER_TYPE = true;
+
+function firstQuestionPerType(questions) {
+  const seenTypes = new Set();
+
+  return questions.filter((question) => {
+    if (seenTypes.has(question.question_type)) return false;
+
+    seenTypes.add(question.question_type);
+    return true;
+  });
+}
 
 function HomeworkBottomNavigation({ onMockNavigate }) {
   return (
@@ -62,7 +74,15 @@ function HomeworkFlow() {
 
   const selectedUnit = useMemo(() => mockUnits.find((unit) => unit.unit_id === 'unit_01'), []);
   const baseQuestions = useMemo(
-    () => mockDraftQuestions.filter((question) => question.unit_id === 'unit_01'),
+    () => {
+      const unitQuestions = mockDraftQuestions.filter((question) => question.unit_id === 'unit_01');
+
+      // Temporary demo mode: keep all question data, but show only the first
+      // question from each question type. Set this flag to false to restore all pages.
+      return USE_DEMO_FIRST_QUESTION_PER_TYPE
+        ? firstQuestionPerType(unitQuestions)
+        : unitQuestions;
+    },
     [],
   );
   const currentQuestion = activeQuestions[currentIndex];
