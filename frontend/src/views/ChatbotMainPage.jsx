@@ -224,6 +224,17 @@ function GenericChatCard({ card }) {
       ) : null}
       {card.interpretations?.length ? renderUnknownList(card.interpretations) : null}
       {card.today_cards?.length ? renderUnknownList(card.today_cards) : null}
+      {card.hotlines?.length ? (
+        <div className="private-hotline-list">
+          {card.hotlines.map((h) => (
+            <a className="private-hotline-row" href={`tel:${h.tel}`} key={h.tel}>
+              <Phone size={18} strokeWidth={2.1} aria-hidden="true" />
+              <strong>{h.label}</strong>
+              <span>{h.tel}</span>
+            </a>
+          ))}
+        </div>
+      ) : null}
       <SourceBadges sources={card.sources} />
     </section>
   );
