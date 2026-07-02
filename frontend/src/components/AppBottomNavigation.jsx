@@ -9,12 +9,11 @@ const NAV_ITEMS = [
     iconAlt: 'Homework',
   },
   {
-    id: 'nav-vocabulary',
-    tab: 'vocabulary',
-    label: 'Vocabulary',
-    iconSrc: '/09_nav_vocabulary_book_aa.png',
-    iconAlt: 'Vocabulary',
-    disabled: true,
+    id: 'nav-chatbot',
+    tab: 'chatbot',
+    label: 'Chatbot',
+    iconSrc: '/11_nav_chatbot.png',
+    iconAlt: 'Chatbot',
   },
   {
     id: 'nav-dashboard',
