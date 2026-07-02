@@ -10,7 +10,7 @@ export default function ReviewIntro({ unit, total, onStart }) {
   const assets = getUnitAssets(unit.unit_id)
   const isUnitOne = unit.unit_id === 'unit_01'
   const introCopy = isUnitOne ? <>Review greetings, self-introduction, nationality,<br />and jobs.</> : unit.unit_goal
-  const totalDisplay = isUnitOne ? 20 : total
+  const totalDisplay = total
   const stepsDisplay = isUnitOne ? 4 : 3
   const timeDisplay = isUnitOne ? 10 : unit.estimated_time_min
 
