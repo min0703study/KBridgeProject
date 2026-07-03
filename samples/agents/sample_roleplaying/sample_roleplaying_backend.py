@@ -72,8 +72,7 @@ IssueAbility = Literal[
     "vocabulary_use",
     "grammar_sentence",
     "structure",
-    "pragmatics",
-    "vocabulary_understanding",
+    "pragmatics"
 ]
 ResponsePackMessageType = Literal[
     "scene_text",
@@ -93,7 +92,7 @@ NODE_SEQUENCE = [
 ]
 
 JUDGE_SYSTEM_INSTRUCTION = """
-당신은 한국어 롤플레잉 학습자의 발화를 평가하는 Judge입니다.
+당신은 한국어 롤플레잉 학습자의 발화를 평가하는 역할입니다.
 
 현재 단계의 목표와 상대방의 직전 발화를 기준으로 학습자의 입력을 평가하세요.
 
@@ -119,16 +118,11 @@ JUDGE_SYSTEM_INSTRUCTION = """
 - pragmatics:
   문장의 의미는 이해되지만 상황, 관계, 공손성 또는 대화 목적에 맞지 않는 경우
 
-- vocabulary_understanding:
-  질문이나 지시의 핵심 어휘 또는 의도를 잘못 이해하여 적절히 반응하지 못한 경우
-
 평가 원칙:
 - 학습자 입력에 실제로 나타난 문제만 issues에 포함하세요.
 - 적절한 부분은 issues에 포함하지 마세요.
-- 같은 문제를 여러 능력에 중복 분류하지 말고 가장 직접적인 원인 하나를 선택하세요.
 - 조사 문제는 structure로 분류하세요.
 - 활용, 시제, 높임법, 어미 문제는 grammar_sentence로 분류하세요.
-- 질문을 잘못 이해한 문제는 vocabulary_understanding으로 분류하세요.
 - 의미는 이해했지만 상황이나 상대에게 부적절한 표현은 pragmatics로 분류하세요.
 - 자연스러운 구어체의 조사 생략을 무조건 오류로 판단하지 마세요.
 - 현재 학습 목표 표현을 사용하지 않았다는 이유만으로 올바른 문장을 문법 오류로 판단하지 마세요.
@@ -136,8 +130,12 @@ JUDGE_SYSTEM_INSTRUCTION = """
 - 질문을 잘못 이해했거나 무관한 답변을 한 경우 모범 답안을 corrected_text로 만들지 말고 null을 반환하세요.
 - 캐릭터 응답, 힌트, 다음 단계 진행 여부는 결정하지 마세요.
 
-판정 기준:
+복수 문제 기록 원칙:
+- 서로 독립적인 문제가 여러 개면 관련 능력을 모두 작성하세요.
+- 예시: [안녕하세요, 이 사과를 빨갛다.] 라는 input 문장에는 목적어를 취하지 않은 문제(structure), 존경어를 쓰지 않는 문제(pragmatics)가 발생힘
+- **동일한 능력 분류**는 중복해서 작성하지 마세요. 대표적인 하나의 오류만 작성합니다.
 
+판정 기준:
 - pass:
   단계 목표를 달성했고 지적할 문제가 없음
 
@@ -145,9 +143,11 @@ JUDGE_SYSTEM_INSTRUCTION = """
   단계 목표와 의사 전달에는 성공했지만 issues가 존재함
 
 - fail:
-  단계 목표를 달성하지 못했거나 질문·지시를 잘못 이해했거나 의미가 불명확함
+  단계 목표를 달성하지 못했거나, 질문·지시를 잘못 이해했거나, 의미가 불명확함, 현재 상황이나 단계와 관련 없는 내용을 말함
 
 반드시 다음 JSON 형식만 반환하세요.
+
+inferred_intent_text, reason_text, evaluation_reason_text는 한글로 작성됩니다.
 
 {
   "evaluation_result": "pass | soft_pass | fail",
@@ -155,7 +155,7 @@ JUDGE_SYSTEM_INSTRUCTION = """
   "inferred_intent_text": "학습자의 의도",
   "issues": [
     {
-      "ability": "vocabulary_use | grammar_sentence | structure | pragmatics | vocabulary_understanding",
+      "ability": "vocabulary_use | grammar_sentence | structure | pragmatics ",
       "reason_text": "왜 부적절한지에 대한 구체적인 설명"
     }
   ],
@@ -166,6 +166,8 @@ JUDGE_SYSTEM_INSTRUCTION = """
 
 RESPONSE_PACK_SYSTEM_INSTRUCTION = """
 당신은 한국어 롤플레잉 학습 게임의 응답 생성기입니다. 현재 장면의 `character`로서 학습자의 최근 발화에 자연스럽게 반응하고, 확정된 진행 방향에 맞는 다음 메시지를 생성하세요.
+
+중요: current_step과 next_step은 캐릭터의 목표가 아니라 학습자가 수행해야 할 목표입니다. 캐릭터는 목표를 대신 수행하거나 정답을 말하지 않고, 학습자가 해당 목표를 수행할 수 있는 상황과 반응을 제공합니다.
 
 ## 입력 우선순위
 1. `progress_outcome`: 대화를 현재 단계에서 유지할지, 다음 단계로 이동할지, 종료할지를 결정합니다.
