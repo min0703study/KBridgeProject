@@ -15,6 +15,11 @@ import {
 } from 'lucide-react';
 import { getChatStudents, sendChatMessage } from '../api/chatApi.js';
 import AppBottomNavigation from '../components/AppBottomNavigation.jsx';
+import ChatDebugPanel from '../components/ChatDebugPanel.jsx';
+
+// chat_dev.html(k_bridge_admin) 이관 디버그 패널 — ?debug=1 로 열었을 때만 노출.
+const DEBUG_ENABLED =
+  typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug');
 
 const DEFAULT_GREETING = {
   id: 'bot-greeting',
@@ -386,6 +391,8 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
   const [busy, setBusy] = useState(false);
   const [loadingStudents, setLoadingStudents] = useState(true);
   const [error, setError] = useState('');
+  const [lastDebugData, setLastDebugData] = useState(null);
+  const [showDebug, setShowDebug] = useState(false);
   const conversationRef = useRef(null);
 
   const selectedStudent = students.find((student) => student.id === selectedStudentId) || null;
@@ -428,6 +435,7 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
     setMessages([DEFAULT_GREETING]);
     setInput('');
     setError('');
+    setLastDebugData(null);
   }
 
   function handleStudentChange(studentId) {
@@ -440,6 +448,7 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
     setMessages([DEFAULT_GREETING]);
     setInput('');
     setError('');
+    setLastDebugData(null);
   }
 
   async function handleSubmit() {
@@ -480,6 +489,7 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
           time: formatChatTime(),
         },
       ]);
+      setLastDebugData(response);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Failed to send message.');
     } finally {
@@ -526,6 +536,19 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
           onSubmit={handleSubmit}
         />
         <AppBottomNavigation activeTab={activeTab} onNavigate={onMockNavigate} />
+        {DEBUG_ENABLED && !showDebug ? (
+          <button
+            className="chat-debug-toggle"
+            type="button"
+            onClick={() => setShowDebug(true)}
+            aria-label="Open debug panel"
+          >
+            DEV
+          </button>
+        ) : null}
+        {DEBUG_ENABLED && showDebug ? (
+          <ChatDebugPanel data={lastDebugData} onClose={() => setShowDebug(false)} />
+        ) : null}
       </div>
     </main>
   );
