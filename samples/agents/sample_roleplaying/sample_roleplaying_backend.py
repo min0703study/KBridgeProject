@@ -55,7 +55,7 @@ PROJECT_ROOT = CURRENT_DIR.parents[2]
 if str(CURRENT_DIR) not in sys.path:
     sys.path.insert(0, str(CURRENT_DIR))
 
-import sample_roleplaying_db as sample_db
+import sample_roleplaying_db2 as sample_db
 
 
 LEARNER_ID = "23978a46-2c8e-4e2c-aa1d-4c37380b436e"

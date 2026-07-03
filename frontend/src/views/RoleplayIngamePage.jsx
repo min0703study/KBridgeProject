@@ -23,7 +23,7 @@ import {
 } from '../api/roleplayApi.js';
 import { createWavRecorder } from '../utils/wavRecorder.js';
 
-const FALLBACK_BACKGROUND_IMAGE = '/roleplay_ingame_image/roleplay_university_student.png';
+const FALLBACK_BACKGROUND_IMAGE = '/roleplay_ingame_image/roleplay_police_officer.png';
 const FALLBACK_TOTAL_STEPS = 5;
 const TRANSLATION_PENDING_TEXT = 'English translation coming soon.';
 const ENABLE_DEV_MAGIC_ANSWER =

@@ -369,7 +369,7 @@ def _ingame_response(version: dict, step: dict) -> RoleplayIngameResponse:
             roleplay_location_id=roleplay_location["roleplay_location_id"],
             name=roleplay_location["name"],
             description=roleplay_location["description"],
-            background_image_url="/roleplay_ingame_image/roleplay_university_student.png",
+            background_image_url="/roleplay_ingame_image/roleplay_police_officer.png",
         ),
         character=RoleplayCharacterSummary(
             scenario_roleplay_character_id=scenario_character["scenario_roleplay_character_id"],
