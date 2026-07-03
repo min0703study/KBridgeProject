@@ -61,7 +61,7 @@ import sample_roleplaying_db as sample_db
 LEARNER_ID = "23978a46-2c8e-4e2c-aa1d-4c37380b436e"
 INPUT_METHOD = "text"
 ELEVENLABS_MODEL = "eleven_flash_v2_5"
-ELEVENLABS_VOICE_ID = "iP95p4xoKVk53GoZ742B"
+ELEVENLABS_VOICE_ID = "IKne3meq5aSn9XLyUdCD"
 RESPONSE_PACK_MAX_OUTPUT_TOKENS = 1200
 LLM_MODEL_OPTIONS = {
     "Gemini 3.1 Flash Lite": "gemini-3.1-flash-lite",
@@ -251,6 +251,13 @@ def load_dotenv_value(name: str) -> str | None:
         if key.strip() == name:
             return value.strip().strip('"').strip("'")
     return None
+
+
+def load_dotenv_bool(name: str, default: bool = False) -> bool:
+    value = load_dotenv_value(name)
+    if value is None:
+        return default
+    return value.strip().casefold() in {"1", "true", "yes", "y", "on"}
 
 
 def api_key() -> str | None:
@@ -2373,6 +2380,7 @@ def sender_type_for_message_type(message_type: str) -> str:
     return "learner"
 
 
+@lru_cache(maxsize=1)
 def build_graph_runner() -> Callable[[dict[str, Any]], dict[str, Any]]:
     node_functions = {
         "context_builder": timed_node("context_builder", context_builder_node),

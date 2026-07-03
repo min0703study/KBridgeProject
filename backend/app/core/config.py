@@ -8,14 +8,6 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     app_title: str = "KBridge API"
-    cors_origins: list[str] = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://172.16.15.128:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ]
-    
     database_url: str | None = os.getenv("DATABASE_URL")
     gemini_model: str = "gemini-3.1-pro-preview"
     elevenlabs_model: str = "eleven_flash_v2_5"
