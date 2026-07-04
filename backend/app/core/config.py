@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     elevenlabs_api_key: str | None = None
     roleplay_node_trace_log: bool = False
 
+    # 허브(k_bridge_admin) 신호 발신 — 둘 다 설정된 경우에만 활성 (없으면 no-op)
+    kbridge_hub_url: str | None = None
+    kbridge_ingest_secret: str | None = None
+
     @property
     def resolved_gemini_api_key(self) -> str | None:
         return self.gemini_api_key or self.google_api_key
