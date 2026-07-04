@@ -5,9 +5,11 @@ Flow:
 1. User uploads a .txt document (and selects its language) or registers the
    built-in sample document.
 2. The document is split into small text chunks.
-3. Each chunk is converted to a simple word-count vector in memory.
-4. If the chunk's source language is not English and OPENAI_API_KEY is set,
+3. If the chunk's source language is not English and OPENAI_API_KEY is set,
    an English translation of the chunk is generated and stored alongside it.
+4. Each chunk is converted to a simple word-count vector in memory. The vector
+   is built from the original text plus its English translation (when
+   available), so both Korean and English questions can match the chunk.
 5. User asks a question in the chat input.
 6. The app searches similar chunks and builds a bilingual (KO/EN) answer from
    the best result.
@@ -230,6 +232,11 @@ def register_document(title: str, text: str, language: str) -> None:
     for chunk_index, chunk in enumerate(chunks):
         chunk_text_en = chunk if language == "en" else translate_to_english(chunk, client)
 
+        # 원문과 영어 번역을 함께 인덱싱해서 영어 질문도 한국어 문서에 매칭되게 한다.
+        searchable_text = chunk
+        if chunk_text_en and chunk_text_en != chunk:
+            searchable_text = f"{chunk}\n{chunk_text_en}"
+
         st.session_state.vector_db.append(
             {
                 "document_id": document_id,
@@ -238,7 +245,7 @@ def register_document(title: str, text: str, language: str) -> None:
                 "language": language,
                 "chunk_text": chunk,
                 "chunk_text_en": chunk_text_en,
-                "vector": text_to_vector(chunk),
+                "vector": text_to_vector(searchable_text),
             }
         )
 
