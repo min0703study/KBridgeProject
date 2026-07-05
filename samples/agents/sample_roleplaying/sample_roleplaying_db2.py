@@ -8,8 +8,8 @@ the sample roleplaying backend can swap it in without schema changes.
 SCENARIOS = [
     {
         "scenario_id": "4d8fd3f2-3f1b-4a3a-84f8-6fbe1ab5a4b1",
-        "title": "여권을 도난당해 경찰서에 신고하기",
-        "description": "단원: 생활 한국어 - 경찰서에서 신고하기",
+        "title": "Report a stolen passport at a police station",
+        "description": "Unit: Practical Korean - Reporting an incident at a police station",
         "difficulty": "beginner",
         "thumbnail_file_id": None,
         "status": "draft",
@@ -40,23 +40,23 @@ SCENARIO_VERSIONS = [
 ROLEPLAY_LOCATIONS = [
     {
         "roleplay_location_id": "52fdc083-6c49-4f6c-bdd3-242d2fd8c07b",
-        "name": "한국 경찰서 민원실",
+        "name": "Police station service desk in Korea",
         "description": (
-            "한국의 경찰서 민원실입니다. "
-            "경찰관이 창구에서 방문자의 신고를 접수하고 있습니다."
+            "A service desk inside a police station in Korea. "
+            "A police officer is receiving incident reports at the counter."
         ),
         "background_image_file_id": None,
         "location_prompt": """
-한국의 일반적인 경찰서 민원실이다.
+A typical service desk inside a police station in Korea.
 
-상황:
-- 학습자는 여권을 도난당한 뒤 경찰서에 왔다.
-- 유진은 민원 창구에서 신고를 접수하는 경찰관이다.
-- 유진은 학습자에게 사건 발생 시간과 장소를 질문한다.
-- 유진은 신고에 필요한 이름, 국적, 연락처를 확인한다.
-- 마지막 단계에서는 신고가 접수되고 다음 절차를 안내한다.
+Situation:
+- The learner has come to the police station after their passport was stolen.
+- Yujin is the police officer receiving reports at the service desk.
+- Yujin asks the learner when and where the incident happened.
+- Yujin checks the learner's name, nationality, and contact information for the report.
+- In the final step, the report is accepted and Yujin explains the next procedure.
 
-장면과 행동은 한국 경찰서의 자연스럽고 차분한 환경을 유지해야 한다.
+Scene and action messages should keep the calm, natural atmosphere of a Korean police station.
 """,
         "status": "active",
         "created_at": "2026-07-03T09:30:00+00:00",
@@ -83,26 +83,26 @@ SCENARIO_LOCATIONS = [
 ROLEPLAY_CHARACTERS = [
     {
         "roleplay_character_id": "a9132778-c823-4cb7-8f21-0a1d5d4a1ab8",
-        "name": "유진",
+        "name": "Yujin",
         "description": (
-            "한국 경찰서에서 근무하는 경찰관입니다. "
-            "학습자의 여권 도난 신고를 친절하게 접수합니다."
+            "A police officer working at a police station in Korea. "
+            "Yujin kindly receives the learner's stolen passport report."
         ),
         "image_base_file_id": None,
         "persona_prompt": """
-당신은 한국 경찰서에서 근무하는 경찰관 유진이다.
+You are Yujin, a police officer working at a police station in Korea.
 
-기본 설정:
-- 경찰서 민원 창구에서 신고를 접수한다.
-- 학습자의 여권이 도난당한 상황이다.
-- 필요한 정보를 순서대로 확인한다.
-- 신고가 끝나면 다음 절차를 안내한다.
+Default setup:
+- You receive reports at the police station service desk.
+- The learner's passport has been stolen.
+- You check the required information in order.
+- After the report is complete, you explain the next procedure.
 
-말투:
-- 기본적으로 해요체를 사용한다.
-- 학습자가 이해하기 쉬운 짧은 문장을 사용한다.
-- 친절하고 차분한 태도를 유지한다.
-- 한 번에 너무 많은 질문을 하지 않는다.
+Speech style:
+- Use polite Korean by default.
+- Use short sentences that a beginner learner can understand.
+- Stay kind and calm.
+- Do not ask too many questions at once.
 """,
         "status": "active",
         "created_at": "2026-07-03T09:30:00+00:00",
@@ -117,7 +117,7 @@ SCENARIO_ROLEPLAY_CHARACTERS = [
         "scenario_roleplay_character_id": "8a1377e7-742a-4c8e-8db5-506520a90b15",
         "scenario_version_id": "6f9366b8-bf2c-4f5f-a535-78cbcc560ef9",
         "roleplay_character_id": "a9132778-c823-4cb7-8f21-0a1d5d4a1ab8",
-        "scenario_role_name": "신고를 접수하는 경찰관",
+        "scenario_role_name": "Police officer receiving the report",
         "display_order": 1,
         "is_primary": True,
         "created_at": "2026-07-03T09:30:00+00:00",
@@ -132,10 +132,10 @@ STEPS = [
         "step_id": "86d76233-2ea7-4c1a-ae9c-1438fdb9a5d4",
         "scenario_version_id": "6f9366b8-bf2c-4f5f-a535-78cbcc560ef9",
         "step_order": 1,
-        "step_title": "여권 도난 신고하기",
+        "step_title": "Report the stolen passport",
         "step_goal": (
-            "경찰관에게 여권을 도난당했다는 사실과 "
-            "신고하러 왔다는 목적을 전달한다."
+            "Tell the police officer that your passport was stolen "
+            "and that you came to file a report."
         ),
         "initial_scene_text": (
             "You are a foreign student living in Korea. Yesterday evening, your passport disappeared "
@@ -147,8 +147,8 @@ STEPS = [
         "initial_roleplay_character_dialogue_language": "ko",
         "initial_roleplay_character_dialogue_translation_json": '{"en": "Hello. What brings you here?"}',
         "roleplay_guidance_text": (
-            "여권을 도난당했거나 잃어버렸다는 사실과 "
-            "신고하고 싶다는 의도를 전달한다."
+            "Say that your passport was stolen or lost, "
+            "and clearly express that you want to file a report."
         ),
         "primary_scenario_roleplay_character_id": "8a1377e7-742a-4c8e-8db5-506520a90b15",
         "primary_scenario_location_id": "1dddf54c-3f6b-42e1-b77b-b03a0f67c39f",
@@ -159,15 +159,15 @@ STEPS = [
         "step_id": "ac64e23f-5b49-47f6-8903-28cbdbff06c2",
         "scenario_version_id": "6f9366b8-bf2c-4f5f-a535-78cbcc560ef9",
         "step_order": 2,
-        "step_title": "시간과 장소 말하기",
-        "step_goal": "여권이 없어진 시간과 장소를 설명한다.",
+        "step_title": "Say when and where it happened",
+        "step_goal": "Explain when and where your passport disappeared.",
         "initial_scene_text": None,
         "initial_roleplay_character_action_text": None,
         "initial_roleplay_character_dialogue_text": None,
         "initial_roleplay_character_dialogue_language": "ko",
         "initial_roleplay_character_dialogue_translation_json": None,
         "roleplay_guidance_text": (
-            "여권이 없어진 대략적인 시간과 장소를 전달한다."
+            "Give the approximate time and place where your passport disappeared."
         ),
         "primary_scenario_roleplay_character_id": "8a1377e7-742a-4c8e-8db5-506520a90b15",
         "primary_scenario_location_id": "1dddf54c-3f6b-42e1-b77b-b03a0f67c39f",
@@ -178,15 +178,15 @@ STEPS = [
         "step_id": "4353e604-7c56-45e1-91d9-baf372882940",
         "scenario_version_id": "6f9366b8-bf2c-4f5f-a535-78cbcc560ef9",
         "step_order": 3,
-        "step_title": "도난 상황 설명하기",
-        "step_goal": "여권을 보관한 곳과 여권이 없어진 상황을 설명한다.",
+        "step_title": "Explain what happened",
+        "step_goal": "Explain where you kept your passport and how you noticed it was gone.",
         "initial_scene_text": None,
         "initial_roleplay_character_action_text": None,
         "initial_roleplay_character_dialogue_text": None,
         "initial_roleplay_character_dialogue_language": "ko",
         "initial_roleplay_character_dialogue_translation_json": None,
         "roleplay_guidance_text": (
-            "여권이 가방에 있었으며 나중에 없어졌다는 상황을 설명한다."
+            "Explain that your passport was in your bag and later went missing."
         ),
         "primary_scenario_roleplay_character_id": "8a1377e7-742a-4c8e-8db5-506520a90b15",
         "primary_scenario_location_id": "1dddf54c-3f6b-42e1-b77b-b03a0f67c39f",
@@ -197,15 +197,15 @@ STEPS = [
         "step_id": "a35ca11e-9c3e-411b-b65c-5c84ec8a8577",
         "scenario_version_id": "6f9366b8-bf2c-4f5f-a535-78cbcc560ef9",
         "step_order": 4,
-        "step_title": "신고 정보 전달하기",
-        "step_goal": "자신의 이름, 국적과 연락처를 전달한다.",
+        "step_title": "Give your report information",
+        "step_goal": "Give your name, nationality, and contact information.",
         "initial_scene_text": None,
         "initial_roleplay_character_action_text": None,
         "initial_roleplay_character_dialogue_text": None,
         "initial_roleplay_character_dialogue_language": "ko",
         "initial_roleplay_character_dialogue_translation_json": None,
         "roleplay_guidance_text": (
-            "신고 접수에 필요한 이름, 국적과 연락처를 전달한다."
+            "Provide the name, nationality, and contact information needed for the report."
         ),
         "primary_scenario_roleplay_character_id": "8a1377e7-742a-4c8e-8db5-506520a90b15",
         "primary_scenario_location_id": "1dddf54c-3f6b-42e1-b77b-b03a0f67c39f",
@@ -216,9 +216,9 @@ STEPS = [
         "step_id": "e432fb60-35eb-4103-ab92-e21bcfc50d1c",
         "scenario_version_id": "6f9366b8-bf2c-4f5f-a535-78cbcc560ef9",
         "step_order": 5,
-        "step_title": "다음 절차 물어보기",
+        "step_title": "Ask about the next procedure",
         "step_goal": (
-            "신고 접수 확인서를 요청하고 다음 절차를 질문한다."
+            "Ask for a report confirmation document and ask what to do next."
         ),
         "initial_scene_text": None,
         "initial_roleplay_character_action_text": None,
@@ -226,7 +226,7 @@ STEPS = [
         "initial_roleplay_character_dialogue_language": "ko",
         "initial_roleplay_character_dialogue_translation_json": None,
         "roleplay_guidance_text": (
-            "신고 접수 확인서 또는 이후에 해야 할 일을 질문한다."
+            "Ask about a report confirmation document or what you should do afterward."
         ),
         "primary_scenario_roleplay_character_id": "8a1377e7-742a-4c8e-8db5-506520a90b15",
         "primary_scenario_location_id": "1dddf54c-3f6b-42e1-b77b-b03a0f67c39f",
