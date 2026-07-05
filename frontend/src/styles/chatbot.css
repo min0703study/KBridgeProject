@@ -767,3 +767,29 @@
     font-size: clamp(12px, 3vw, 20px);
   }
 }
+
+.chat-message.is-menu {
+  margin: 2px 0 17px 42px;
+}
+
+.chat-quick-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chat-quick-chip {
+  padding: 8px 14px;
+  border: 1px solid rgba(97, 87, 234, 0.3);
+  border-radius: 999px;
+  background: var(--kb-accent-blue-soft);
+  color: var(--kb-accent-blue);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.chat-quick-chip:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

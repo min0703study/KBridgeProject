@@ -78,6 +78,13 @@ const SAFETY_QUICK_ACTIONS_BY_SUBTYPE = {
   ],
 };
 
+const QUICK_MENU = [
+  { key: 'arc', label: 'ARC 안내', query: '외국인등록증 신청 방법 알려주세요' },
+  { key: 'sim', label: '유심/휴대폰', query: '휴대폰 유심 개통은 어떻게 하나요' },
+  { key: 'bank', label: '은행계좌', query: '은행 계좌는 어떻게 개설하나요' },
+  { key: 'hospital', label: '병원/보험', query: '병원 진료나 건강보험은 어떻게 하나요' },
+];
+
 function makeId(prefix) {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return `${prefix}-${crypto.randomUUID()}`;
@@ -356,7 +363,15 @@ function BubbleText({ text }) {
   );
 }
 
-function ChatMessage({ message }) {
+function ChatMessage({ message, onSelectChip, chipsDisabled }) {
+  if (message.kind === 'chips') {
+    return (
+      <div className="chat-message is-menu">
+        <QuickReplyChips chips={message.chips} onSelect={onSelectChip} disabled={chipsDisabled} />
+      </div>
+    );
+  }
+
   const isStudent = message.role === 'student';
 
   if (isStudent) {
@@ -418,11 +433,32 @@ function ChatInput({ value, busy, disabled, onChange, onSubmit }) {
   );
 }
 
+function QuickReplyChips({ chips, onSelect, disabled }) {
+  return (
+    <div className="chat-quick-menu" role="group" aria-label="Quick reply options">
+      {chips.map((chip) => (
+        <button
+          key={chip.key}
+          type="button"
+          className="chat-quick-chip"
+          disabled={disabled}
+          onClick={() => onSelect(chip.query)}
+        >
+          {chip.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
   const [students, setStudents] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [conversationId, setConversationId] = useState(() => makeId('conversation'));
-  const [messages, setMessages] = useState([DEFAULT_GREETING]);
+  const [messages, setMessages] = useState([
+    DEFAULT_GREETING,
+    { id: 'chips-initial', kind: 'chips', chips: QUICK_MENU },
+  ]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [loadingStudents, setLoadingStudents] = useState(true);
@@ -468,7 +504,7 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
 
   function handleReset() {
     setConversationId(makeId('conversation'));
-    setMessages([DEFAULT_GREETING]);
+    setMessages([DEFAULT_GREETING, { id: makeId('chips'), kind: 'chips', chips: QUICK_MENU }]);
     setInput('');
     setError('');
     setLastDebugData(null);
@@ -481,7 +517,7 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
 
     setSelectedStudentId(studentId);
     setConversationId(makeId('conversation'));
-    setMessages([DEFAULT_GREETING]);
+    setMessages([DEFAULT_GREETING, { id: makeId('chips'), kind: 'chips', chips: QUICK_MENU }]);
     setInput('');
     setError('');
     setLastDebugData(null);
@@ -524,6 +560,7 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
           response,
           time: formatChatTime(),
         },
+        { id: makeId('chips'), kind: 'chips', chips: QUICK_MENU },
       ]);
       setLastDebugData(response);
     } catch (requestError) {
@@ -553,7 +590,12 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
         >
           <div className="chat-spacer" aria-hidden="true" />
           {messages.map((message) => (
-            <ChatMessage message={message} key={message.id} />
+            <ChatMessage
+              message={message}
+              onSelectChip={handleSubmit}
+              chipsDisabled={busy || loadingStudents || !selectedStudentId}
+              key={message.id}
+            />
           ))}
           {busy ? (
             <article className="chat-message is-bot">
