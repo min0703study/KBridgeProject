@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import base64
 import hashlib
@@ -13,7 +13,7 @@ from collections.abc import Iterable
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Callable, Generic, Literal, TypeVar
+from typing import Any, Callable, Generic, Literal, TypeVar, get_args
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, ValidationError
@@ -68,22 +68,17 @@ LLM_MODEL_OPTIONS = {
     "GPT-5.4 mini": "gpt-5.4-mini",
 }
 EvaluationResult = Literal["pass", "soft_pass", "fail"]
-IssueTag = Literal[
-    "grammar",
-    "vocabulary",
-    "politeness",
-    "naturalness",
-    "culturalContext",
-    "taskExpression",
-    "clarity",
-    "offTopic",
+IssueAbility = Literal[
+    "vocabulary_use",
+    "grammar_sentence",
+    "structure",
+    "pragmatics"
 ]
-MessageType = Literal[
+ResponsePackMessageType = Literal[
     "scene_text",
     "roleplay_character_action_text",
     "roleplay_character_dialogue_text",
     "hint",
-    "correction_feedback",
 ]
 StructuredOutputT = TypeVar("StructuredOutputT", bound=BaseModel)
 NODE_SEQUENCE = [
@@ -97,41 +92,86 @@ NODE_SEQUENCE = [
 ]
 
 JUDGE_SYSTEM_INSTRUCTION = """
-You are the Judge Node for a Korean roleplaying learning game.
-Your only job is evaluation.
+당신은 한국어 롤플레잉 학습자의 발화를 평가하는 역할입니다.
 
-Do not generate a character response.
-Do not generate hints.
-Do not generate correction sentences.
-Do not change game state.
-Do not decide step advancement, chances, or session ending.
+현재 단계의 목표와 상대방의 직전 발화를 기준으로 학습자의 입력을 평가하세요.
 
-Evaluate whether the learner input achieves the current step goal.
-Prioritize inferred intent over perfect grammar.
-Use linguistic_features only as deterministic evidence about morphology, vocabulary, particles, endings, and pragmatic signals.
-Do not treat linguistic_features as an evaluation result, ability score, or step advancement decision.
-If input_method is voice, do not penalize missing question marks or weak punctuation.
-If the meaning is understandable and the step goal is achieved, return pass or soft_pass.
-If the meaning is right but the expression is awkward, blunt, unnatural, or culturally risky, return soft_pass.
-If the step goal is not achieved, the meaning is unclear, or the input is off-topic, return fail.
+당신은 다음을 확정해야 합니다.
 
-Do not mark a cultural issue unless the learner input clearly contains one.
+1. 현재 단계 목표 달성 여부
+2. 학습자가 표현하려는 의도
+3. 학습자 발화에서 실제로 부적절한 부분
+4. 각 문제의 능력 분류와 이유
+5. 가능한 경우 학습자 발화 전체를 수정한 최종 교정문 하나
 
-Return only valid JSON with exactly these fields:
+능력 분류:
+
+- vocabulary_use:
+  학습자가 실제 사용한 단어나 표현의 선택이 부적절한 경우
+
+- grammar_sentence:
+  동사·형용사 활용, 시제, 높임법, 종결어미, 부정 표현이 부적절한 경우
+
+- structure:
+  조사, 어순, 필수 문장 성분 또는 문장 성분 간 관계가 부적절한 경우
+
+- pragmatics:
+  문장의 의미는 이해되지만 상황, 관계, 공손성 또는 대화 목적에 맞지 않는 경우
+
+평가 원칙:
+- 학습자 입력에 실제로 나타난 문제만 issues에 포함하세요.
+- 적절한 부분은 issues에 포함하지 마세요.
+- 조사 문제는 structure로 분류하세요.
+- 활용, 시제, 높임법, 어미 문제는 grammar_sentence로 분류하세요.
+- 의미는 이해했지만 상황이나 상대에게 부적절한 표현은 pragmatics로 분류하세요.
+- 자연스러운 구어체의 조사 생략을 무조건 오류로 판단하지 마세요.
+- 현재 학습 목표 표현을 사용하지 않았다는 이유만으로 올바른 문장을 문법 오류로 판단하지 마세요.
+- corrected_text는 학습자의 원래 의도를 유지하면서 문장 전체를 수정할 수 있을 때만 작성하세요.
+- 질문을 잘못 이해했거나 무관한 답변을 한 경우 모범 답안을 corrected_text로 만들지 말고 null을 반환하세요.
+- 캐릭터 응답, 힌트, 다음 단계 진행 여부는 결정하지 마세요.
+
+복수 문제 기록 원칙:
+- 서로 독립적인 문제가 여러 개면 관련 능력을 모두 작성하세요.
+- 예시: [안녕하세요, 이 사과를 빨갛다.] 라는 input 문장에는 목적어를 취하지 않은 문제(structure), 존경어를 쓰지 않는 문제(pragmatics)가 발생힘
+- **동일한 능력 분류**는 중복해서 작성하지 마세요. 대표적인 하나의 오류만 작성합니다.
+
+판정 기준:
+- pass:
+  단계 목표를 달성했고 지적할 문제가 없음
+
+- soft_pass:
+  단계 목표와 의사 전달에는 성공했지만 issues가 존재함
+
+- fail:
+  단계 목표를 달성하지 못했거나, 질문·지시를 잘못 이해했거나, 의미가 불명확함, 현재 상황이나 단계와 관련 없는 내용을 말함
+
+반드시 다음 JSON 형식만 반환하세요.
+
+inferred_intent_text, reason_text, evaluation_reason_text는 한글로 작성됩니다.
+
 {
-  "evaluation_result": "pass" | "soft_pass" | "fail",
-  "inferred_intent_text": "short explanation of inferred learner intent",
-  "issue_tags": ["grammar" | "vocabulary" | "politeness" | "naturalness" | "culturalContext" | "taskExpression" | "clarity" | "offTopic"],
-  "evaluation_reason_text": "short reason for the evaluation"
+  "evaluation_result": "pass | soft_pass | fail",
+  "step_goal_matched": true,
+  "inferred_intent_text": "학습자의 의도",
+  "issues": [
+    {
+      "ability": "vocabulary_use | grammar_sentence | structure | pragmatics ",
+      "reason_text": "왜 부적절한지에 대한 구체적인 설명"
+    }
+  ],
+  "corrected_text": "최종 교정문 또는 null",
+  "evaluation_reason_text": "전체 평가에 대한 짧은 설명"
 }
 """.strip()
 
 RESPONSE_PACK_SYSTEM_INSTRUCTION = """
 당신은 한국어 롤플레잉 학습 게임의 응답 생성기입니다. 현재 장면의 `character`로서 학습자의 최근 발화에 자연스럽게 반응하고, 확정된 진행 방향에 맞는 다음 메시지를 생성하세요.
 
+중요: current_step과 next_step은 캐릭터의 목표가 아니라 학습자가 수행해야 할 목표입니다. 캐릭터는 목표를 대신 수행하거나 정답을 말하지 않고, 학습자가 해당 목표를 수행할 수 있는 상황과 반응을 제공합니다.
+
 ## 입력 우선순위
 1. `progress_outcome`: 대화를 현재 단계에서 유지할지, 다음 단계로 이동할지, 종료할지를 결정합니다.
-2. `generation_policy`: 이번 응답의 목적과 힌트·교정·종료 메시지 생성 여부를 결정합니다.
+2. `generation_policy`: 이번 응답의 목적과 힌트·종료 메시지 생성 여부를 결정합니다.
 3. `judge_result`: 이미 확정된 평가입니다. 다시 판정하거나 새로운 오류를 추가하지 마세요.
 4. `learner_input_text`, `recent_messages`: 학습자의 발화와 직전 대화에 직접 반응하는 데 사용합니다.
 5. `current_step`, `next_step`, `character`, `location`: 대화 목표, 캐릭터 말투와 상황 제약을 유지하는 데 사용합니다.
@@ -156,22 +196,24 @@ RESPONSE_PACK_SYSTEM_INSTRUCTION = """
 * 학습자가 이미 제공한 정보를 다시 묻지 마세요.
 * 다음 목표를 유도하되, 학습자가 말해야 할 정답 문장 전체를 알려 주지 마세요.
 
-## 힌트와 교정
-
+## 힌트
 * `should_generate_hint`가 `true`일 때만 `hint`를 생성하세요.
 * 힌트는 `hint_level` 범위를 넘지 않아야 하며, 정답 문장 전체를 공개하면 안 됩니다.
 * 출력 문장에 “힌트 1단계” 같은 레벨명을 쓰지 마세요.
-* `should_generate_correction`이 `true`일 때만 `correction_feedback`과 `correction_items`를 생성하세요.
-* 교정 내용은 `judge_result.issue_tags`와 `evaluation_reason_text`에 명시된 문제만 다루세요.
-* 판정을 변경하거나 입력에 없는 오류를 추가하지 마세요.
-* 캐릭터 대사와 교정 피드백은 분리하세요.
+
+## Judge 결과 사용 규칙
+* judge_result는 이미 확정된 평가입니다.
+* 새로운 문제를 판단하지 마세요.
+* 새로운 교정문을 만들지 마세요.
+* issues와 corrected_text를 변경하거나 보완하지 마세요.
+* 캐릭터의 자연스러운 반응, 단계 진행에 필요한 질문, 힌트만 생성하세요.
+* 학습자의 교정문이나 모범 답안을 캐릭터 대사로 대신 말하지 마세요.
 
 ## 메시지와 언어
 * `roleplay_character_dialogue_text`: 캐릭터가 실제로 말하는 대사이며 `learning_language`로 작성합니다.
 * `scene_text`: 꼭 필요한 장소·시간·상황 변화만 `system_language`로 작성합니다.
 * `roleplay_character_action_text`: 캐릭터의 표정·몸짓·행동만 `system_language`로 작성합니다.
-* `hint`, `correction_feedback`, `correction_items.reason_text`: `system_language`로 작성합니다.
-* `original_text`와 `corrected_text`는 학습 언어 표현을 유지할 수 있습니다.
+* `hint`: `system_language`로 작성합니다.
 * 번역이 명시적으로 요구된 경우에만 `translation_json`을 작성하고, 아니면 `null`로 반환하세요.
 
 현재 장면에 필요한 메시지만 생성하세요. 불필요한 장면 설명이나 행동을 추가하지 마세요.
@@ -181,26 +223,16 @@ RESPONSE_PACK_SYSTEM_INSTRUCTION = """
 반드시 유효한 JSON만 반환하세요. JSON 밖에 설명, 마크다운 또는 코드 블록을 출력하지 마세요.
 
 {
-"message_drafts": [
-{
-"message_type": "scene_text" | "roleplay_character_action_text" | "roleplay_character_dialogue_text" | "hint" | "correction_feedback",
-"text": "앱에 표시할 최종 문장",
-"translation_json": {
-"en": "필요한 경우의 번역"
-} | null
+  "message_drafts": [
+    {
+      "message_type": "scene_text | roleplay_character_action_text | roleplay_character_dialogue_text | hint",
+      "text": "앱에 표시할 최종 문장",
+      "translation_json": {
+        "en": "필요한 경우의 번역"
+      } | null
+    }
+  ]
 }
-],
-"correction_items": [
-{
-"type": "grammar" | "vocabulary" | "politeness" | "naturalness" | "culturalContext" | "taskExpression" | "clarity" | "offTopic",
-"original_text": "학습자의 원래 표현",
-"corrected_text": "더 적절한 표현",
-"reason_text": "짧고 구체적인 교정 이유"
-}
-]
-}
-
-교정이 필요하지 않으면 `correction_items`는 빈 배열로 반환하세요.
 """.strip()
 
 def now_iso() -> str:
@@ -448,12 +480,21 @@ def build_llm_response_trace(
     }
 
 
+class JudgeIssueLLMOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ability: IssueAbility
+    reason_text: str
+
+
 class JudgeLLMOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     evaluation_result: EvaluationResult
+    step_goal_matched: bool
     inferred_intent_text: str
-    issue_tags: list[IssueTag]
+    issues: list[JudgeIssueLLMOutput]
+    corrected_text: str | None
     evaluation_reason_text: str
 
 
@@ -466,25 +507,15 @@ class TranslationLLMOutput(BaseModel):
 class ResponseMessageLLMOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    message_type: MessageType
+    message_type: ResponsePackMessageType
     text: str
     translation_json: TranslationLLMOutput | None
-
-
-class CorrectionItemLLMOutput(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    type: IssueTag
-    original_text: str
-    corrected_text: str
-    reason_text: str
 
 
 class ResponsePackLLMOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     message_drafts: list[ResponseMessageLLMOutput]
-    correction_items: list[CorrectionItemLLMOutput]
 
 
 class LLMStructuredResult(Generic[StructuredOutputT]):
@@ -510,10 +541,10 @@ class LLMStructuredParseError(Exception):
 
 
 for output_model in (
+    JudgeIssueLLMOutput,
     JudgeLLMOutput,
     TranslationLLMOutput,
     ResponseMessageLLMOutput,
-    CorrectionItemLLMOutput,
     ResponsePackLLMOutput,
 ):
     output_model.model_rebuild()
@@ -1471,29 +1502,47 @@ def generate_openai_structured(
 
 def normalize_judge_result(result: dict[str, Any]) -> dict[str, Any]:
     evaluation_result = result.get("evaluation_result")
-    issue_tags = list(result.get("issue_tags") or [])
+    issues = normalize_judge_issues(result.get("issues") or [])
+    corrected_text = result.get("corrected_text")
+    if isinstance(corrected_text, str):
+        corrected_text = corrected_text.strip() or None
+    else:
+        corrected_text = None
     normalized = {
         "evaluation_result": evaluation_result,
+        "step_goal_matched": bool(result.get("step_goal_matched")),
         "inferred_intent_text": str(result.get("inferred_intent_text") or ""),
-        "issue_tags": issue_tags,
+        "issues": issues,
+        "corrected_text": corrected_text,
         "evaluation_reason_text": str(result.get("evaluation_reason_text") or ""),
     }
     if evaluation_result == "pass":
         normalized["step_goal_matched"] = True
         normalized["communication_success"] = True
-        normalized["correction_needed"] = False
     elif evaluation_result == "soft_pass":
         normalized["step_goal_matched"] = True
         normalized["communication_success"] = True
-        normalized["correction_needed"] = True
     elif evaluation_result == "fail":
         normalized["step_goal_matched"] = False
         normalized["communication_success"] = False
-        normalized["correction_needed"] = False
     else:
         raise ValueError("Judge Node returned an invalid evaluation_result.")
-    normalized["cultural_issue_detected"] = "culturalContext" in issue_tags
+    normalized["correction_needed"] = bool(issues)
+    normalized["cultural_issue_detected"] = False
     return normalized
+
+
+def normalize_judge_issues(value: Any) -> list[dict[str, str]]:
+    allowed = set(get_args(IssueAbility))
+    issues = []
+    for item in value if isinstance(value, list) else []:
+        if not isinstance(item, dict):
+            continue
+        ability = item.get("ability")
+        reason_text = str(item.get("reason_text") or "").strip()
+        if ability in allowed and reason_text:
+            issues.append({"ability": ability, "reason_text": reason_text})
+    return issues
 
 
 def heuristic_judge_result(state: dict[str, Any]) -> dict[str, Any]:
@@ -1514,15 +1563,29 @@ def heuristic_judge_result(state: dict[str, Any]) -> dict[str, Any]:
             {
                 "evaluation_result": evaluation,
                 "inferred_intent_text": "The learner appears to answer the current step goal.",
-                "issue_tags": [] if evaluation == "pass" else ["naturalness"],
+                "step_goal_matched": True,
+                "issues": [] if evaluation == "pass" else [
+                    {
+                        "ability": "pragmatics",
+                        "reason_text": "The fallback evaluator matched the intent but could not confirm the expression is fully natural for this situation.",
+                    }
+                ],
+                "corrected_text": None,
                 "evaluation_reason_text": "Local fallback matched the learner input to this step's expected intent.",
             }
         )
     return normalize_judge_result(
         {
             "evaluation_result": "fail",
+            "step_goal_matched": False,
             "inferred_intent_text": "The learner input does not clearly satisfy the current step.",
-            "issue_tags": ["clarity"],
+            "issues": [
+                {
+                    "ability": "vocabulary_understanding",
+                    "reason_text": "The fallback evaluator could not match the learner input to the current question or step goal.",
+                }
+            ],
+            "corrected_text": None,
             "evaluation_reason_text": "Local fallback could not match the expected intent for the current step.",
         }
     )
@@ -1676,7 +1739,7 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
     raw_response = None
     used_fallback = True
     fallback_reason = None
-    response_pack = {"message_drafts": [], "correction_items": []}
+    response_pack = {"message_drafts": []}
     if sample_config.get("use_llm"):
         try:
             llm_result = generate_llm_structured(
@@ -1697,7 +1760,7 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
                 used_fallback = False
             except Exception as exc:
                 fallback_reason = llm_parse_error_reason(exc)
-                response_pack = {"message_drafts": [], "correction_items": []}
+                response_pack = {"message_drafts": []}
         else:
             fallback_reason = fallback_reason or last_provider_error() or "empty_llm_response"
     else:
@@ -1798,16 +1861,10 @@ def response_generation_policy(state: dict[str, Any]) -> dict[str, Any]:
         and judge_result
         and judge_result["evaluation_result"] == "fail"
     )
-    should_generate_correction = bool(
-        judge_result
-        and judge_result["evaluation_result"] == "soft_pass"
-        and judge_result["correction_needed"]
-    )
     return {
         "main_task": response_main_task(rule_decision["progress_outcome"]),
         "should_generate_hint": should_generate_hint,
         "hint_level": rule_decision["hint_level"] if should_generate_hint else None,
-        "should_generate_correction": should_generate_correction,
         "should_generate_completion": rule_decision["progress_outcome"] == "complete_session",
     }
 
@@ -1830,11 +1887,6 @@ def normalize_response_pack(state: dict[str, Any], response_pack: dict[str, Any]
             normalize_message_draft(state, draft)
             for draft in response_pack.get("message_drafts", [])
             if isinstance(draft, dict)
-        ],
-        "correction_items": [
-            item
-            for item in response_pack.get("correction_items", [])
-            if isinstance(item, dict)
         ],
     }
 
@@ -1886,40 +1938,48 @@ def hint_level_for_message_type(state: dict[str, Any], draft: dict[str, Any]) ->
 
 
 def ensure_minimum_response_pack(state: dict[str, Any], response_pack: dict[str, Any]) -> dict[str, Any]:
-    drafts = list(response_pack.get("message_drafts") or [])
-    corrections = list(response_pack.get("correction_items") or [])
+    drafts = [
+        draft
+        for draft in list(response_pack.get("message_drafts") or [])
+        if draft.get("message_type") != "correction_feedback"
+    ]
     rule_decision = state["rule_decision"]
-    judge_result = state["judge_result"]
     has_dialogue = any(draft.get("message_type") == "roleplay_character_dialogue_text" for draft in drafts)
     has_hint = any(draft.get("message_type") == "hint" for draft in drafts)
-    has_correction_feedback = any(draft.get("message_type") == "correction_feedback" for draft in drafts)
 
     if rule_decision["progress_outcome"] in {"stay_current_step", "fail_session"} and not has_hint:
         drafts.insert(0, fallback_hint_draft(state))
-    if (
-        judge_result
-        and judge_result["evaluation_result"] == "soft_pass"
-        and judge_result["correction_needed"]
-        and not has_correction_feedback
-    ):
-        drafts.insert(0, fallback_correction_feedback_draft(state))
+    correction_feedback = build_correction_feedback(state["judge_result"])
+    if correction_feedback:
+        drafts.insert(0, correction_feedback_draft(state, correction_feedback))
     if not has_dialogue:
         drafts.append(fallback_dialogue_draft(state))
-    if (
-        judge_result
-        and judge_result["evaluation_result"] == "soft_pass"
-        and judge_result["correction_needed"]
-        and not corrections
-    ):
-        corrections.append(
-            {
-                "type": (judge_result["issue_tags"][0] if judge_result.get("issue_tags") else "naturalness"),
-                "original_text": state.get("learner_input_text") or "",
-                "corrected_text": fallback_corrected_text(state),
-                "reason_text": "This sounds more natural and polite for the current roleplay step.",
-            }
-        )
-    return {"message_drafts": drafts, "correction_items": corrections}
+    return {"message_drafts": drafts}
+
+
+def build_correction_feedback(judge_result: dict[str, Any]) -> str | None:
+    issues = judge_result.get("issues") or []
+    corrected_text = judge_result.get("corrected_text")
+    if not issues:
+        return None
+    reasons = " ".join(str(issue.get("reason_text") or "").strip() for issue in issues).strip()
+    if not reasons:
+        return None
+    if corrected_text:
+        return f"{reasons} 이렇게 말하면 더 적절해요: {corrected_text}"
+    return reasons
+
+
+def correction_feedback_draft(state: dict[str, Any], text_content: str) -> dict[str, Any]:
+    return {
+        "message_type": "correction_feedback",
+        "text_content": text_content,
+        "text_language": system_language(state),
+        "translation_json": None,
+        "step_id": state["current_step"].get("step_id"),
+        "scenario_roleplay_character_id": None,
+        "hint_level": None,
+    }
 
 
 def fallback_hint_draft(state: dict[str, Any]) -> dict[str, Any]:
@@ -1937,19 +1997,6 @@ def fallback_hint_draft(state: dict[str, Any]) -> dict[str, Any]:
         "step_id": state["current_step"].get("step_id"),
         "scenario_roleplay_character_id": None,
         "hint_level": level if level != "none" else "light",
-    }
-
-
-def fallback_correction_feedback_draft(state: dict[str, Any]) -> dict[str, Any]:
-    corrected = fallback_corrected_text(state)
-    return {
-        "message_type": "correction_feedback",
-        "text_content": f'Good job. A more natural way to say it is: "{corrected}"',
-        "text_language": system_language(state),
-        "translation_json": None,
-        "step_id": state["current_step"].get("step_id"),
-        "scenario_roleplay_character_id": None,
-        "hint_level": None,
     }
 
 
@@ -1998,11 +2045,6 @@ def next_step_dialogue_for_order(step_order: int) -> str:
     }.get(step_order, "좋아요. 계속해 볼게요.")
 
 
-def fallback_corrected_text(state: dict[str, Any]) -> str:
-    samples = state.get("step_sample_answers") or []
-    return samples[0] if samples else state.get("learner_input_text") or ""
-
-
 def target_step_id_for_dialogue(state: dict[str, Any]) -> str | None:
     rule_decision = state["rule_decision"]
     if rule_decision["progress_outcome"] == "advance_to_next_step" and rule_decision.get("next_step_id"):
@@ -2019,7 +2061,7 @@ def system_language(state: dict[str, Any]) -> str:
 
 
 def response_validator_node(state: dict[str, Any]) -> dict[str, Any]:
-    response_pack = state.get("response_pack") or {"message_drafts": [], "correction_items": []}
+    response_pack = state.get("response_pack") or {"message_drafts": []}
     errors: list[str] = []
     warnings: list[str] = []
     errors.extend(validate_message_types(response_pack))
@@ -2033,7 +2075,7 @@ def response_validator_node(state: dict[str, Any]) -> dict[str, Any]:
     fallback_used = bool(errors)
     fallback_errors: list[str] = []
     if fallback_used:
-        response_pack = ensure_minimum_response_pack(state, {"message_drafts": [], "correction_items": []})
+        response_pack = ensure_minimum_response_pack(state, {"message_drafts": []})
         response_pack = normalize_response_pack(state, response_pack)
         fallback_errors.extend(validate_message_types(response_pack))
         fallback_errors.extend(validate_required_dialogue(response_pack))
@@ -2129,24 +2171,15 @@ def validate_hint_rules(state: dict[str, Any], response_pack: dict[str, Any]) ->
 
 
 def validate_correction_rules(state: dict[str, Any], response_pack: dict[str, Any]) -> list[str]:
-    judge_result = state["judge_result"]
-    should_generate = bool(
-        judge_result
-        and judge_result["evaluation_result"] == "soft_pass"
-        and judge_result["correction_needed"]
-    )
-    has_feedback = any(draft.get("message_type") == "correction_feedback" for draft in response_pack.get("message_drafts", []))
+    expected_feedback = build_correction_feedback(state["judge_result"])
+    feedback_drafts = [
+        draft for draft in response_pack.get("message_drafts", []) if draft.get("message_type") == "correction_feedback"
+    ]
     errors = []
-    if should_generate:
-        if not response_pack.get("correction_items"):
-            errors.append("correction_items are required for soft_pass correction.")
-        if not has_feedback:
-            errors.append("correction_feedback is required for soft_pass correction.")
-    else:
-        if response_pack.get("correction_items"):
-            errors.append("correction_items must not be generated for this outcome.")
-        if has_feedback:
-            errors.append("correction_feedback must not be generated for this outcome.")
+    if expected_feedback and not feedback_drafts:
+        errors.append("correction_feedback is required when Judge returns issues.")
+    if not expected_feedback and feedback_drafts:
+        errors.append("correction_feedback must not be generated when Judge returns no issues.")
     return errors
 
 
@@ -2242,7 +2275,11 @@ def domain_persistence_node(state: dict[str, Any]) -> dict[str, Any]:
             "inferred_intent_text": judge_result["inferred_intent_text"],
             "step_goal_matched": judge_result["step_goal_matched"],
             "evaluation_reason_text": judge_result["evaluation_reason_text"],
-            "correction_json": response_pack.get("correction_items") or None,
+            "correction_json": {
+                "issues": judge_result.get("issues") or [],
+                "corrected_text": judge_result.get("corrected_text"),
+                "correction_feedback": build_correction_feedback(judge_result),
+            } if judge_result.get("issues") else None,
             "cultural_issue_detected": judge_result["cultural_issue_detected"],
             "should_advance_step": rule_decision["should_advance_step"],
             "should_decrease_chance": rule_decision["should_decrease_chance"],
@@ -2515,7 +2552,9 @@ def _warmup_response_llm_network(model_name: str) -> None:
                     {
                         "evaluation_result": "pass",
                         "inferred_intent_text": "The learner greets the character.",
-                        "issue_tags": [],
+                        "step_goal_matched": True,
+                        "issues": [],
+                        "corrected_text": None,
                         "evaluation_reason_text": "Warm-up prompt.",
                     }
                 ),
@@ -2523,7 +2562,6 @@ def _warmup_response_llm_network(model_name: str) -> None:
                     "main_task": "Continue the roleplay naturally.",
                     "should_generate_hint": False,
                     "hint_level": None,
-                    "should_generate_correction": False,
                     "should_generate_completion": False,
                 },
                 "progress_outcome": "stay_current_step",
