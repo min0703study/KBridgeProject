@@ -4,6 +4,7 @@ import {
   Briefcase,
   ChevronRight,
   HeartPulse,
+  Info,
   Mic,
   Phone,
   RefreshCw,
@@ -143,6 +144,19 @@ function ChatbotHeader({
           {profileInitial}
         </button>
       </div>
+      <div className="chatbot-identity-row">
+        <div className="chatbot-avatar">
+          <img src="/ai_icon.png" alt="" aria-hidden="true" />
+          <span className="chatbot-avatar-status" aria-hidden="true" />
+        </div>
+        <div className="chatbot-identity-text">
+          <div className="chatbot-identity-title">
+            <span>K-Bridge</span>
+            <span className="chatbot-ai-badge">AI</span>
+          </div>
+          <div className="chatbot-identity-sub">학생 지원 도우미 · Student support assistant</div>
+        </div>
+      </div>
       <div className="chatbot-session-row">
         <label className="chatbot-student-select-label" htmlFor="chatbot-student-select">
           Student
@@ -215,15 +229,23 @@ function GenericChatCard({ card }) {
 
   return (
     <section className={`chat-response-card tone-${String(card.type || 'default').toLowerCase()}`}>
-      <div className="chat-card-title">
-        <span>[{card.type}]</span>
-        {card.title}
+      <div className="chat-card-header">
+        <span className="chat-card-icon" aria-hidden="true">
+          <Info size={16} strokeWidth={2.3} />
+        </span>
+        <div className="chat-card-title">
+          <span>[{card.type}]</span>
+          {card.title}
+        </div>
       </div>
       {card.answer ? <p className="chat-card-answer">{card.answer}</p> : null}
       {card.steps?.length ? (
         <ol className="chat-card-steps">
           {card.steps.map((step, index) => (
-            <li key={`${step}-${index}`}>{step}</li>
+            <li key={`${step}-${index}`}>
+              <span className="chat-card-step-number">{index + 1}</span>
+              <span>{step}</span>
+            </li>
           ))}
         </ol>
       ) : null}
@@ -294,7 +316,7 @@ function SafetyCard({ card }) {
             </span>
             <span>{action.label}</span>
             <strong>{action.tel}</strong>
-            <ChevronRight size={22} strokeWidth={2.2} aria-hidden="true" />
+            <ChevronRight size={14} strokeWidth={2.4} className="safety-action-chevron" aria-hidden="true" />
           </a>
         ))}
       </div>
@@ -337,14 +359,28 @@ function BubbleText({ text }) {
 function ChatMessage({ message }) {
   const isStudent = message.role === 'student';
 
-  return (
-    <article className={`chat-message is-${isStudent ? 'student' : 'bot'}`}>
-      {isStudent || !message.response ? (
+  if (isStudent) {
+    return (
+      <article className="chat-message is-student">
         <BubbleText text={message.text} />
-      ) : (
-        <AssistantResponse response={message.response} />
-      )}
-      <time>{message.time}</time>
+        <time>{message.time}</time>
+      </article>
+    );
+  }
+
+  return (
+    <article className="chat-message is-bot">
+      <div className="chat-bot-avatar" aria-hidden="true">
+        <img src="/ai_icon.png" alt="" />
+      </div>
+      <div className="chat-bot-content">
+        {message.response ? (
+          <AssistantResponse response={message.response} />
+        ) : (
+          <BubbleText text={message.text} />
+        )}
+        <time>{message.time}</time>
+      </div>
     </article>
   );
 }
@@ -521,8 +557,17 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
           ))}
           {busy ? (
             <article className="chat-message is-bot">
-              <div className="chat-bubble chat-bubble-status">
-                <span>응답을 준비하고 있어요...</span>
+              <div className="chat-bot-avatar" aria-hidden="true">
+                <img src="/ai_icon.png" alt="" />
+              </div>
+              <div
+                className="chat-bubble chat-typing-dots"
+                role="status"
+                aria-label="응답을 준비하고 있어요"
+              >
+                <span aria-hidden="true" />
+                <span aria-hidden="true" />
+                <span aria-hidden="true" />
               </div>
             </article>
           ) : null}
