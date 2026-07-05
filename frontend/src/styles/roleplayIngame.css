@@ -592,40 +592,11 @@
 }
 
 .correction-tab {
+  display: block;
+  width: auto;
   height: 34px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.correction-tab img {
-  width: 22px;
-  height: 22px;
+  max-width: 142px;
   object-fit: contain;
-}
-
-.correction-tab.is-vocabulary_use {
-  background: #eef7ff;
-  color: #1f6fb2;
-}
-
-.correction-tab.is-grammar_sentence {
-  background: #f5edff;
-  color: #7a54ce;
-}
-
-.correction-tab.is-structure {
-  background: #fff5dc;
-  color: #a56812;
-}
-
-.correction-tab.is-pragmatics {
-  background: #edf8ef;
-  color: #327442;
 }
 
 .correction-card {
@@ -674,21 +645,11 @@
 }
 
 .correction-note {
-  display: grid;
-  grid-template-columns: 36px minmax(0, 1fr);
-  gap: 11px;
-  align-items: start;
   padding: 12px;
   border: 1px solid #e1e8f7;
   border-radius: 8px;
   font-size: 12px;
   line-height: 1.45;
-}
-
-.correction-note img {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
 }
 
 .correction-note strong {
@@ -699,22 +660,26 @@
 }
 
 .correction-note.is-vocabulary_use {
-  background: #f5fbff;
+  border-color: #cce8ff;
+  background: #eef7ff;
   color: #35516e;
 }
 
 .correction-note.is-grammar_sentence {
-  background: #fbf8ff;
+  border-color: #e2d4ff;
+  background: #f5edff;
   color: #55515f;
 }
 
 .correction-note.is-structure {
-  background: #fffbef;
+  border-color: #f4dda9;
+  background: #fff5dc;
   color: #67502b;
 }
 
 .correction-note.is-pragmatics {
-  background: #f5fbf6;
+  border-color: #cae9d0;
+  background: #edf8ef;
   color: #3d6145;
 }
 

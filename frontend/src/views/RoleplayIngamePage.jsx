@@ -291,10 +291,12 @@ function FeedbackPanel({ feedback, onClose }) {
         {categories.map((ability) => {
           const category = FEEDBACK_CATEGORY_META[ability];
           return (
-            <span className={`correction-tab is-${ability}`} key={ability}>
-              <img src={category.image} alt="" aria-hidden="true" />
-              {category.label}
-            </span>
+            <img
+              className="correction-tab"
+              src={category.image}
+              alt={category.label}
+              key={ability}
+            />
           );
         })}
       </div>
@@ -317,11 +319,8 @@ function FeedbackPanel({ feedback, onClose }) {
               const category = FEEDBACK_CATEGORY_META[issue.ability];
               return (
                 <div className={`correction-note is-${issue.ability}`} key={`${issue.ability}-${index}`}>
-                  <img src={category.image} alt="" aria-hidden="true" />
-                  <div>
-                    <strong>{category.label}</strong>
-                    <p>{issue.reason_text}</p>
-                  </div>
+                  <strong>{category.label}</strong>
+                  <p>{issue.reason_text}</p>
                 </div>
               );
             })}
