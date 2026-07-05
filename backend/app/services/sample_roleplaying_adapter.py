@@ -84,6 +84,7 @@ def create_sample_roleplay_session(
     }
     sample_db.ROLEPLAY_SESSIONS.append(session)
     sample_backend.add_initial_step_messages(session["roleplay_session_id"], first_step)
+    sample_backend.warmup_sample_roleplay_runtime()
 
     return _session_create_response(session)
 
@@ -407,7 +408,7 @@ def _ingame_response(version: dict, step: dict) -> RoleplayIngameResponse:
             roleplay_location_id=roleplay_location["roleplay_location_id"],
             name=roleplay_location["name"],
             description=roleplay_location["description"],
-            background_image_url="/roleplay_ingame_image/roleplay_university_student.png",
+            background_image_url="/roleplay_ingame_image/roleplay_police_officer.png",
         ),
         character=RoleplayCharacterSummary(
             scenario_roleplay_character_id=scenario_character["scenario_roleplay_character_id"],
