@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import {
+  abandonRoleplaySession,
   getConvenienceStoreIngame,
   sendRoleplaySessionDevPerfectAnswerTurn,
   sendRoleplaySessionTextTurn,
@@ -41,6 +42,21 @@ const FINAL_FEEDBACK = {
   nextStudy:
     'Practice asking and answering opinions in everyday topics. Try adding short reasons and emotion words to sound more natural.',
   recommendedPhrases: ['What do you think?', 'I think so too.'],
+};
+
+// 세션이 실패로 끝났을 때 보여줄 격려 톤 카피 — FINAL_FEEDBACK과 구조는 같되 성공 축하 문구가 없다.
+const FAILED_FEEDBACK = {
+  summary:
+    'This attempt did not go as planned, but every try builds your conversation skills. Look at what to focus on next time.',
+  strengths:
+    'You stayed in the conversation and kept trying different expressions — that persistence is exactly how fluency grows.',
+  strengthExample: '"I would like to buy a prepaid SIM card."',
+  improvement:
+    'The step goal was not quite reached this time. Reviewing the vocabulary and phrasing for this situation will help.',
+  improvementExample: '"That is good." -> "That sounds like a great idea."',
+  nextStudy:
+    'Try this scenario again after a quick review, or practice a similar situation to build confidence before retrying.',
+  recommendedPhrases: ['Could you help me with this?', 'I am not sure, could you explain?'],
 };
 
 function formatSeconds(seconds) {
@@ -296,7 +312,10 @@ function FeedbackPanel({ feedback, onClose }) {
   );
 }
 
-function FinalFeedbackPopup({ onClose }) {
+function FinalFeedbackPopup({ onClose, endStatus }) {
+  const isFailed = endStatus === 'failed';
+  const copy = isFailed ? FAILED_FEEDBACK : FINAL_FEEDBACK;
+
   return (
     <section className="final-feedback-overlay" aria-label="Final roleplay feedback" role="dialog" aria-modal="true">
       <div className="final-feedback-dialog">
@@ -305,15 +324,26 @@ function FinalFeedbackPopup({ onClose }) {
         </button>
 
         <div className="final-feedback-hero">
-          <div className="final-confetti" aria-hidden="true">
-            <img className="confetti-cluster" src="/icons_svg/confetti_cluster.svg" alt="" />
-            <img className="diamond-gold diamond-one" src="/icons_svg/deco_diamond_gold.svg" alt="" />
-            <img className="diamond-blue diamond-two" src="/icons_svg/deco_diamond_blue.svg" alt="" />
-            <img className="diamond-gold diamond-three" src="/icons_svg/deco_diamond_gold.svg" alt="" />
-          </div>
-          <img className="final-trophy" src="/icons_svg/trophy_success.svg" alt="" aria-hidden="true" />
-          <h2>Conversation Mission Complete!</h2>
-          <p>Great work today. Review your feedback and use it in your next practice.</p>
+          {isFailed ? null : (
+            <div className="final-confetti" aria-hidden="true">
+              <img className="confetti-cluster" src="/icons_svg/confetti_cluster.svg" alt="" />
+              <img className="diamond-gold diamond-one" src="/icons_svg/deco_diamond_gold.svg" alt="" />
+              <img className="diamond-blue diamond-two" src="/icons_svg/deco_diamond_blue.svg" alt="" />
+              <img className="diamond-gold diamond-three" src="/icons_svg/deco_diamond_gold.svg" alt="" />
+            </div>
+          )}
+          <img
+            className={isFailed ? 'final-summary-icon' : 'final-trophy'}
+            src={isFailed ? '/icons_svg/section_summary_star.svg' : '/icons_svg/trophy_success.svg'}
+            alt=""
+            aria-hidden="true"
+          />
+          <h2>{isFailed ? "Let's Try Again!" : 'Conversation Mission Complete!'}</h2>
+          <p>
+            {isFailed
+              ? 'This round did not go through, but your feedback is ready below.'
+              : 'Great work today. Review your feedback and use it in your next practice.'}
+          </p>
         </div>
 
         <div className="final-feedback-content">
@@ -322,17 +352,17 @@ function FinalFeedbackPopup({ onClose }) {
               <img src="/icons_svg/section_summary_star.svg" alt="" aria-hidden="true" />
               <h3>Overall Feedback</h3>
             </div>
-            <p>{FINAL_FEEDBACK.summary}</p>
+            <p>{copy.summary}</p>
           </section>
 
           <section className="final-feedback-section is-good">
             <img className="final-section-icon" src="/icons_svg/section_good_thumb.svg" alt="" aria-hidden="true" />
             <div className="final-section-body">
               <h3>What Went Well</h3>
-              <p>{FINAL_FEEDBACK.strengths}</p>
+              <p>{copy.strengths}</p>
               <div className="final-feedback-example">
                 <span className="example-badge is-good">Example</span>
-                <strong>{FINAL_FEEDBACK.strengthExample}</strong>
+                <strong>{copy.strengthExample}</strong>
               </div>
             </div>
           </section>
@@ -341,10 +371,10 @@ function FinalFeedbackPopup({ onClose }) {
             <img className="final-section-icon" src="/icons_svg/section_improve_chart.svg" alt="" aria-hidden="true" />
             <div className="final-section-body">
               <h3>Area to Improve</h3>
-              <p>{FINAL_FEEDBACK.improvement}</p>
+              <p>{copy.improvement}</p>
               <div className="final-feedback-example">
                 <span className="example-badge is-improve">Example</span>
-                <strong>{FINAL_FEEDBACK.improvementExample}</strong>
+                <strong>{copy.improvementExample}</strong>
               </div>
             </div>
           </section>
@@ -353,11 +383,11 @@ function FinalFeedbackPopup({ onClose }) {
             <img className="final-section-icon" src="/icons_svg/section_next_book.svg" alt="" aria-hidden="true" />
             <div className="final-section-body">
               <h3>Next Study Suggestion</h3>
-              <p>{FINAL_FEEDBACK.nextStudy}</p>
+              <p>{copy.nextStudy}</p>
               <div className="final-feedback-example phrase-list">
                 <span className="example-badge is-next">Try</span>
                 <ul>
-                  {FINAL_FEEDBACK.recommendedPhrases.map((phrase) => (
+                  {copy.recommendedPhrases.map((phrase) => (
                     <li key={phrase}>{phrase}</li>
                   ))}
                 </ul>
@@ -388,6 +418,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, initialIngameDat
   const [turnUiState, setTurnUiState] = useState(null);
   const [sessionStatus, setSessionStatus] = useState(null);
   const [showFinalFeedback, setShowFinalFeedback] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
   const recorderRef = useRef(null);
   const timerRef = useRef(null);
   const audioRef = useRef(null);
@@ -664,6 +695,35 @@ export default function RoleplayIngamePage({ roleplaySessionId, initialIngameDat
     onBack();
   }
 
+  async function handleExit() {
+    if (isExiting) {
+      return;
+    }
+    if (isSessionEnded) {
+      // 이미 completed/failed로 끝난 세션 — abandon 불필요, 그냥 목록으로.
+      onBack();
+      return;
+    }
+    const confirmed = window.confirm(
+      'Are you sure you want to leave? This attempt will end here, but your progress is saved.',
+    );
+    if (!confirmed) {
+      return;
+    }
+    setIsExiting(true);
+    try {
+      await abandonRoleplaySession({ roleplaySessionId });
+      setErrorMessage('');
+      onBack();
+    } catch (error) {
+      setIsExiting(false);
+      setErrorMessage(
+        error.message ||
+          'Could not end this attempt. Please try again before leaving so your progress is saved.',
+      );
+    }
+  }
+
   return (
     <main className="app-stage roleplay-stage">
       <div className="mobile-shell roleplay-ingame-shell">
@@ -671,7 +731,7 @@ export default function RoleplayIngamePage({ roleplaySessionId, initialIngameDat
         <div className="roleplay-scene-scrim" aria-hidden="true" />
 
         <header className="roleplay-topbar">
-          <button type="button" aria-label="Back to roleplay list" onClick={onBack}>
+          <button type="button" aria-label="Back to roleplay list" onClick={handleExit} disabled={isExiting}>
             <ChevronLeft size={29} strokeWidth={2.6} aria-hidden="true" />
           </button>
           <h1>{ingameData?.scenario?.title || 'Convenience Store'}</h1>
@@ -774,7 +834,9 @@ export default function RoleplayIngamePage({ roleplaySessionId, initialIngameDat
           <FeedbackPanel feedback={feedback} onClose={() => setShowFeedback(false)} />
         ) : null}
 
-        {showFinalFeedback ? <FinalFeedbackPopup onClose={handleCloseFinalFeedback} /> : null}
+        {showFinalFeedback ? (
+          <FinalFeedbackPopup onClose={handleCloseFinalFeedback} endStatus={sessionStatus?.end_status} />
+        ) : null}
 
         {errorMessage && ingameData ? <p className="roleplay-error">{errorMessage}</p> : null}
 

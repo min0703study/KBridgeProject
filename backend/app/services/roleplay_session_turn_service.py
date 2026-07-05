@@ -38,6 +38,7 @@ from backend.app.schemas.roleplay import (
     RoleplayTurnResponse,
     RoleplayUiState,
 )
+from backend.app.services.hub_signal_service import emit_session_end_signal
 from backend.app.services.roleplay_voice_service import (
     EmptyTranscriptError,
     InvalidAudioError,
@@ -203,6 +204,17 @@ async def _build_turn_response(
     persistence_result = final_state["persistence_result"]
     session_after = persistence_result.session_after if persistence_result else {}
     end_status = str(session_after.get("end_status") or "in_progress")
+
+    # 세션이 이 턴에 terminal(failed/abandoned)로 전환되면 허브에 위험/이탈 신호를 발신한다.
+    # best-effort no-op 클라이언트 — 허브 미설정/다운이어도 학생 응답에는 영향 없음.
+    emit_session_end_signal(
+        learner_id=str(final_state["learner_id"]),
+        session_id=str(final_state["roleplay_session_id"]),
+        end_status=end_status,
+        result=judge_result.evaluation_result if judge_result else None,
+        issue_tags=list(judge_result.issue_tags) if judge_result else [],
+        remaining_chances=_remaining_chances(final_state, session_after),
+    )
 
     public_issue_tags = [
         tag

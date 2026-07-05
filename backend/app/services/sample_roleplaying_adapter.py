@@ -25,6 +25,9 @@ from backend.app.schemas.roleplay import (
     RoleplayVersionSummary,
     StepSampleAnswerSummary,
 )
+
+_TERMINAL_END_STATUSES = {"completed", "failed", "abandoned"}
+from backend.app.services.hub_signal_service import emit_session_end_signal
 from backend.app.services.roleplay_voice_service import (
     MissingProviderKeyError,
     text_to_speech_base64,
@@ -146,6 +149,29 @@ async def run_sample_roleplay_session_turn(
     )
 
 
+def abandon_sample_roleplay_session(roleplay_session_id: str) -> RoleplaySessionStatus:
+    """학생이 세션을 중도 포기(뒤로가기/종료 버튼)했을 때 호출 — end_status='abandoned' 기록 +
+    허브에 dropoff 신호 발신. 이미 terminal 상태면 그대로 반환(멱등, 중복 신호는 허브 dedup이 흡수)."""
+    session = _session(roleplay_session_id)
+    if session["end_status"] == "in_progress":
+        now = sample_backend.now_iso()
+        session["end_status"] = "abandoned"
+        session["ended_at"] = now
+        session["updated_at"] = now
+        emit_session_end_signal(
+            learner_id=str(session.get("learner_id") or ""),
+            session_id=str(roleplay_session_id),
+            end_status="abandoned",
+            remaining_chances=int(session.get("remaining_chances") or 0),
+        )
+    return RoleplaySessionStatus(
+        end_status=session["end_status"],
+        is_ended=session["end_status"] in _TERMINAL_END_STATUSES,
+        current_step_id=session.get("current_step_id"),
+        created_turn_id=None,
+    )
+
+
 def _run_sample_turn(
     roleplay_session_id: str,
     text: str,
@@ -153,7 +179,7 @@ def _run_sample_turn(
     input_method: str,
     include_tts: bool,
 ) -> RoleplayTurnResponse:
-    _session(roleplay_session_id)
+    _active_session(roleplay_session_id)
     try:
         final_state = sample_backend.run_roleplay_turn(
             text,
@@ -173,6 +199,7 @@ def _run_sample_turn(
 
 
 def _build_context_state(roleplay_session_id: str) -> dict:
+    _active_session(roleplay_session_id)
     state = sample_backend.build_initial_state(
         roleplay_session_id=roleplay_session_id,
         learner_id=sample_backend.LEARNER_ID,
@@ -205,6 +232,18 @@ def _turn_response(
     assistant_text, assistant_translation = _assistant_dialogue(response_pack)
     audio_base64 = _assistant_audio_base64(assistant_text, include_tts=include_tts)
     end_status = session_after.get("end_status") or "in_progress"
+
+    # 이 턴에 세션이 terminal(failed)로 전환되면 허브에 위험 신호를 발신한다 — best-effort
+    # no-op 클라이언트라 허브 미설정/다운이어도 학생 턴 응답에는 영향 없음.
+    if end_status in _TERMINAL_END_STATUSES:
+        emit_session_end_signal(
+            learner_id=str(final_state.get("learner_id") or ""),
+            session_id=str(final_state.get("roleplay_session_id") or ""),
+            end_status=end_status,
+            result=judge_result.get("evaluation_result"),
+            issue_tags=list(judge_result.get("issue_tags") or []),
+            remaining_chances=int(session_after.get("remaining_chances") or 0),
+        )
 
     return RoleplayTurnResponse(
         transcript=transcript,
@@ -257,7 +296,7 @@ def _turn_response(
         ],
         session_status=RoleplaySessionStatus(
             end_status=end_status,
-            is_ended=end_status in {"completed", "failed", "abandoned"},
+            is_ended=end_status in _TERMINAL_END_STATUSES,
             current_step_id=session_after.get("current_step_id"),
             created_turn_id=persistence.get("created_turn_id"),
         ),
@@ -475,6 +514,14 @@ def _session(roleplay_session_id: str) -> dict:
     return _find(sample_db.ROLEPLAY_SESSIONS, "roleplay_session_id", roleplay_session_id)
 
 
+def _active_session(roleplay_session_id: str) -> dict:
+    session = _session(roleplay_session_id)
+    end_status = session.get("end_status") or "in_progress"
+    if end_status in _TERMINAL_END_STATUSES:
+        raise SampleRoleplayingTurnError(f"roleplay session is already {end_status}.")
+    return session
+
+
 def _scenario(scenario_id: str) -> dict:
     return _find(sample_db.SCENARIOS, "scenario_id", scenario_id)
 
@@ -538,6 +585,7 @@ __all__ = [
     "SampleRoleplayingNotFoundError",
     "SampleRoleplayingProviderError",
     "SampleRoleplayingTurnError",
+    "abandon_sample_roleplay_session",
     "create_sample_roleplay_session",
     "get_sample_convenience_store_ingame",
     "run_sample_roleplay_session_dev_perfect_answer_turn",
