@@ -199,12 +199,11 @@ def _turn_response(
     persistence = final_state.get("persistence_result") or {}
     session_after = persistence.get("session_after") or final_state.get("session") or {}
     display_step = _display_step(final_state)
-    correction_items = response_pack.get("correction_items") or []
-    correction_item = correction_items[0] if correction_items else None
-    feedback = _feedback(correction_item) if correction_item else None
+    feedback = _feedback(judge_result, transcript)
     assistant_text, assistant_translation = _assistant_dialogue(response_pack)
     audio_base64 = _assistant_audio_base64(assistant_text, include_tts=include_tts)
     end_status = session_after.get("end_status") or "in_progress"
+    issue_tags = [issue["ability"] for issue in _feedback_issues(judge_result)]
 
     return RoleplayTurnResponse(
         transcript=transcript,
@@ -215,22 +214,8 @@ def _turn_response(
         ),
         evaluation=Evaluation(
             result=judge_result.get("evaluation_result") or "soft_pass",
-            issue_tags=[
-                tag
-                for tag in judge_result.get("issue_tags", [])
-                if tag
-                in {
-                    "grammar",
-                    "vocabulary",
-                    "politeness",
-                    "naturalness",
-                    "culturalContext",
-                    "taskExpression",
-                    "clarity",
-                    "offTopic",
-                }
-            ],
-            correction_needed=bool(judge_result.get("correction_needed")),
+            issue_tags=issue_tags,
+            correction_needed=bool(issue_tags),
         ),
         feedback=feedback,
         ui_state=RoleplayUiState(
@@ -308,15 +293,33 @@ def _assistant_dialogue(response_pack: dict) -> tuple[str, str]:
     return "", ""
 
 
-def _feedback(correction_item: dict) -> CorrectionFeedback:
-    corrected_text = correction_item.get("corrected_text") or ""
-    reason_text = correction_item.get("reason_text") or "This sounds more natural for this situation."
+def _feedback(judge_result: dict, transcript: str) -> CorrectionFeedback | None:
+    issues = _feedback_issues(judge_result)
+    if not issues:
+        return None
     return CorrectionFeedback(
-        previous_text=correction_item.get("original_text") or "",
-        better_way=corrected_text,
-        politeness_note=reason_text,
-        grammar_note=reason_text,
+        previous_text=transcript,
+        better_way=judge_result.get("corrected_text") or None,
+        issues=issues,
     )
+
+
+def _feedback_issues(judge_result: dict) -> list[dict[str, str]]:
+    allowed = {
+        "vocabulary_use",
+        "grammar_sentence",
+        "structure",
+        "pragmatics",
+    }
+    issues = []
+    for issue in judge_result.get("issues") or []:
+        if not isinstance(issue, dict):
+            continue
+        ability = issue.get("ability")
+        reason_text = str(issue.get("reason_text") or "").strip()
+        if ability in allowed and reason_text:
+            issues.append({"ability": ability, "reason_text": reason_text})
+    return issues
 
 
 def _display_step(final_state: dict) -> dict:

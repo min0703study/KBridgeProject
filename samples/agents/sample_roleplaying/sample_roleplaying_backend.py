@@ -18,6 +18,11 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+ROLEPLAY_LLM_MAX_OUTPUT_TOKENS = {
+    "judge": 700,
+    "response_pack": 1200,
+}
+
 try:
     from google import genai
     from google.genai import types
@@ -62,7 +67,6 @@ LEARNER_ID = "23978a46-2c8e-4e2c-aa1d-4c37380b436e"
 INPUT_METHOD = "text"
 ELEVENLABS_MODEL = "eleven_flash_v2_5"
 ELEVENLABS_VOICE_ID = "IKne3meq5aSn9XLyUdCD"
-RESPONSE_PACK_MAX_OUTPUT_TOKENS = 1200
 LLM_MODEL_OPTIONS = {
     "Gemini 3.1 Flash Lite": "gemini-3.1-flash-lite",
     "GPT-5.4 mini": "gpt-5.4-mini",
@@ -1210,7 +1214,7 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
         JUDGE_SYSTEM_INSTRUCTION,
         prompt,
         model_name=model_name,
-        max_output_tokens=200,
+        max_output_tokens=ROLEPLAY_LLM_MAX_OUTPUT_TOKENS["judge"],
         thinking_budget=0,
     )
     raw_response = None
@@ -1223,7 +1227,7 @@ def judge_node(state: dict[str, Any]) -> dict[str, Any]:
                 prompt,
                 model_name=model_name,
                 output_model=JudgeLLMOutput,
-                max_output_tokens=200,
+                max_output_tokens=ROLEPLAY_LLM_MAX_OUTPUT_TOKENS["judge"],
                 thinking_budget=0,
             )
         except LLMStructuredParseError as exc:
@@ -1734,7 +1738,7 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
         RESPONSE_PACK_SYSTEM_INSTRUCTION,
         prompt,
         model_name=model_name,
-        max_output_tokens=RESPONSE_PACK_MAX_OUTPUT_TOKENS,
+        max_output_tokens=ROLEPLAY_LLM_MAX_OUTPUT_TOKENS["response_pack"],
     )
     raw_response = None
     used_fallback = True
@@ -1747,7 +1751,7 @@ def response_pack_node(state: dict[str, Any]) -> dict[str, Any]:
                 prompt,
                 model_name=model_name,
                 output_model=ResponsePackLLMOutput,
-                max_output_tokens=RESPONSE_PACK_MAX_OUTPUT_TOKENS,
+                max_output_tokens=ROLEPLAY_LLM_MAX_OUTPUT_TOKENS["response_pack"],
             )
         except LLMStructuredParseError as exc:
             raw_response = exc.raw_text
@@ -2518,7 +2522,7 @@ def _warmup_judge_llm_network(model_name: str) -> None:
         ),
         model_name=model_name,
         output_model=JudgeLLMOutput,
-        max_output_tokens=160,
+        max_output_tokens=ROLEPLAY_LLM_MAX_OUTPUT_TOKENS["judge"],
         thinking_budget=0,
     )
     if result is None:
@@ -2569,7 +2573,7 @@ def _warmup_response_llm_network(model_name: str) -> None:
         ),
         model_name=model_name,
         output_model=ResponsePackLLMOutput,
-        max_output_tokens=260,
+        max_output_tokens=ROLEPLAY_LLM_MAX_OUTPUT_TOKENS["response_pack"],
     )
     if result is None:
         raise RuntimeError(last_provider_error() or "response LLM warm-up returned no response.")

@@ -8,7 +8,6 @@ import {
   Lightbulb,
   Menu,
   Mic,
-  ShieldCheck,
   Sparkles,
   Speaker,
   Star,
@@ -28,6 +27,25 @@ const FALLBACK_TOTAL_STEPS = 5;
 const TRANSLATION_PENDING_TEXT = 'English translation coming soon.';
 const ENABLE_DEV_MAGIC_ANSWER =
   import.meta.env.DEV || import.meta.env.VITE_ENABLE_ROLEPLAY_DEV_TOOLS === 'true';
+
+const FEEDBACK_CATEGORY_META = {
+  vocabulary_use: {
+    label: 'Vocabulary use',
+    image: '/roleplay_tags_png/01_vocabulary_use.png',
+  },
+  grammar_sentence: {
+    label: 'Grammar',
+    image: '/roleplay_tags_png/02_grammar.png',
+  },
+  structure: {
+    label: 'Sentence structure',
+    image: '/roleplay_tags_png/03_sentence_structure.png',
+  },
+  pragmatics: {
+    label: 'Pragmatics',
+    image: '/roleplay_tags_png/04_pragmatics.png',
+  },
+};
 
 const FINAL_FEEDBACK = {
   summary:
@@ -254,6 +272,11 @@ function PendingResponseBubble() {
 }
 
 function FeedbackPanel({ feedback, onClose }) {
+  const issues = Array.isArray(feedback?.issues)
+    ? feedback.issues.filter((issue) => FEEDBACK_CATEGORY_META[issue?.ability])
+    : [];
+  const categories = [...new Set(issues.map((issue) => issue.ability))];
+
   return (
     <section className="correction-panel" aria-label="Correction Feedback">
       <div className="correction-header">
@@ -265,14 +288,15 @@ function FeedbackPanel({ feedback, onClose }) {
       </div>
 
       <div className="correction-tabs" aria-label="Feedback categories">
-        <span className="correction-tab is-politeness">
-          <ShieldCheck size={22} aria-hidden="true" />
-          politeness
-        </span>
-        <span className="correction-tab is-grammar">
-          <BookOpen size={22} aria-hidden="true" />
-          grammar
-        </span>
+        {categories.map((ability) => {
+          const category = FEEDBACK_CATEGORY_META[ability];
+          return (
+            <span className={`correction-tab is-${ability}`} key={ability}>
+              <img src={category.image} alt="" aria-hidden="true" />
+              {category.label}
+            </span>
+          );
+        })}
       </div>
 
       <div className="correction-card">
@@ -280,17 +304,29 @@ function FeedbackPanel({ feedback, onClose }) {
           <span>Previous</span>
           <p lang="ko">{feedback.previous_text}</p>
         </div>
-        <div className="correction-divider" />
-        <strong>Better way</strong>
-        <h3 lang="ko">{feedback.better_way}</h3>
-        <div className="correction-note is-politeness">
-          <ShieldCheck size={24} aria-hidden="true" />
-          <p>{feedback.politeness_note}</p>
-        </div>
-        <div className="correction-note is-grammar">
-          <BookOpen size={24} aria-hidden="true" />
-          <p>{feedback.grammar_note}</p>
-        </div>
+        {feedback.better_way ? (
+          <>
+            <div className="correction-divider" />
+            <strong>Better way</strong>
+            <h3 lang="ko">{feedback.better_way}</h3>
+          </>
+        ) : null}
+        {issues.length ? (
+          <div className="correction-issue-list">
+            {issues.map((issue, index) => {
+              const category = FEEDBACK_CATEGORY_META[issue.ability];
+              return (
+                <div className={`correction-note is-${issue.ability}`} key={`${issue.ability}-${index}`}>
+                  <img src={category.image} alt="" aria-hidden="true" />
+                  <div>
+                    <strong>{category.label}</strong>
+                    <p>{issue.reason_text}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
       </div>
     </section>
   );

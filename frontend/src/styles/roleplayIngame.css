@@ -602,19 +602,30 @@
   font-weight: 700;
 }
 
-.correction-tab svg {
-  width: 17px;
-  height: 17px;
+.correction-tab img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
 }
 
-.correction-tab.is-politeness {
-  background: #e9f2ff;
-  color: #2073ff;
+.correction-tab.is-vocabulary_use {
+  background: #eef7ff;
+  color: #1f6fb2;
 }
 
-.correction-tab.is-grammar {
-  background: #f0e8ff;
-  color: #8956e9;
+.correction-tab.is-grammar_sentence {
+  background: #f5edff;
+  color: #7a54ce;
+}
+
+.correction-tab.is-structure {
+  background: #fff5dc;
+  color: #a56812;
+}
+
+.correction-tab.is-pragmatics {
+  background: #edf8ef;
+  color: #327442;
 }
 
 .correction-card {
@@ -644,7 +655,7 @@
   background: #e5e8f0;
 }
 
-.correction-card strong {
+.correction-card > strong {
   color: #1265ff;
   font-size: 12px;
 }
@@ -656,9 +667,15 @@
   line-height: 1.35;
 }
 
+.correction-issue-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 13px;
+}
+
 .correction-note {
   display: grid;
-  grid-template-columns: 30px 1fr;
+  grid-template-columns: 36px minmax(0, 1fr);
   gap: 11px;
   align-items: start;
   padding: 12px;
@@ -668,18 +685,37 @@
   line-height: 1.45;
 }
 
-.correction-note + .correction-note {
-  margin-top: 10px;
+.correction-note img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
 }
 
-.correction-note.is-politeness {
-  background: #f5f9ff;
+.correction-note strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.correction-note.is-vocabulary_use {
+  background: #f5fbff;
   color: #35516e;
 }
 
-.correction-note.is-grammar {
+.correction-note.is-grammar_sentence {
   background: #fbf8ff;
   color: #55515f;
+}
+
+.correction-note.is-structure {
+  background: #fffbef;
+  color: #67502b;
+}
+
+.correction-note.is-pragmatics {
+  background: #f5fbf6;
+  color: #3d6145;
 }
 
 .correction-note p {

@@ -5,14 +5,10 @@ from pydantic import BaseModel, Field
 
 EvaluationResult = Literal["pass", "soft_pass", "fail"]
 IssueTag = Literal[
-    "grammar",
-    "vocabulary",
-    "politeness",
-    "naturalness",
-    "culturalContext",
-    "taskExpression",
-    "clarity",
-    "offTopic",
+    "vocabulary_use",
+    "grammar_sentence",
+    "structure",
+    "pragmatics",
 ]
 
 
@@ -29,11 +25,15 @@ class Evaluation(BaseModel):
     correction_needed: bool = False
 
 
+class FeedbackIssue(BaseModel):
+    ability: IssueTag
+    reason_text: str
+
+
 class CorrectionFeedback(BaseModel):
     previous_text: str
-    better_way: str
-    politeness_note: str
-    grammar_note: str
+    better_way: str | None = None
+    issues: list[FeedbackIssue] = Field(default_factory=list)
 
 
 class RoleplayUiState(BaseModel):
