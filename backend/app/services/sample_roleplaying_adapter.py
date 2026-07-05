@@ -178,7 +178,7 @@ def _run_sample_turn(
     input_method: str,
     include_tts: bool,
 ) -> RoleplayTurnResponse:
-    _session(roleplay_session_id)
+    _active_session(roleplay_session_id)
     try:
         final_state = sample_backend.run_roleplay_turn(
             text,
@@ -198,6 +198,7 @@ def _run_sample_turn(
 
 
 def _build_context_state(roleplay_session_id: str) -> dict:
+    _active_session(roleplay_session_id)
     state = sample_backend.build_initial_state(
         roleplay_session_id=roleplay_session_id,
         learner_id=sample_backend.LEARNER_ID,
@@ -510,6 +511,14 @@ def _total_steps(scenario_version_id: str | None) -> int:
 
 def _session(roleplay_session_id: str) -> dict:
     return _find(sample_db.ROLEPLAY_SESSIONS, "roleplay_session_id", roleplay_session_id)
+
+
+def _active_session(roleplay_session_id: str) -> dict:
+    session = _session(roleplay_session_id)
+    end_status = session.get("end_status") or "in_progress"
+    if end_status in _TERMINAL_END_STATUSES:
+        raise SampleRoleplayingTurnError(f"roleplay session is already {end_status}.")
+    return session
 
 
 def _scenario(scenario_id: str) -> dict:

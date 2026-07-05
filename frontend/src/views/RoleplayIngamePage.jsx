@@ -713,10 +713,14 @@ export default function RoleplayIngamePage({ roleplaySessionId, initialIngameDat
     setIsExiting(true);
     try {
       await abandonRoleplaySession({ roleplaySessionId });
-    } catch {
-      // best-effort — 신호 발신 실패해도 학생은 목록으로 돌아간다.
-    } finally {
+      setErrorMessage('');
       onBack();
+    } catch (error) {
+      setIsExiting(false);
+      setErrorMessage(
+        error.message ||
+          'Could not end this attempt. Please try again before leaving so your progress is saved.',
+      );
     }
   }
 

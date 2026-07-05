@@ -1,3 +1,4 @@
+import asyncio
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -8,10 +9,13 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from backend.app.services import sample_roleplaying_adapter as adapter
+from backend.app.schemas.roleplay import RoleplayTextTurnRequest
 from backend.app.services.sample_roleplaying_adapter import (
     SampleRoleplayingNotFoundError,
+    SampleRoleplayingTurnError,
     abandon_sample_roleplay_session,
     create_sample_roleplay_session,
+    run_sample_roleplay_session_text_turn,
 )
 
 
@@ -61,6 +65,24 @@ def test_abandon_does_not_override_a_completed_session():
 
     assert result.end_status == "completed"  # 이미 끝난 세션은 abandoned로 덮어쓰지 않는다
     emit.assert_not_called()
+
+
+@pytest.mark.parametrize("terminal_status", ["abandoned", "completed", "failed"])
+def test_terminal_session_rejects_followup_text_turn_before_engine(terminal_status):
+    session_id = _new_session_id()
+    session = adapter._session(session_id)
+    session["end_status"] = terminal_status
+
+    with patch.object(adapter.sample_backend, "run_roleplay_turn") as run_turn:
+        with pytest.raises(SampleRoleplayingTurnError, match=f"session is already {terminal_status}"):
+            asyncio.run(
+                run_sample_roleplay_session_text_turn(
+                    session_id,
+                    RoleplayTextTurnRequest(text_content="another turn"),
+                )
+            )
+
+    run_turn.assert_not_called()
 
 
 def test_turn_response_emits_risk_signal_when_turn_ends_failed():
