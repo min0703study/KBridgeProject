@@ -1,8 +1,8 @@
 .chatbot-shell {
-  --kb-accent-blue: #155eef;
-  --kb-accent-blue-soft: rgba(21, 94, 239, 0.1);
-  --kb-critical: #dc414b;
-  --kb-critical-soft: rgba(220, 65, 75, 0.12);
+  --kb-accent-blue: #6157ea;
+  --kb-accent-blue-soft: rgba(97, 87, 234, 0.1);
+  --kb-critical: #e1535d;
+  --kb-critical-soft: rgba(225, 83, 93, 0.1);
   --kb-text-lighter: #95a2b5;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 253, 249, 0.98) 100%),
@@ -41,7 +41,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #2fbf71;
+  background: #20ab55;
   border: 2px solid #ffffff;
 }
 
@@ -238,7 +238,7 @@
   border-radius: 20px 4px 20px 20px;
   background: var(--kb-accent-blue);
   color: #ffffff;
-  box-shadow: 0 12px 26px rgba(21, 94, 239, 0.24);
+  box-shadow: 0 12px 26px rgba(97, 87, 234, 0.24);
 }
 
 .chat-message time {
@@ -488,7 +488,7 @@
 }
 
 .safety-hotline-row b {
-  color: #dc414b;
+  color: var(--kb-critical);
   font-size: 19px;
   font-weight: 900;
   letter-spacing: 0.5px;
@@ -513,13 +513,13 @@
   align-content: center;
   gap: 8px;
   padding: 14px 8px 12px;
-  border: 1px solid rgba(21, 94, 239, 0.28);
+  border: 1px solid rgba(97, 87, 234, 0.28);
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.95);
   color: #102246;
   text-align: center;
   text-decoration: none;
-  box-shadow: 0 12px 28px rgba(21, 94, 239, 0.08);
+  box-shadow: 0 12px 28px rgba(97, 87, 234, 0.08);
 }
 
 .safety-action-icon {
@@ -660,7 +660,7 @@
   border-radius: 50%;
   background: var(--kb-accent-blue);
   color: #ffffff;
-  box-shadow: 0 8px 20px rgba(21, 94, 239, 0.28);
+  box-shadow: 0 8px 20px rgba(97, 87, 234, 0.28);
 }
 
 .chat-send-button:disabled {
