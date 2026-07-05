@@ -487,8 +487,8 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
     setLastDebugData(null);
   }
 
-  async function handleSubmit() {
-    const text = input.trim();
+  async function handleSubmit(overrideText) {
+    const text = (typeof overrideText === 'string' ? overrideText : input).trim();
     if (!text || busy || !selectedStudentId) {
       if (!selectedStudentId && !loadingStudents) {
         setError('A student profile is required before sending chat messages.');
