@@ -54,7 +54,7 @@ Situation:
 - Yujin is the police officer receiving reports at the service desk.
 - Yujin asks the learner when and where the incident happened.
 - Yujin checks the learner's name, nationality, and contact information for the report.
-- In the final step, the report is accepted and Yujin explains the next procedure.
+- In the final step, Yujin confirms the learner's name, nationality, and contact information.
 
 Scene and action messages should keep the calm, natural atmosphere of a Korean police station.
 """,
@@ -96,7 +96,7 @@ Default setup:
 - You receive reports at the police station service desk.
 - The learner's passport has been stolen.
 - You check the required information in order.
-- After the report is complete, you explain the next procedure.
+- After checking the incident details, you confirm the learner's name, nationality, and contact information.
 
 Speech style:
 - Use polite Korean by default.
@@ -178,15 +178,15 @@ STEPS = [
         "step_id": "4353e604-7c56-45e1-91d9-baf372882940",
         "scenario_version_id": "6f9366b8-bf2c-4f5f-a535-78cbcc560ef9",
         "step_order": 3,
-        "step_title": "Explain what happened",
-        "step_goal": "Explain where you kept your passport and how you noticed it was gone.",
+        "step_title": "Describe what you remember",
+        "step_goal": "Describe any specific appearance details or situation you remember about the incident.",
         "initial_scene_text": None,
         "initial_roleplay_character_action_text": None,
         "initial_roleplay_character_dialogue_text": None,
         "initial_roleplay_character_dialogue_language": "ko",
         "initial_roleplay_character_dialogue_translation_json": None,
         "roleplay_guidance_text": (
-            "Explain that your passport was in your bag and later went missing."
+            "Describe the person's appearance, clothing, belongings, movement, or the situation you remember."
         ),
         "primary_scenario_roleplay_character_id": "8a1377e7-742a-4c8e-8db5-506520a90b15",
         "primary_scenario_location_id": "1dddf54c-3f6b-42e1-b77b-b03a0f67c39f",
@@ -206,27 +206,6 @@ STEPS = [
         "initial_roleplay_character_dialogue_translation_json": None,
         "roleplay_guidance_text": (
             "Provide the name, nationality, and contact information needed for the report."
-        ),
-        "primary_scenario_roleplay_character_id": "8a1377e7-742a-4c8e-8db5-506520a90b15",
-        "primary_scenario_location_id": "1dddf54c-3f6b-42e1-b77b-b03a0f67c39f",
-        "created_at": "2026-07-03T09:30:00+00:00",
-        "updated_at": "2026-07-03T09:30:00+00:00",
-    },
-    {
-        "step_id": "e432fb60-35eb-4103-ab92-e21bcfc50d1c",
-        "scenario_version_id": "6f9366b8-bf2c-4f5f-a535-78cbcc560ef9",
-        "step_order": 5,
-        "step_title": "Ask about the next procedure",
-        "step_goal": (
-            "Ask for a report confirmation document and ask what to do next."
-        ),
-        "initial_scene_text": None,
-        "initial_roleplay_character_action_text": None,
-        "initial_roleplay_character_dialogue_text": None,
-        "initial_roleplay_character_dialogue_language": "ko",
-        "initial_roleplay_character_dialogue_translation_json": None,
-        "roleplay_guidance_text": (
-            "Ask about a report confirmation document or what you should do afterward."
         ),
         "primary_scenario_roleplay_character_id": "8a1377e7-742a-4c8e-8db5-506520a90b15",
         "primary_scenario_location_id": "1dddf54c-3f6b-42e1-b77b-b03a0f67c39f",
@@ -266,24 +245,6 @@ STEP_SAMPLE_ANSWERS = [
         "updated_at": "2026-07-03T09:30:00+00:00",
     },
     {
-        "step_sample_answer_id": "194fa18e-7d01-4624-a229-37ccf0f14e29",
-        "step_id": "4353e604-7c56-45e1-91d9-baf372882940",
-        "sample_answer_text": "여권은 가방 안에 있었어요. 그런데 지금은 없어요.",
-        "language_code": "ko",
-        "display_order": 1,
-        "created_at": "2026-07-03T09:30:00+00:00",
-        "updated_at": "2026-07-03T09:30:00+00:00",
-    },
-    {
-        "step_sample_answer_id": "6dc71b66-a64a-4920-9443-cea7d73b9bdf",
-        "step_id": "4353e604-7c56-45e1-91d9-baf372882940",
-        "sample_answer_text": "가방이 열려 있었어요. 누가 가져간 것 같아요.",
-        "language_code": "ko",
-        "display_order": 2,
-        "created_at": "2026-07-03T09:30:00+00:00",
-        "updated_at": "2026-07-03T09:30:00+00:00",
-    },
-    {
         "step_sample_answer_id": "dd9e50cb-5b6b-41f4-97f9-65c03263500d",
         "step_id": "a35ca11e-9c3e-411b-b65c-5c84ec8a8577",
         "sample_answer_text": "저는 마리아 산토스예요. 필리핀 사람이에요.",
@@ -303,8 +264,8 @@ STEP_SAMPLE_ANSWERS = [
     },
     {
         "step_sample_answer_id": "ee6555da-1674-44c9-8315-b55e3bf0b49d",
-        "step_id": "e432fb60-35eb-4103-ab92-e21bcfc50d1c",
-        "sample_answer_text": "신고 접수 확인서를 받을 수 있을까요?",
+        "step_id": "4353e604-7c56-45e1-91d9-baf372882940",
+        "sample_answer_text": "검은색 모자를 쓴 사람이 제 가방 근처에 있었어요.",
         "language_code": "ko",
         "display_order": 1,
         "created_at": "2026-07-03T09:30:00+00:00",
@@ -312,8 +273,8 @@ STEP_SAMPLE_ANSWERS = [
     },
     {
         "step_sample_answer_id": "0306e1ff-7f0b-47dc-91b2-7984d7b5faca",
-        "step_id": "e432fb60-35eb-4103-ab92-e21bcfc50d1c",
-        "sample_answer_text": "이제 어떻게 해야 해요?",
+        "step_id": "4353e604-7c56-45e1-91d9-baf372882940",
+        "sample_answer_text": "키가 큰 남자였고, 파란색 재킷을 입고 있었어요.",
         "language_code": "ko",
         "display_order": 2,
         "created_at": "2026-07-03T09:30:00+00:00",
