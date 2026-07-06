@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import {
   Battery,
   Briefcase,
+  CheckCircle2,
   ChevronRight,
   HeartPulse,
   Info,
+  MessageSquare,
   Mic,
   Phone,
   RefreshCw,
@@ -79,11 +81,15 @@ const SAFETY_QUICK_ACTIONS_BY_SUBTYPE = {
 };
 
 const QUICK_MENU = [
-  { key: 'arc', label: 'ARC 안내', query: '외국인등록증 신청 방법 알려주세요' },
-  { key: 'sim', label: '유심/휴대폰', query: '휴대폰 유심 개통은 어떻게 하나요' },
-  { key: 'bank', label: '은행계좌', query: '은행 계좌는 어떻게 개설하나요' },
-  { key: 'hospital', label: '병원/보험', query: '병원 진료나 건강보험은 어떻게 하나요' },
+  { key: 'arc', label: 'ARC 안내', en: 'Alien Registration', query: '외국인등록증 신청 방법 알려주세요' },
+  { key: 'sim', label: '유심/휴대폰', en: 'Phone & SIM', query: '휴대폰 유심 개통은 어떻게 하나요' },
+  { key: 'bank', label: '은행계좌', en: 'Bank account', query: '은행 계좌는 어떻게 개설하나요' },
+  { key: 'hospital', label: '병원/보험', en: 'Hospital & insurance', query: '병원 진료나 건강보험은 어떻게 하나요' },
+  { key: 'message', label: '운영자에게 메시지', en: 'Leave a message', action: 'message' },
 ];
+
+const DEFAULT_COUNSELOR = '김서연 매니저';
+const DEFAULT_REPLY_WINDOW = '영업일 기준 1일 이내 · 카카오톡 또는 전화';
 
 function makeId(prefix) {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -363,11 +369,104 @@ function BubbleText({ text }) {
   );
 }
 
-function ChatMessage({ message, onSelectChip, chipsDisabled }) {
+function ComposeCard({ message, onInputChange, onSubmit, disabled }) {
+  if (message.sent) {
+    return (
+      <section className="chat-compose-card is-sent">
+        <div className="chat-compose-header">
+          <span className="chat-compose-icon" aria-hidden="true">
+            <MessageSquare size={18} strokeWidth={2.2} />
+          </span>
+          <div>
+            <div className="chat-compose-title">Message sent</div>
+            <div className="chat-compose-subtitle">메시지가 전달됐어요</div>
+          </div>
+        </div>
+        <p className="chat-compose-sent-text">{message.sentText}</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="chat-compose-card">
+      <div className="chat-compose-header">
+        <span className="chat-compose-icon" aria-hidden="true">
+          <MessageSquare size={18} strokeWidth={2.2} />
+        </span>
+        <div>
+          <div className="chat-compose-title">Leave a message for your manager</div>
+          <div className="chat-compose-subtitle">운영자에게 메시지 남기기 · 영업일 기준 1일 이내 답변</div>
+        </div>
+      </div>
+      <textarea
+        className="chat-compose-textarea"
+        placeholder="도움이 필요한 내용을 적어주세요 · Type what you need help with..."
+        value={message.text}
+        disabled={disabled}
+        onChange={(event) => onInputChange(message.id, event.target.value)}
+      />
+      <button
+        type="button"
+        className="chat-compose-submit"
+        disabled={disabled || !message.text.trim()}
+        onClick={() => onSubmit(message.id)}
+      >
+        전송 · Send to manager
+      </button>
+    </section>
+  );
+}
+
+function ConfirmCard({ message }) {
+  return (
+    <section className="chat-confirm-card">
+      <div className="chat-confirm-header">
+        <span className="chat-confirm-icon" aria-hidden="true">
+          <CheckCircle2 size={20} strokeWidth={2.2} />
+        </span>
+        <div>
+          <div className="chat-confirm-title">Message sent</div>
+          <div className="chat-confirm-subtitle">메시지가 전달됐어요</div>
+        </div>
+      </div>
+      <div className="chat-confirm-row">
+        <span>담당 매니저 · To</span>
+        <strong>{message.counselor}</strong>
+      </div>
+      <div className="chat-confirm-row">
+        <span>답변 예정 · Reply by</span>
+        <strong>{message.replyBy}</strong>
+      </div>
+    </section>
+  );
+}
+
+function ChatMessage({ message, onSelectChip, chipsDisabled, onComposeInput, onComposeSubmit }) {
   if (message.kind === 'chips') {
     return (
       <div className="chat-message is-menu">
         <QuickReplyChips chips={message.chips} onSelect={onSelectChip} disabled={chipsDisabled} />
+      </div>
+    );
+  }
+
+  if (message.kind === 'compose') {
+    return (
+      <div className="chat-message is-menu">
+        <ComposeCard
+          message={message}
+          onInputChange={onComposeInput}
+          onSubmit={onComposeSubmit}
+          disabled={chipsDisabled || message.sent}
+        />
+      </div>
+    );
+  }
+
+  if (message.kind === 'confirm') {
+    return (
+      <div className="chat-message is-menu">
+        <ConfirmCard message={message} />
       </div>
     );
   }
@@ -442,9 +541,10 @@ function QuickReplyChips({ chips, onSelect, disabled }) {
           type="button"
           className="chat-quick-chip"
           disabled={disabled}
-          onClick={() => onSelect(chip.query)}
+          onClick={() => onSelect(chip)}
         >
-          {chip.label}
+          <span className="chat-quick-chip-ko">{chip.label}</span>
+          {chip.en ? <span className="chat-quick-chip-en">{chip.en}</span> : null}
         </button>
       ))}
     </div>
@@ -523,6 +623,58 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
     setLastDebugData(null);
   }
 
+  function handleChipSelect(chip) {
+    if (chip.action === 'message') {
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        { id: makeId('compose'), kind: 'compose', text: '', sent: false, sentText: '' },
+      ]);
+      return;
+    }
+    handleSubmit(chip.query);
+  }
+
+  function handleComposeInput(msgId, text) {
+    setMessages((currentMessages) =>
+      currentMessages.map((message) => (message.id === msgId ? { ...message, text } : message)),
+    );
+  }
+
+  function handleComposeSubmit(msgId) {
+    const target = messages.find((message) => message.id === msgId);
+    const text = (target?.text || '').trim();
+    if (!text || busy) {
+      return;
+    }
+
+    setMessages((currentMessages) =>
+      currentMessages.map((message) =>
+        message.id === msgId ? { ...message, sent: true, sentText: text } : message,
+      ),
+    );
+    setBusy(true);
+
+    window.setTimeout(() => {
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        {
+          id: makeId('confirm'),
+          kind: 'confirm',
+          counselor: DEFAULT_COUNSELOR,
+          replyBy: DEFAULT_REPLY_WINDOW,
+        },
+        {
+          id: makeId('assistant'),
+          role: 'assistant',
+          text: '감사해요. 담당 매니저가 영업일 기준 1일 이내에 카카오톡 또는 전화로 연락드릴게요.',
+          time: formatChatTime(),
+        },
+        { id: makeId('chips'), kind: 'chips', chips: QUICK_MENU },
+      ]);
+      setBusy(false);
+    }, 700);
+  }
+
   async function handleSubmit(overrideText) {
     const text = (typeof overrideText === 'string' ? overrideText : input).trim();
     if (!text || busy || !selectedStudentId) {
@@ -592,8 +744,10 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
           {messages.map((message) => (
             <ChatMessage
               message={message}
-              onSelectChip={handleSubmit}
+              onSelectChip={handleChipSelect}
               chipsDisabled={busy || loadingStudents || !selectedStudentId}
+              onComposeInput={handleComposeInput}
+              onComposeSubmit={handleComposeSubmit}
               key={message.id}
             />
           ))}

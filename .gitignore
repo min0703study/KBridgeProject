@@ -74,3 +74,4 @@ frontend/dist/
 .vscode/
 .idea/
 copy_to_sample.bat
+.gstack/
