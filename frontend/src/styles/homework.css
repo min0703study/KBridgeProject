@@ -1,0 +1,5874 @@
+.homework-shell {
+  --navy: #082f63;
+  --navy-deep: #062954;
+  --ink: #0b2346;
+  --muted: #5f7899;
+  --sage: #5b8448;
+  --sage-soft: #eef1e6;
+  --orange: #f39a34;
+  --orange-soft: #fff1e4;
+  --ivory: #faf7f1;
+  --card: rgba(255, 255, 255, 0.95);
+  --line: rgba(18, 43, 79, 0.08);
+  font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+
+button {
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.homework-shell .screen {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 19px 16px 112px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 16%, rgba(255, 255, 255, 0.82), transparent 18rem),
+    linear-gradient(180deg, #fbf8f2 0%, #f7f1e8 100%);
+  scrollbar-width: none;
+}
+
+.homework-shell .screen::-webkit-scrollbar {
+  display: none;
+}
+
+.homework-shell .cover-screen {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 34px;
+  margin: 0 12px 26px;
+  color: #05070c;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.status-icons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-button {
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  margin: 2px 0 22px;
+  background: transparent;
+  color: var(--navy);
+}
+
+.cover-greeting {
+  padding: 8px 8px 22px;
+}
+
+.morning-sun,
+.sun-art,
+.mini-weather-icon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: block;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffc36e, var(--orange));
+  box-shadow: 0 0 0 10px rgba(243, 154, 52, 0.08);
+}
+
+.morning-sun::before,
+.sun-art::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  background: repeating-conic-gradient(from 0deg, var(--orange) 0 7deg, transparent 7deg 31deg);
+  mask: radial-gradient(circle, transparent 0 19px, #000 20px 24px, transparent 25px);
+}
+
+.cover-greeting h1,
+.page-title h1,
+.mistake-hero h1 {
+  margin: 28px 0 16px;
+  color: var(--navy);
+  font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(50px, 13vw, 72px);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: 0;
+}
+
+.cover-greeting p,
+.page-title p,
+.mistake-hero p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+.featured-lesson-card,
+.lesson-preview-card,
+.learning-targets-card,
+.glance-card,
+.lesson-progress-card,
+.question-card,
+.review-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  box-shadow: 0 16px 42px rgba(24, 32, 45, 0.09);
+}
+
+.featured-lesson-card {
+  position: relative;
+  min-height: 338px;
+  padding: 26px 22px 18px;
+  overflow: hidden;
+}
+
+.lesson-badge,
+.mini-lesson-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 15px;
+  background: var(--navy);
+  color: white;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.lesson-badge.sage,
+.mini-lesson-badge {
+  background: var(--sage-soft);
+  color: var(--sage);
+}
+
+.mini-lesson-badge {
+  min-width: 104px;
+  white-space: nowrap;
+  font-size: 15px;
+}
+
+.featured-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 210px;
+  margin-top: 28px;
+}
+
+.featured-copy h2 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.featured-copy strong {
+  display: block;
+  margin-top: 12px;
+  color: var(--sage);
+  font-size: 24px;
+}
+
+.featured-copy p {
+  margin: 36px 0 0;
+  color: #536986;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.people-illustration {
+  position: absolute;
+  right: 0;
+  bottom: 78px;
+  width: 220px;
+  height: 220px;
+  pointer-events: none;
+}
+
+.window-shape {
+  position: absolute;
+  right: 78px;
+  top: 18px;
+  width: 74px;
+  height: 108px;
+  border: 4px solid #e7d9c5;
+  border-radius: 42px 42px 8px 8px;
+  z-index: 1;
+}
+
+.student {
+  position: absolute;
+  bottom: 5px;
+  width: 72px;
+  height: 132px;
+  border-radius: 48px 48px 28px 28px;
+  background: linear-gradient(#1f4a7a 0 55%, #18395f 55%);
+  opacity: 0.94;
+  z-index: 3;
+}
+
+.student::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  left: 17px;
+  width: 39px;
+  height: 39px;
+  border-radius: 50%;
+  background: #f1ba89;
+  box-shadow: 0 -10px 0 #5c3827;
+}
+
+.student.one { right: 112px; }
+.student.two { right: 22px; background: linear-gradient(#fff3e7 0 55%, #d7e2c6 55%); z-index: 2; }
+
+.speech-card {
+  position: absolute;
+  top: 62px;
+  right: 36px;
+  padding: 8px 12px;
+  border: 1px solid #dccdb8;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.88);
+  color: var(--navy);
+  font-size: 12px;
+  z-index: 4;
+}
+
+.speech-card small {
+  display: block;
+  margin-top: 5px;
+  color: #667;
+}
+
+.cover-cta {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  left: 18px;
+}
+
+.more-lessons-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 22px 8px 16px;
+}
+
+.more-lessons-head h2 {
+  margin: 0;
+  color: var(--navy);
+  font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 30px;
+}
+
+.more-lessons-head button {
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--sage);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.lesson-carousel {
+  display: grid;
+  grid-auto-columns: 136px;
+  grid-auto-flow: column;
+  gap: 14px;
+  margin-left: -2px;
+  overflow-x: auto;
+  padding: 0 2px 8px;
+  background: transparent;
+  scrollbar-width: none;
+}
+
+.lesson-carousel::-webkit-scrollbar { display: none; }
+
+.mini-lesson-card {
+  min-height: 196px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  display: grid;
+  grid-template-rows: 40px 70px 48px 30px;
+  justify-items: center;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 12px 10px;
+  background: var(--card);
+  box-shadow: 0 7px 18px rgba(24, 32, 45, 0.055);
+}
+
+.mini-lesson-card .weather-art { transform: scale(0.72); margin: -10px 0 -4px; }
+.mini-lesson-card strong {
+  color: var(--navy);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.18;
+  text-align: center;
+  align-self: center;
+}
+.mini-lesson-card small {
+  min-height: 34px;
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--sage);
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+  align-self: start;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.pager-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+  background: transparent;
+}
+
+.pager-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d8d1c7;
+}
+
+.pager-dots .active { background: var(--navy); }
+
+.primary-button,
+.secondary-button {
+  min-height: 60px;
+  border: 0;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0 22px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.primary-button {
+  background: linear-gradient(120deg, #092f60, #05274f);
+  color: white;
+  box-shadow: 0 12px 28px rgba(6, 41, 84, 0.22);
+}
+
+.secondary-button {
+  background: var(--sage-soft);
+  color: var(--sage);
+}
+
+.primary-button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.wide {
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  margin-top: 24px;
+  z-index: 10;
+}
+
+.page-title {
+  padding: 0 10px 24px;
+}
+
+.page-title h1 {
+  font-size: clamp(48px, 12vw, 62px);
+}
+
+.lesson-preview-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 270px;
+  padding: 24px 22px 26px;
+}
+
+.lesson-preview-card h2 {
+  max-width: 220px;
+  margin: 22px 0 16px;
+  color: var(--navy);
+  font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.intro-english-title {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin: -6px 0 24px;
+  color: var(--sage);
+  font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-size: 28px;
+  font-weight: 760;
+  line-height: 1.1;
+}
+
+.lesson-preview-card > p {
+  max-width: 232px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.52;
+}
+
+.preview-art {
+  position: absolute;
+  top: 52px;
+  right: 16px;
+}
+
+.weather-art {
+  position: relative;
+  width: 168px;
+  height: 142px;
+}
+
+.weather-art.compact {
+  width: 96px;
+  height: 74px;
+}
+
+.cloud-art {
+  position: absolute;
+  left: 8px;
+  top: 52px;
+  width: 68px;
+  height: 30px;
+  border-radius: 22px;
+  background: linear-gradient(#e9f4fb, #cbe2ef);
+}
+
+.cloud-art::before,
+.cloud-art::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.cloud-art::before { left: 12px; width: 28px; height: 28px; }
+.cloud-art::after { right: 8px; width: 36px; height: 36px; }
+
+.umbrella-art {
+  position: absolute;
+  left: 58px;
+  top: 26px;
+  color: #7f9a6d;
+  font-size: 80px;
+  transform: rotate(-28deg);
+  text-shadow: 0 8px 18px rgba(8, 47, 99, 0.12);
+}
+
+.drop-art {
+  position: absolute;
+  width: 8px;
+  height: 16px;
+  border-radius: 50% 50% 60% 60%;
+  background: #9ccbe9;
+}
+
+.drop-art.one { right: 16px; top: 68px; }
+.drop-art.two { right: 40px; top: 92px; }
+
+.learning-targets {
+  margin: 64px -22px -26px;
+  padding: 22px;
+  border-top: 1px solid #eee7dc;
+  background: linear-gradient(180deg, rgba(248,245,237,0.4), rgba(255,255,255,0.2));
+}
+
+.learning-targets-card {
+  margin-top: 16px;
+  padding: 22px 22px 18px;
+}
+
+.learning-targets h3,
+.learning-targets-card h3,
+.glance-card h3 {
+  margin: 0 0 18px;
+  color: var(--navy);
+  font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-size: 26px;
+  line-height: 1.15;
+}
+
+.target-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 28px;
+  gap: 12px;
+  align-items: center;
+  min-height: 74px;
+  margin-top: 0;
+  border-bottom: 1px solid #e9dfd2;
+}
+
+.target-row:last-child {
+  border-bottom: 0;
+}
+
+.target-row > svg {
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  border-radius: 13px;
+  color: var(--sage);
+  background: var(--sage-soft);
+}
+
+.target-row span {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: #6f6f75;
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.target-row strong {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--navy);
+  font-size: 22px;
+  line-height: 1.18;
+}
+
+.target-row > svg:last-child {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--sage);
+  background: transparent;
+}
+
+.glance-card {
+  margin-top: 12px;
+  padding: 21px;
+}
+
+.mini-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.mini-stats span {
+  display: flex;
+  min-height: 92px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #6c6c72;
+  text-align: center;
+  border-right: 1px solid #e7ded2;
+}
+
+.mini-stats span:last-child { border-right: 0; }
+.mini-stats svg { color: var(--sage); padding: 8px; border-radius: 50%; background: var(--sage-soft); box-sizing: content-box; }
+.mini-stats strong { color: var(--navy); font-size: 32px; line-height: 1; }
+
+.progress-header {
+  margin-bottom: 18px;
+}
+
+.lesson-progress-card {
+  min-height: 102px;
+  display: grid;
+  grid-template-columns: 92px 1fr 72px;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+}
+
+.lesson-progress-card .weather-art {
+  width: 92px;
+  height: 78px;
+  margin-left: -8px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #f5f1e9;
+  -webkit-mask-image: radial-gradient(ellipse 76% 72% at 50% 50%, #000 46%, rgba(0,0,0,0.82) 64%, transparent 100%);
+  mask-image: radial-gradient(ellipse 76% 72% at 50% 50%, #000 46%, rgba(0,0,0,0.82) 64%, transparent 100%);
+}
+
+.lesson-progress-card .weather-art img {
+  width: 112%;
+  height: 112%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.82) contrast(0.95);
+  transform: scale(1.04);
+}
+
+.lesson-pill {
+  min-height: 40px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: rgba(239, 237, 228, 0.8);
+  color: #1d2b45;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.lesson-pill strong,
+.lesson-pill span:first-of-type {
+  color: var(--sage);
+}
+
+.ring-progress {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(var(--sage) var(--progress), #eeeae4 0);
+}
+
+.ring-progress span {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  place-items: center;
+  background: white;
+  color: var(--navy);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.4px;
+  white-space: nowrap;
+}
+
+.ring-progress span small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.question-card {
+  padding: 22px 18px 18px;
+}
+
+.question-hero {
+  min-height: 236px;
+  display: grid;
+  grid-template-columns: 42% 1fr;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.dialogue-question .question-hero,
+.order-question .question-hero {
+  position: relative;
+  display: block;
+  min-height: 178px;
+  padding: 22px 20px;
+  margin: 0 -2px 20px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 92% 72%, rgba(91,132,72,0.18), transparent 5rem),
+    linear-gradient(180deg, #fff, #fbf8f1);
+  overflow: hidden;
+}
+
+.dialogue-question .question-art,
+.order-question .question-art {
+  display: none;
+}
+
+.question-art {
+  min-height: 178px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  color: #9bb7cc;
+  background:
+    linear-gradient(180deg, rgba(228,239,245,0.78), rgba(255,255,255,0.92)),
+    radial-gradient(circle at 24% 75%, rgba(91,132,72,0.3), transparent 3rem);
+}
+
+.question-copy h2 {
+  margin: 0 0 16px;
+  color: var(--navy);
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+
+.order-question .question-copy h2,
+.dialogue-question .question-copy h2 {
+  font-size: 34px;
+}
+
+.question-copy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.mode-dot {
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  color: var(--orange);
+  background: var(--orange-soft);
+}
+
+.romanization.big {
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.korean-display {
+  display: block;
+  color: var(--navy);
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.inline-focus {
+  display: inline-block;
+  margin-top: 6px;
+  color: var(--navy);
+  font-size: 20px;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.choice {
+  position: relative;
+  min-height: 124px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: white;
+  box-shadow: 0 10px 24px rgba(24, 32, 45, 0.07);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.choice.active {
+  border-color: var(--sage);
+  box-shadow:
+    0 0 0 3px rgba(91, 132, 72, 0.2),
+    0 13px 28px rgba(35, 65, 27, 0.2);
+  transform: translateY(-2px);
+}
+
+.choice.correct-choice {
+  border-color: #5d9652;
+  background: #f3f8ef;
+  box-shadow: 0 0 0 3px rgba(91, 150, 82, 0.18);
+}
+
+.choice.incorrect-choice,
+.choice.active.incorrect-choice {
+  border-color: #d97566;
+  background: #fff7f5;
+  box-shadow: 0 0 0 3px rgba(217, 117, 102, 0.16);
+}
+
+.choice:disabled {
+  cursor: default;
+}
+
+.choice-number {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--orange-soft);
+  color: var(--orange);
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+}
+
+.choice small {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.choice strong {
+  color: var(--navy);
+  font-size: 26px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.meaning-strip,
+.hint-strip,
+.tip-strip {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, rgba(238,241,230,0.8), rgba(250,247,241,0.65));
+  color: var(--navy);
+}
+
+.meaning-strip small {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--sage);
+  font-size: 14px;
+}
+
+.meaning-strip strong {
+  display: block;
+  font-size: 24px;
+}
+
+.hint-strip {
+  grid-template-columns: 60px 1fr;
+  margin-top: 18px;
+  background: rgba(255,255,255,0.78);
+  border: 1px solid var(--line);
+}
+
+.hint-strip svg,
+.meaning-strip svg,
+.tip-strip svg {
+  padding: 11px;
+  border-radius: 50%;
+  color: var(--sage);
+  background: var(--sage-soft);
+  box-sizing: content-box;
+}
+
+.hint-strip strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.block-order {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 18px;
+  margin: 22px 0;
+}
+
+.answer-tray {
+  min-height: 96px;
+  border: 1.5px solid rgba(91,132,72,0.4);
+  border-radius: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 14px;
+  background: #fffdf8;
+}
+
+.placeholder {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--placeholder-columns, 3), minmax(0, 1fr));
+  gap: 12px;
+}
+
+.placeholder i {
+  min-height: 56px;
+  border: 1px dashed #d5c6b2;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  color: #c2b4a2;
+  font-style: normal;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.block-bank {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.dialogue-order .block-bank {
+  grid-template-columns: 1fr;
+}
+
+.pill {
+  min-height: 72px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: white;
+  color: var(--navy);
+  box-shadow: 0 8px 18px rgba(24, 32, 45, 0.07);
+  font-size: 20px;
+  font-weight: 900;
+  transition: transform 160ms ease, opacity 160ms ease, border-color 160ms ease;
+}
+
+.korean-romanized {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  line-height: 1.18;
+}
+
+.korean-romanized .korean-line {
+  color: var(--navy);
+  font-size: 20px;
+  font-weight: 900;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.korean-romanized small {
+  color: var(--sage);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.pill.selected {
+  background: #f8f3eb;
+  border-color: rgba(91,132,72,0.42);
+  transform: translateY(-2px);
+}
+
+.dialogue-order .pill {
+  justify-content: flex-start;
+  min-height: 104px;
+  text-align: left;
+}
+
+.dialogue-order .pill .korean-line {
+  font-size: 19px;
+}
+
+.answer-tray .pill {
+  min-height: 66px;
+}
+
+.dialogue-index {
+  min-width: 42px;
+  height: 42px;
+  border: 1px solid #f0cfb2;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: var(--orange);
+  font-size: 26px;
+}
+
+.pill:disabled {
+  opacity: 0.32;
+}
+
+.tip-strip {
+  grid-template-columns: 34px 1fr;
+  color: var(--navy);
+  background: var(--orange-soft);
+}
+
+.tip-strip svg {
+  color: var(--orange);
+  background: #ffe2c6;
+}
+
+.feedback {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px 15px;
+  border-radius: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.feedback.correct { color: #3f7136; background: var(--sage-soft); }
+.feedback.incorrect { color: #9b4e29; background: #fff0ee; }
+
+.feedback-icon {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  margin-top: 1px;
+}
+
+.feedback-copy {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.feedback-copy strong {
+  color: inherit;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.feedback-answer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px 10px;
+}
+
+.feedback-copy small {
+  color: #746d66;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.feedback-copy b {
+  color: #0a376f;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.feedback-support {
+  display: grid;
+  gap: 3px;
+  padding-top: 2px;
+}
+
+.feedback-support small {
+  color: #746d66;
+  font-size: clamp(10px, 2.7cqw, 12px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.feedback-support strong {
+  color: var(--color-text);
+  font-size: clamp(13px, 3.4cqw, 16px);
+  font-weight: 680;
+  line-height: 1.22;
+  word-break: keep-all;
+}
+
+.feedback-support em {
+  color: #536273;
+  font-size: clamp(12px, 3.2cqw, 14px);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.feedback-support span {
+  color: var(--color-muted);
+  font-size: clamp(12px, 3.2cqw, 14px);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.feedback-dialogue {
+  display: grid;
+  gap: 6px;
+  width: calc(100% + 28px);
+  margin-top: 4px;
+  margin-left: -28px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(116, 109, 102, 0.2);
+}
+
+.feedback-dialogue > small {
+  color: #746d66;
+  font-size: clamp(10px, 2.7cqw, 12px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.feedback-dialogue-line {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.feedback-dialogue-line > b {
+  min-width: 42px;
+  color: #4f7f42;
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 850;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.feedback-dialogue-line > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.feedback-dialogue-line strong {
+  color: var(--navy);
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 760;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+
+.feedback-dialogue-line em {
+  color: #536273;
+  font-size: clamp(11px, 2.9cqw, 13px);
+  font-style: normal;
+  font-weight: 520;
+  line-height: 1.2;
+}
+
+.feedback-dialogue-line span span {
+  color: var(--color-muted);
+  font-size: clamp(11px, 2.9cqw, 13px);
+  font-weight: 520;
+  line-height: 1.2;
+}
+
+.feedback.correct .feedback-copy b {
+  color: #2f6f31;
+}
+
+.feedback.incorrect .feedback-copy b,
+.feedback.dont-know .feedback-copy b {
+  color: #0a376f;
+}
+
+.action-row {
+  margin-top: 18px;
+}
+
+.action-row .primary-button {
+  width: 100%;
+}
+
+.mistake-hero {
+  position: relative;
+  min-height: 166px;
+  padding: 4px 8px 12px;
+  overflow: hidden;
+}
+
+.mistake-hero h1 {
+  position: relative;
+  z-index: 1;
+  margin-top: 26px;
+  font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-size: 38px;
+  line-height: 1.1;
+}
+
+.mistake-count {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 18px;
+  padding: 9px 15px 9px 10px;
+  border-radius: 999px;
+  background: rgba(91, 132, 72, 0.12);
+  color: var(--navy);
+  box-shadow: inset 0 0 0 1px rgba(91, 132, 72, 0.05);
+  font-size: 15px;
+  font-weight: 760;
+  line-height: 1;
+}
+
+.mistake-count svg {
+  width: 18px;
+  height: 18px;
+  padding: 6px;
+  border-radius: 50%;
+  color: #4f7f42;
+  background: rgba(255, 255, 255, 0.76);
+  box-sizing: content-box;
+}
+
+.clipboard-art {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  width: 120px;
+  height: 145px;
+  border: 6px solid #efe3d0;
+  border-radius: 14px;
+  background:
+    linear-gradient(90deg, transparent 25px, #e7e1d7 25px 85px, transparent 85px) 50px 44px / 100% 8px no-repeat,
+    linear-gradient(90deg, transparent 25px, #e7e1d7 25px 85px, transparent 85px) 50px 70px / 100% 8px no-repeat,
+    #fffaf2;
+  transform: rotate(4deg);
+}
+
+.clipboard-art::before {
+  content: "";
+  position: absolute;
+  left: 31px;
+  top: -25px;
+  width: 55px;
+  height: 26px;
+  border-radius: 14px 14px 5px 5px;
+  background: #9bab91;
+}
+
+.clipboard-art::after {
+  content: "✓";
+  position: absolute;
+  right: -22px;
+  bottom: 22px;
+  width: 58px;
+  height: 58px;
+  border: 7px solid #719064;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #719064;
+  background: rgba(255,255,255,0.8);
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.mistake-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.review-card {
+  padding: 16px 14px;
+}
+
+.mistake-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  border-radius: 13px;
+  background: var(--orange-soft);
+  color: #ef6e13;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.mistake-label strong {
+  font-size: 25px;
+}
+
+.mistake-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.mistake-term {
+  min-width: 0;
+}
+
+.mistake-term h2 {
+  margin: 2px 0 4px;
+  color: var(--navy);
+  font-size: 27px;
+  line-height: 1.28;
+}
+
+.mistake-term .romanization,
+.mistake-term .meaning {
+  margin: 0 0 4px;
+  color: var(--muted);
+}
+
+.compare-grid {
+  display: grid;
+  gap: 6px;
+  padding-left: 18px;
+  border-left: 1px solid #e5dbcf;
+}
+
+.compare-grid span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.compare-grid strong {
+  color: var(--navy);
+  font-size: 18px;
+}
+
+.why-strip {
+  margin: 18px 0 0;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: #fff0ee;
+  color: var(--navy);
+}
+
+.why-strip strong {
+  margin-right: 16px;
+  color: #ed2e22;
+}
+
+.hero-panel,
+.generated-list .review-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 14px 34px rgba(24, 32, 45, 0.08);
+}
+
+.hero-panel {
+  padding: 24px 20px;
+  margin-bottom: 16px;
+}
+
+.hero-panel h1 {
+  color: var(--navy);
+  font-size: 36px;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.segmented button {
+  min-height: 44px;
+  border: 1px solid #e4dccb;
+  border-radius: 14px;
+  background: #fffaf1;
+  color: #536174;
+  font-weight: 900;
+}
+
+.segmented button.active {
+  color: white;
+  background: var(--navy);
+}
+
+.generated-list {
+  display: grid;
+  gap: 14px;
+}
+
+.section-title {
+  margin: 8px 0 2px;
+  color: var(--navy);
+}
+
+.result-review-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px 14px 18px;
+}
+
+.result-review-header {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.result-review-header span {
+  min-height: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2px;
+  color: var(--navy);
+  background: transparent;
+  font-size: clamp(15px, 3.9cqw, 18px);
+  font-weight: 760;
+  line-height: 1.2;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px 7px;
+}
+
+.chip-row span {
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: var(--sage-soft);
+  color: var(--sage);
+  font-size: clamp(13px, 3.4cqw, 15px);
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.hint {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--orange-soft);
+  color: #8a552f;
+  font-weight: 800;
+}
+
+.bottom-actions {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 24px;
+  z-index: 10;
+}
+
+.romanization {
+  color: var(--sage);
+}
+
+.meaning {
+  color: var(--muted);
+}
+
+/* PNG asset mode: React/CSS keeps the UI interactive, images are illustration-only. */
+.asset-illustration,
+.weather-art img,
+.mini-lesson-asset,
+.question-art img,
+.mistake-term-icon,
+.difficulty-hero-asset {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.morning-sun-img {
+  width: 66px;
+  height: 73px;
+  object-fit: contain;
+}
+
+.people-illustration {
+  right: -2px;
+  bottom: 78px;
+  width: min(64%, 340px);
+  height: 58%;
+  object-position: right bottom;
+}
+
+.featured-lesson-card .people-illustration {
+  mix-blend-mode: multiply;
+}
+
+.featured-lesson-card .unit-hero-unit_01 {
+  right: -12px;
+  top: -10px;
+  bottom: auto;
+  width: min(76%, 390px);
+  height: 100%;
+  object-fit: cover;
+  object-position: 70% center;
+  mix-blend-mode: multiply;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.18) 10%, #000 28%, #000 100%),
+    linear-gradient(180deg, #000 0, #000 78%, rgba(0, 0, 0, 0.82) 90%, transparent 100%);
+  mask-image:
+    linear-gradient(90deg, transparent 0, rgba(0, 0, 0, 0.18) 10%, #000 28%, #000 100%),
+    linear-gradient(180deg, #000 0, #000 78%, rgba(0, 0, 0, 0.82) 90%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.featured-lesson-card:has(.unit-hero-unit_01) .cover-cta {
+  bottom: 12px;
+  background: linear-gradient(120deg, rgba(9, 47, 96, 0.98), rgba(5, 39, 79, 0.98));
+}
+
+.mini-lesson-asset {
+  width: 86px;
+  height: 62px;
+  margin-top: 8px;
+}
+
+.weather-art {
+  display: grid;
+  place-items: center;
+}
+
+.weather-art img {
+  width: 100%;
+  height: 100%;
+}
+
+.preview-art {
+  width: min(47%, 360px);
+  height: 292px;
+  object-position: right center;
+}
+
+.unit-intro-unit_01 {
+  min-height: 232px;
+  padding: 18px 22px 16px;
+}
+
+.unit-intro-unit_01 .lesson-badge {
+  position: relative;
+  z-index: 2;
+  min-height: 34px;
+  padding-inline: 16px;
+  font-size: 16px;
+  border-radius: 15px;
+}
+
+.unit-intro-unit_01 h2 {
+  position: relative;
+  z-index: 2;
+  max-width: 236px;
+  margin: 34px 0 7px;
+  font-size: clamp(28px, 7.6cqw, 32px);
+  font-weight: 820;
+  line-height: 1.02;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.unit-intro-unit_01 > p {
+  position: relative;
+  z-index: 2;
+  max-width: 230px;
+  margin-top: -3px;
+  color: #536986;
+  font-size: clamp(13px, 3.5cqw, 15px);
+  line-height: 1.28;
+}
+
+.unit-intro-unit_01 .unit-preview-unit_01 {
+  top: 0;
+  right: 0;
+  width: 58%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right center;
+  mix-blend-mode: multiply;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, rgba(0,0,0,0.2) 10%, #000 28%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 0, rgba(0,0,0,0.2) 10%, #000 28%, #000 100%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.intro-screen .learning-targets-card {
+  padding: 22px 24px 18px;
+}
+
+.intro-screen .target-row {
+  min-height: 72px;
+}
+
+.intro-screen .glance-card {
+  margin-top: 14px;
+  padding: 16px 22px 20px;
+}
+
+.intro-screen .glance-card h3 {
+  margin-bottom: 22px;
+}
+
+.intro-screen .mini-stats span {
+  min-height: 98px;
+  display: grid;
+  grid-template-rows: 38px 32px 20px;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+  padding: 0 8px;
+  font-size: 15px;
+  line-height: 1.1;
+}
+
+.intro-screen .mini-stats svg {
+  width: 30px;
+  height: 30px;
+  transform: translateY(-1px);
+}
+
+.intro-screen .mini-stats strong {
+  font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.intro-screen .wide {
+  min-height: 64px;
+  margin-top: 22px;
+  font-size: 26px;
+  border-radius: 18px;
+}
+
+.question-art img {
+  width: 92%;
+  height: 92%;
+}
+
+.dialogue-question .question-art,
+.order-question .question-art {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 42%;
+  height: 74%;
+  min-height: 0;
+  display: block;
+  background: transparent;
+  opacity: 0.86;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.dialogue-question .question-copy,
+.order-question .question-copy {
+  position: relative;
+  z-index: 1;
+}
+
+img.clipboard-art {
+  right: -24px;
+  top: 8px;
+  z-index: 0;
+  width: 190px;
+  height: 178px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  transform: none;
+  opacity: 0.5;
+  object-fit: contain;
+  object-position: right top;
+  pointer-events: none;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.4) 22%, #000 48%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 14%, #000 78%, transparent 100%);
+  mask-image:
+    linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.4) 22%, #000 48%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 14%, #000 78%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.mistake-term-icon {
+  width: 82px;
+  height: 82px;
+  margin-bottom: 6px;
+}
+
+.difficulty-hero-card,
+.how-it-works-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  box-shadow: 0 16px 42px rgba(24, 32, 45, 0.09);
+}
+
+.difficulty-hero-card {
+  min-height: 226px;
+  display: grid;
+  grid-template-columns: 35% 1fr 98px;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 18px;
+  overflow: hidden;
+}
+
+.difficulty-hero-asset {
+  width: 132px;
+  height: 164px;
+  object-position: left bottom;
+}
+
+.difficulty-hero-copy h1 {
+  margin: 0 0 12px;
+  color: var(--navy);
+  font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-size: 30px;
+  line-height: 1.18;
+}
+
+.difficulty-hero-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.difficulty-ring {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  background: conic-gradient(var(--sage) var(--progress), #eeeae4 0);
+  color: var(--navy);
+}
+
+.difficulty-ring span,
+.difficulty-ring strong {
+  width: 70px;
+  background: white;
+  text-align: center;
+}
+
+.difficulty-ring span {
+  padding-top: 14px;
+  border-radius: 999px 999px 0 0;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.difficulty-ring strong {
+  padding-bottom: 14px;
+  border-radius: 0 0 999px 999px;
+  font-size: 24px;
+  font-family: Pretendard, "Noto Sans KR", Inter, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+
+.how-it-works-card {
+  margin-top: 16px;
+  padding: 20px;
+}
+
+.how-it-works-card h2 {
+  margin: 0 0 8px;
+  color: var(--navy);
+}
+
+.how-it-works-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.difficulty-legend {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.difficulty-legend span {
+  min-height: 46px;
+  border: 1px solid #e7ded2;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--sage);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.difficulty-legend span:nth-child(2) { color: var(--orange); }
+.difficulty-legend span:nth-child(3) { color: #ff4c32; }
+
+/* Text-only readability pass: keep illustration sizing fixed. */
+.featured-copy {
+  max-width: 176px;
+}
+
+.featured-copy h2 {
+  font-size: 30px;
+  line-height: 1.04;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.featured-copy strong {
+  max-width: 174px;
+  font-size: 21px;
+  line-height: 1.14;
+  word-break: keep-all;
+}
+
+.featured-copy p {
+  max-width: 172px;
+  margin-top: 22px;
+  display: -webkit-box;
+  overflow: hidden;
+  color: #536986;
+  font-size: 14px;
+  line-height: 1.42;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.featured-lesson-card .cover-cta {
+  z-index: 3;
+}
+
+.choice-question .question-copy {
+  min-width: 0;
+  padding-left: 2px;
+}
+
+.choice-question .question-copy h2 {
+  max-width: 238px;
+  margin-bottom: 14px;
+  font-size: 30px;
+  line-height: 1.18;
+  word-break: keep-all;
+}
+
+.choice-question .question-copy p {
+  max-width: 230px;
+  font-size: 17px;
+  line-height: 1.48;
+}
+
+.choice-question .romanization.big {
+  margin-top: 16px;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.choice-question .korean-display {
+  margin-top: 4px;
+  font-size: 46px;
+  line-height: 1.03;
+}
+
+.revised-unit-one-question .korean-display.support-removed {
+  margin-top: 22px;
+  font-size: 62px;
+  line-height: 1;
+}
+
+.revised-unit-one-question .choice strong {
+  font-size: 29px;
+}
+
+.choice-question .inline-focus {
+  font-size: 18px;
+  line-height: 1.35;
+  word-break: keep-all;
+}
+
+.semantic-text {
+  word-break: keep-all;
+  overflow-wrap: normal;
+  text-wrap: balance;
+}
+
+.semantic-text span {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.semantic-text-single-line {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.revised-unit-one-question .korean-display.semantic-text-single-line {
+  font-size: clamp(44px, 13vw, 62px);
+}
+
+.revised-unit-one-question .choice .semantic-text-single-line {
+  max-width: calc(100% - 62px);
+  font-size: clamp(22px, 6.4vw, 29px);
+  line-height: 1.2;
+}
+
+.lesson-preview-card > .semantic-text {
+  max-width: 250px;
+}
+
+.choice .semantic-text,
+.pill .semantic-text,
+.review-card .semantic-text {
+  max-width: 100%;
+}
+
+.choice .semantic-text span,
+.pill .semantic-text span,
+.review-card .semantic-text span {
+  white-space: normal;
+  word-break: keep-all;
+}
+
+.pill .korean-romanized {
+  flex: 1;
+}
+
+@media (max-width: 380px) {
+  .homework-shell .screen { padding-inline: 13px; }
+  .cover-greeting h1 { font-size: 48px; }
+  .featured-copy h2 { font-size: 32px; }
+  .question-copy h2 { font-size: 30px; }
+  .choice strong { font-size: 23px; }
+  .lesson-progress-card { grid-template-columns: 78px 1fr 66px; padding-inline: 14px; }
+  .lesson-pill { font-size: 12px; }
+  .block-bank { grid-template-columns: 1fr; }
+}
+
+/* Pixel-reference mode: use the provided UI screenshots as the visual source of truth. */
+.reference-screen {
+  width: min(100vw, calc(100svh * 9 / 20));
+  height: min(100svh, calc(100vw * 20 / 9));
+  margin: 0 auto;
+  padding: 0;
+  background: #faf7f1;
+}
+
+.reference-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 9 / 20;
+  overflow: hidden;
+  background: #faf7f1;
+}
+
+.reference-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.hotspot {
+  position: absolute;
+  z-index: 5;
+  border: 0;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0);
+  color: transparent;
+}
+
+.hotspot:focus-visible {
+  outline: 3px solid rgba(8, 47, 99, 0.45);
+  outline-offset: 2px;
+}
+
+/* Requested polish pass: intro, choice quiz, and results spacing. */
+.intro-screen .learning-targets-card h3 {
+  font-size: 24px;
+}
+
+.intro-screen .target-row {
+  grid-template-columns: 48px 1fr;
+  min-height: 66px;
+}
+
+.intro-screen .target-row > svg {
+  width: 44px;
+  height: 44px;
+  padding: 11px;
+}
+
+.intro-screen .target-row span {
+  font-size: 15px;
+}
+
+.intro-screen .target-row strong {
+  font-size: 19px;
+}
+
+.intro-screen .mini-stats strong {
+  font-size: 28px;
+}
+
+.intro-screen .mini-stats span {
+  min-height: 98px;
+  font-size: 15px;
+}
+
+.intro-screen .wide,
+.action-row .primary-button,
+.mistakes-screen .wide {
+  gap: 0;
+}
+
+.choice-question .question-hero {
+  min-height: 196px;
+  display: block;
+  margin-bottom: 18px;
+}
+
+.choice-question .question-art {
+  display: none;
+}
+
+.choice-question .question-copy {
+  min-height: 196px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 16px 8px 4px;
+}
+
+.choice-question .question-copy h2 {
+  max-width: 100%;
+  font-size: 34px;
+  line-height: 1.08;
+}
+
+.choice-question .question-copy p {
+  max-width: 100%;
+  font-size: 18px;
+}
+
+.choice-question .romanization.big {
+  margin-top: 20px;
+  font-size: 20px;
+}
+
+.choice-question .korean-display {
+  font-size: 46px;
+}
+
+.hero-panel.compact {
+  padding: 18px 20px 18px;
+  margin-bottom: 14px;
+}
+
+.hero-panel.compact h1 {
+  margin: 10px 0 12px;
+  font-size: 32px;
+}
+
+.hero-panel.compact > p {
+  margin: 0 0 10px;
+}
+
+.result-page-title {
+  display: flex;
+  justify-content: center;
+  margin: clamp(4px, 0.8vh, 8px) 0 clamp(12px, 1.8vh, 18px);
+}
+
+.results-screen .hero-panel.compact {
+  padding-block: 14px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 241, 0.94)),
+    radial-gradient(circle at 92% 12%, rgba(91, 132, 72, 0.18), transparent 7rem);
+}
+
+.result-hero-copy {
+  display: grid;
+  justify-items: center;
+  gap: 0;
+  margin-bottom: 14px;
+}
+
+.result-status-pill {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  color: #4f7f42;
+  background: rgba(91, 132, 72, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(91, 132, 72, 0.05);
+  font-size: clamp(22px, 5.8cqw, 28px);
+  font-weight: 860;
+  line-height: 1;
+}
+
+.result-score-line {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  color: var(--navy);
+}
+
+.result-score-line strong {
+  font-size: clamp(46px, 12cqw, 58px);
+  font-weight: 860;
+  line-height: 0.95;
+}
+
+.result-score-line span {
+  color: #3d587a;
+  font-size: clamp(18px, 4.8cqw, 23px);
+  font-weight: 760;
+}
+
+.result-hero-copy p {
+  max-width: 300px;
+  margin: 0;
+  color: #5f7899;
+  font-size: clamp(14px, 3.7cqw, 16px);
+  font-weight: 560;
+  line-height: 1.35;
+}
+
+.hero-panel.compact .mini-stats span {
+  min-height: 56px;
+}
+
+.bottom-actions {
+  left: 14px;
+  right: 14px;
+  width: auto;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.bottom-actions .primary-button,
+.bottom-actions .secondary-button {
+  min-height: 58px;
+  border-radius: 14px;
+  font-size: 18px;
+}
+
+.cover-start {
+  left: 7.2%;
+  right: 7.2%;
+  top: 57.1%;
+  height: 6.1%;
+}
+
+.cover-lesson-2 {
+  left: 3.5%;
+  top: 74.2%;
+  width: 26%;
+  height: 21.5%;
+}
+
+.cover-lesson-3 {
+  left: 32%;
+  top: 74.2%;
+  width: 26%;
+  height: 21.5%;
+}
+
+.cover-lesson-4 {
+  left: 61%;
+  top: 74.2%;
+  width: 26%;
+  height: 21.5%;
+}
+
+.intro-start {
+  left: 3.5%;
+  right: 3.5%;
+  top: 92.2%;
+  height: 5.6%;
+}
+
+.choice-a,
+.choice-b,
+.choice-c,
+.choice-d,
+.quiz-answer-area {
+  width: 44%;
+  height: 13%;
+}
+
+.quiz-answer-area {
+  left: 3%;
+  top: 39%;
+  width: 94%;
+  height: 47%;
+  border-radius: 26px;
+}
+
+.choice-a {
+  left: 3.8%;
+  top: 52%;
+}
+
+.choice-b {
+  right: 3.8%;
+  top: 52%;
+}
+
+.choice-c {
+  left: 3.8%;
+  top: 66.6%;
+}
+
+.choice-d {
+  right: 3.8%;
+  top: 66.6%;
+}
+
+.question-check {
+  left: 3.8%;
+  right: 3.8%;
+  top: 88.5%;
+  height: 9%;
+  border-radius: 24px;
+}
+
+.mistakes-continue {
+  left: 5.8%;
+  right: 5.8%;
+  top: 93.5%;
+  height: 4.9%;
+}
+
+/* Daily Practice logic refresh: additions reuse the existing visual system. */
+.personalized-ready {
+  position: absolute;
+  right: 18px;
+  bottom: 92px;
+  left: 18px;
+  z-index: 4;
+  min-height: 58px;
+  border: 1px solid rgba(211, 116, 30, 0.48);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(255, 244, 222, 0.98), rgba(255, 226, 190, 0.98));
+  color: #a65416;
+  box-shadow:
+    0 10px 24px rgba(184, 91, 18, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  text-align: left;
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.personalized-ready span,
+.personalized-ready strong {
+  display: block;
+}
+
+.personalized-ready span {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.personalized-ready strong {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #863b0c;
+  font-size: 14px;
+  box-shadow: inset 0 0 0 1px rgba(211, 116, 30, 0.14);
+}
+
+.personalized-ready:hover {
+  background: linear-gradient(135deg, #fff0d0, #ffd9aa);
+  box-shadow:
+    0 13px 28px rgba(184, 91, 18, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+}
+
+.personalized-ready:active {
+  box-shadow:
+    0 6px 15px rgba(184, 91, 18, 0.2),
+    inset 0 2px 5px rgba(166, 84, 22, 0.12);
+  transform: translateY(1px);
+}
+
+.sentence-focus {
+  display: grid;
+  gap: 4px;
+  margin-top: 18px;
+}
+
+.sentence-focus strong {
+  color: var(--navy);
+  font-size: 28px;
+  line-height: 1.25;
+}
+
+.sentence-focus small {
+  color: var(--sage);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sentence-focus span,
+.situation-copy {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.revised-unit-one-question .sentence-focus.support-removed {
+  margin-top: 10px;
+  transform: translateY(-3px);
+}
+
+.revised-unit-one-question .sentence-focus.support-removed strong {
+  font-size: clamp(30px, 8vw, 42px);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.revised-unit-one-question .sentence-focus.support-removed .semantic-text br {
+  display: none;
+}
+
+.revised-unit-one-question .sentence-focus.support-removed .semantic-text span + span {
+  margin-left: 0.28em;
+}
+
+.question-copy .situation-copy {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--orange-soft);
+  color: #8a552f;
+  font-weight: 800;
+}
+
+.reading-passage {
+  display: grid;
+  gap: 10px;
+  margin: -4px 0 18px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fffdf8;
+}
+
+.passage-line {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee5d8;
+}
+
+.passage-line:last-of-type {
+  border-bottom: 0;
+}
+
+.passage-line strong {
+  color: var(--navy);
+  font-size: 18px;
+}
+
+.revised-unit-one-question .passage-line.support-removed {
+  min-height: 58px;
+  justify-content: center;
+  padding: 11px 12px 15px;
+}
+
+.revised-unit-one-question .passage-line.support-removed strong {
+  font-size: clamp(20px, 5.2vw, 25px);
+  line-height: 1.38;
+  letter-spacing: -0.025em;
+  text-align: left;
+  word-break: keep-all;
+}
+
+.passage-line small {
+  color: var(--sage);
+  font-weight: 700;
+}
+
+.passage-line span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.reading-question-prompt {
+  margin: 4px 0 0;
+  color: var(--navy);
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.feedback.dont-know {
+  color: #8a552f;
+  background: var(--orange-soft);
+}
+
+.feedback.dont-know .feedback-copy small,
+.feedback.dont-know .feedback-copy strong {
+  color: #8a552f;
+}
+
+.revised-unit-one-review {
+  padding-block: 14px 13px;
+}
+
+.revised-unit-one-review .mistake-content {
+  grid-template-columns: 1.06fr 0.94fr;
+  align-items: center;
+  min-height: 118px;
+}
+
+.revised-unit-one-review .mistake-term {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 5px;
+  min-height: 96px;
+  padding-left: 10px;
+  text-align: left;
+}
+
+.revised-unit-one-review .mistake-term h2 {
+  margin: 0;
+  max-width: 100%;
+  font-size: clamp(24px, 5.8vw, 30px);
+  line-height: 1.22;
+  text-align: left;
+}
+
+.revised-unit-one-review .mistake-term .romanization {
+  margin: 0;
+  color: #667b9b;
+  font-size: clamp(14px, 3.6vw, 17px);
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: left;
+  word-break: keep-all;
+}
+
+.revised-unit-one-review .mistake-term .semantic-text br {
+  display: none;
+}
+
+.revised-unit-one-review .mistake-term .semantic-text span + span {
+  margin-left: 0.24em;
+}
+
+.revised-unit-one-review .compare-grid {
+  align-content: center;
+  gap: 5px;
+}
+
+.revised-unit-one-review .why-strip {
+  margin-top: 12px;
+  padding-block: 9px;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.action-row > button:only-child {
+  grid-column: 1 / -1;
+}
+
+.action-row .secondary-button {
+  width: 100%;
+  min-height: 60px;
+  padding-inline: 12px;
+  font-size: 16px;
+  box-shadow: 0 9px 20px rgba(53, 79, 43, 0.14);
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+
+.action-row .secondary-button:hover {
+  box-shadow: 0 12px 25px rgba(53, 79, 43, 0.2);
+}
+
+.action-row .secondary-button:active {
+  background: #e4ead9;
+  box-shadow:
+    inset 0 3px 7px rgba(53, 79, 43, 0.2),
+    0 5px 12px rgba(53, 79, 43, 0.18);
+  transform: translateY(2px);
+}
+
+.mistake-label.unknown {
+  background: var(--sage-soft);
+  color: var(--sage);
+}
+
+.empty-review-card {
+  text-align: center;
+}
+
+.empty-review-card h2 {
+  color: var(--navy);
+}
+
+.result-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.result-stat-card {
+  min-height: 70px;
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 10px 13px;
+  background: #f3f7ef;
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px rgba(91, 132, 72, 0.06);
+}
+
+.result-stat-card.incorrect,
+.result-stat-card.unsure {
+  background: #fff1e4;
+  box-shadow: inset 0 0 0 1px rgba(243, 154, 52, 0.08);
+}
+
+.result-stat-card.review {
+  background: #f0f4ec;
+}
+
+.result-stat-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--sage);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.result-stat-card.incorrect .result-stat-icon,
+.result-stat-card.unsure .result-stat-icon {
+  color: #a45a2d;
+}
+
+.result-stat-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  align-content: center;
+}
+
+.result-stat-copy strong {
+  color: var(--navy);
+  font-size: clamp(24px, 6.4cqw, 30px);
+  font-weight: 820;
+  line-height: 1;
+}
+
+.result-stat-copy small {
+  color: #5f7899;
+  font-size: clamp(12px, 3.2cqw, 14px);
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.ai-review-hero {
+  margin-top: 36px;
+}
+
+.merged-ai-review-hero {
+  margin-top: 0;
+  margin-bottom: 14px;
+}
+
+.merged-ai-review-hero .ai-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+}
+
+.merged-ai-review-hero h1 {
+  margin: 10px 0 8px;
+  font-size: clamp(22px, 5.8cqw, 28px);
+}
+
+.merged-ai-review-hero p {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(13px, 3.5cqw, 16px);
+  line-height: 1.42;
+}
+
+.ai-review-hero h1 {
+  margin: 10px 0;
+  font-size: 30px;
+  line-height: 1.18;
+}
+
+.ai-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: var(--sage);
+  background: var(--sage-soft);
+}
+
+.skill-result-list {
+  display: grid;
+  gap: 10px;
+}
+
+.skill-result-card {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) clamp(104px, 25cqw, 116px);
+  align-items: center;
+  gap: 10px;
+}
+
+.skill-result-card > svg {
+  color: var(--sage);
+}
+
+.skill-result-card h2,
+.skill-result-card p {
+  margin: 0;
+}
+
+.skill-result-card h2 {
+  color: var(--navy);
+  font-size: 17px;
+}
+
+.skill-result-card p {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.skill-status {
+  width: clamp(104px, 25cqw, 116px);
+  min-height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--sage-soft);
+  color: var(--sage);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.18;
+  text-align: center;
+  white-space: normal;
+}
+
+.skill-status.keep-practicing {
+  background: var(--orange-soft);
+  color: #a86525;
+}
+
+.skill-status.needs-review {
+  background: #fff0ee;
+  color: #b64a3c;
+}
+
+.next-focus-card {
+  margin-top: 10px;
+}
+
+.next-focus-card h2 {
+  margin: 0 0 10px;
+  color: var(--navy);
+  font-size: clamp(21px, 5.5cqw, 27px);
+  line-height: 1.15;
+}
+
+.ready-copy {
+  margin: 16px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.next-focus-card {
+  padding: clamp(13px, 3.4vw, 17px);
+}
+
+.next-focus-card .next-focus-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px 8px;
+  align-items: stretch;
+}
+
+.next-focus-card .next-focus-grid span {
+  min-width: 0;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 9px;
+  border-radius: 14px;
+  font-size: clamp(11px, 3vw, 14px);
+  line-height: 1.15;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.next-focus-card .next-focus-grid .focus-item-short {
+  font-size: clamp(12px, 3.2vw, 15px);
+}
+
+.next-focus-card .next-focus-grid .focus-item-medium {
+  font-size: clamp(11px, 3vw, 14px);
+}
+
+.next-focus-card .next-focus-grid .focus-item-long {
+  font-size: clamp(10px, 2.7vw, 12px);
+  letter-spacing: 0;
+}
+
+.next-focus-card .ready-copy {
+  margin-top: 11px;
+  font-size: clamp(10px, 2.55vw, 12px);
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 380px) {
+  .action-row {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-result-card {
+    grid-template-columns: 26px 1fr;
+  }
+
+  .skill-status {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .next-focus-card .next-focus-grid {
+    gap: 8px;
+  }
+
+  .next-focus-card .next-focus-grid span {
+    padding-inline: 7px;
+  }
+}
+
+/* Choice labels scale by content length across every multiple-choice page. */
+.homework-shell .choice {
+  min-width: 0;
+  padding: 38px clamp(12px, 3.8vw, 20px) 18px;
+  overflow: hidden;
+}
+
+.homework-shell .choice .choice-text {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--navy);
+  font-weight: 900;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.homework-shell .choice .choice-text-short {
+  font-size: clamp(23px, 6.7vw, 30px);
+}
+
+.homework-shell .choice .choice-text-medium {
+  font-size: clamp(20px, 5.8vw, 27px);
+}
+
+.homework-shell .choice .choice-text-long {
+  font-size: clamp(17px, 4.9vw, 23px);
+  line-height: 1.22;
+}
+
+.homework-shell .choice .choice-text-sentence {
+  font-size: clamp(14px, 4.1vw, 19px);
+  line-height: 1.28;
+}
+
+.homework-shell .choice > small {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(11px, 3vw, 14px);
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 461px) {
+  .homework-shell .choice .choice-text-short {
+    font-size: 30px;
+  }
+
+  .homework-shell .choice .choice-text-medium {
+    font-size: 26px;
+  }
+
+  .homework-shell .choice .choice-text-long {
+    font-size: 22px;
+  }
+
+  .homework-shell .choice .choice-text-sentence {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 380px) {
+  .homework-shell .choice {
+    padding-inline: 10px;
+  }
+
+  .homework-shell .choice .choice-text-short {
+    font-size: clamp(21px, 6.4vw, 25px);
+  }
+
+  .homework-shell .choice .choice-text-medium {
+    font-size: clamp(18px, 5.5vw, 22px);
+  }
+
+  .homework-shell .choice .choice-text-long {
+    font-size: clamp(16px, 4.7vw, 19px);
+  }
+
+  .homework-shell .choice .choice-text-sentence {
+    font-size: clamp(13px, 3.9vw, 16px);
+  }
+}
+
+/* Keep quiz actions reachable without scrolling.
+   The action dock sits above the persistent bottom navigation, while the
+   question content uses only the remaining viewport height. */
+.homework-shell .quiz-screen {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: clamp(8px, 1.2vh, 14px);
+  overflow: hidden;
+  padding-bottom: 102px;
+}
+
+.homework-shell .quiz-screen .back-button {
+  margin-bottom: 0;
+}
+
+.homework-shell .quiz-screen .progress-header {
+  margin-bottom: 0;
+}
+
+.homework-shell .quiz-screen .lesson-progress-card {
+  min-height: clamp(78px, 10vh, 102px);
+}
+
+.homework-shell .quiz-screen .question-card {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: clamp(76px, 9vh, 92px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.homework-shell .quiz-screen .question-card::-webkit-scrollbar {
+  display: none;
+}
+
+.homework-shell .quiz-screen .action-row {
+  position: absolute;
+  right: 16px;
+  bottom: 94px;
+  left: 16px;
+  z-index: 30;
+  margin: 0;
+  padding: 8px 0 2px;
+  background: linear-gradient(
+    180deg,
+    rgba(250, 247, 241, 0) 0%,
+    rgba(250, 247, 241, 0.94) 24%,
+    rgba(250, 247, 241, 0.99) 100%
+  );
+}
+
+.homework-shell .quiz-screen .action-row .primary-button,
+.homework-shell .quiz-screen .action-row .secondary-button {
+  min-height: clamp(50px, 6.5vh, 60px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .question-hero,
+.homework-shell .quiz-screen .question-card.is-checked.choice-question .question-hero {
+  min-height: 0;
+  margin-bottom: clamp(8px, 1vh, 12px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked.choice-question .question-copy {
+  min-height: 0;
+  padding-block: 2px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .question-copy h2 {
+  margin-bottom: 6px;
+  font-size: clamp(25px, 7vw, 32px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .question-copy p {
+  font-size: clamp(14px, 4vw, 17px);
+  line-height: 1.35;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .inline-focus,
+.homework-shell .quiz-screen .question-card.is-checked .romanization.big {
+  margin-top: 7px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .korean-display,
+.homework-shell .quiz-screen .question-card.is-checked .revised-unit-one-question .korean-display.support-removed {
+  margin-top: 8px;
+  font-size: clamp(38px, 10vw, 48px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .choice-grid {
+  gap: clamp(8px, 1vh, 11px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .choice {
+  min-height: clamp(88px, 12vh, 112px);
+  padding-top: 34px;
+  padding-bottom: 12px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .feedback {
+  flex: 0 0 auto;
+  margin-top: clamp(9px, 1.2vh, 13px);
+  padding: 10px 12px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .feedback-copy {
+  gap: 4px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .feedback-copy strong {
+  font-size: clamp(13px, 3.5vw, 15px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .feedback-copy b {
+  font-size: clamp(16px, 4.5vw, 19px);
+}
+
+@media (max-height: 780px) {
+  .homework-shell .quiz-screen {
+    gap: 6px;
+    padding-top: 10px;
+  }
+
+  .homework-shell .quiz-screen .lesson-progress-card {
+    min-height: 72px;
+    padding-block: 8px;
+  }
+
+  .homework-shell .quiz-screen .question-card {
+    padding-top: 14px;
+  }
+
+  .homework-shell .quiz-screen .question-card.is-checked .mode-dot {
+    width: 24px;
+    height: 24px;
+  }
+
+  .homework-shell .quiz-screen .question-card.is-checked .question-copy h2 {
+    font-size: 24px;
+  }
+
+  .homework-shell .quiz-screen .question-card.is-checked .choice {
+    min-height: 78px;
+  }
+}
+
+@media (max-width: 380px) {
+  .homework-shell .quiz-screen .action-row {
+    grid-template-columns: 1fr 1fr;
+    right: 13px;
+    left: 13px;
+  }
+}
+
+/* Sentence-based questions need content-driven height.
+   This prevents the Korean prompt from slipping behind the answer cards. */
+.homework-shell .quiz-screen .question-type-context_fill_choice .question-hero,
+.homework-shell .quiz-screen .question-type-grammar_ending_choice .question-hero,
+.homework-shell .quiz-screen .question-type-sentence_structure_choice .question-hero {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 0;
+  margin-bottom: clamp(14px, 2vh, 20px);
+  overflow: visible;
+}
+
+.homework-shell .quiz-screen .question-type-context_fill_choice .question-copy,
+.homework-shell .quiz-screen .question-type-grammar_ending_choice .question-copy,
+.homework-shell .quiz-screen .question-type-sentence_structure_choice .question-copy {
+  min-height: 0;
+  height: auto;
+  padding-bottom: 0;
+}
+
+.homework-shell .quiz-screen .question-card .sentence-focus {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  margin-top: clamp(12px, 1.7vh, 18px);
+  transform: none;
+}
+
+.homework-shell .quiz-screen .question-card .sentence-focus strong,
+.homework-shell .quiz-screen .question-card .sentence-korean-line {
+  display: block;
+  max-width: 100%;
+  color: var(--navy);
+  font-size: clamp(27px, 7.5vw, 38px);
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.homework-shell .quiz-screen .question-card .sentence-focus.support-removed strong {
+  font-size: clamp(28px, 7.8vw, 40px);
+  line-height: 1.16;
+  white-space: normal;
+}
+
+.homework-shell .quiz-screen .question-type-context_fill_choice .choice-grid,
+.homework-shell .quiz-screen .question-type-grammar_ending_choice .choice-grid,
+.homework-shell .quiz-screen .question-type-sentence_structure_choice .choice-grid,
+.homework-shell .quiz-screen .reading-question .choice-grid {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  min-height: clamp(250px, 34vh, 330px);
+}
+
+.homework-shell .quiz-screen .reading-passage {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked.question-type-context_fill_choice .question-hero,
+.homework-shell .quiz-screen .question-card.is-checked.question-type-grammar_ending_choice .question-hero,
+.homework-shell .quiz-screen .question-card.is-checked.question-type-sentence_structure_choice .question-hero {
+  height: auto;
+  min-height: 0;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-focus {
+  margin-top: 8px;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-focus strong,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line {
+  font-size: clamp(24px, 6.6vw, 33px);
+}
+
+@media (max-height: 780px) {
+  .homework-shell .quiz-screen .question-card .sentence-focus strong,
+  .homework-shell .quiz-screen .question-card .sentence-korean-line,
+  .homework-shell .quiz-screen .question-card .sentence-focus.support-removed strong {
+    font-size: clamp(24px, 6.8vw, 32px);
+  }
+
+  .homework-shell .quiz-screen .question-type-context_fill_choice .choice-grid,
+  .homework-shell .quiz-screen .question-type-grammar_ending_choice .choice-grid,
+  .homework-shell .quiz-screen .question-type-sentence_structure_choice .choice-grid,
+  .homework-shell .quiz-screen .reading-question .choice-grid {
+    min-height: 230px;
+  }
+}
+
+/* Keep fill-in and grammar prompts on one line.
+   Font size steps are selected from the actual Korean sentence length. */
+.homework-shell .quiz-screen .question-card .sentence-focus .sentence-korean-line {
+  width: calc(100% - 4px);
+  max-width: calc(100% - 4px);
+  overflow: hidden;
+  line-height: 1.12;
+  letter-spacing: -0.065em;
+  text-overflow: clip;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-short {
+  font-size: clamp(31px, 8.5cqw, 42px);
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-medium {
+  font-size: clamp(24px, 6.5cqw, 32px);
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-long {
+  font-size: clamp(19px, 5.2cqw, 26px);
+  letter-spacing: -0.075em;
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-xlong {
+  font-size: clamp(15px, 4.2cqw, 21px);
+  letter-spacing: -0.085em;
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-short {
+  font-size: clamp(28px, 7.6cqw, 37px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-medium {
+  font-size: clamp(22px, 6cqw, 29px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-long {
+  font-size: clamp(18px, 4.9cqw, 24px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-xlong {
+  font-size: clamp(14px, 4cqw, 20px);
+}
+
+@media (max-width: 380px) {
+  .homework-shell .quiz-screen .sentence-korean-line.sentence-text-long {
+    font-size: clamp(17px, 5cqw, 21px);
+  }
+
+  .homework-shell .quiz-screen .sentence-korean-line.sentence-text-xlong {
+    font-size: clamp(13px, 4cqw, 17px);
+  }
+}
+
+/* Compact sentence-question layout: keep the prompt on one line and reveal
+   all four answers above the fixed action buttons. */
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus
+  .sentence-korean-line {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+  font-size: clamp(14px, 3.9cqw, 20px) !important;
+  line-height: 1.08;
+  letter-spacing: -0.085em;
+  text-overflow: clip;
+  white-space: nowrap !important;
+  word-break: normal !important;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .question-hero {
+  margin-bottom: clamp(8px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus {
+  margin-top: clamp(8px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .choice-grid {
+  min-height: 0;
+  height: clamp(198px, 27vh, 248px);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .choice {
+  min-height: 0;
+  height: 100%;
+  padding-top: 30px;
+  padding-bottom: 10px;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-sentence_structure_choice
+    )
+    .choice-grid {
+    height: 190px;
+  }
+
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-sentence_structure_choice
+    )
+    .sentence-focus
+    .sentence-korean-line {
+    font-size: clamp(13px, 3.6cqw, 18px) !important;
+  }
+}
+
+/* Use the same compact 2x2 answer layout on every multiple-choice page. */
+.homework-shell .quiz-screen .choice-grid {
+  min-height: 0;
+  height: clamp(198px, 27vh, 248px);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen .choice {
+  min-height: 0;
+  height: 100%;
+  padding-top: clamp(29px, 4vh, 36px);
+  padding-bottom: clamp(8px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen .choice-number {
+  top: clamp(8px, 1.2vh, 11px);
+}
+
+.homework-shell .quiz-screen .reading-question .choice-grid {
+  height: clamp(180px, 24vh, 220px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .choice-grid {
+  height: clamp(176px, 24vh, 218px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .choice {
+  min-height: 0;
+  height: 100%;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen .choice-grid {
+    height: 188px;
+  }
+
+  .homework-shell .quiz-screen .reading-question .choice-grid,
+  .homework-shell .quiz-screen .question-card.is-checked .choice-grid {
+    height: 172px;
+  }
+}
+
+/* Restore comfortable vertical rhythm on vocabulary feedback screens. */
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+  .question-hero {
+  margin-bottom: clamp(16px, 2.2vh, 22px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+  .korean-display,
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+  .inline-focus {
+  margin-bottom: clamp(4px, 0.7vh, 8px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+  .choice-grid {
+  row-gap: clamp(12px, 1.8vh, 17px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+  .feedback {
+  margin-top: clamp(16px, 2.2vh, 22px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice).is-checked
+  .question-hero {
+  margin-bottom: clamp(14px, 2vh, 19px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice).is-checked
+  .choice-grid {
+  row-gap: clamp(11px, 1.6vh, 15px);
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+    .question-hero {
+    margin-bottom: 12px;
+  }
+
+  .homework-shell .quiz-screen
+    :is(.question-type-word_meaning_choice, .question-type-korean_word_choice)
+    .feedback {
+    margin-top: 12px;
+  }
+}
+
+/* Match the same spacing rhythm across the remaining choice-based pages. */
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-reading_choice,
+    .question-type-situation_expression_choice
+  )
+  .question-hero {
+  margin-bottom: clamp(13px, 1.9vh, 19px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-reading_choice,
+    .question-type-situation_expression_choice
+  )
+  .choice-grid {
+  row-gap: clamp(11px, 1.6vh, 15px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-reading_choice,
+    .question-type-situation_expression_choice
+  )
+  .feedback {
+  margin-top: clamp(14px, 2vh, 20px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-passage {
+  margin-bottom: clamp(14px, 2vh, 20px);
+}
+
+.homework-shell .quiz-screen
+  .question-type-situation_expression_choice
+  .situation-copy {
+  margin-bottom: clamp(5px, 0.8vh, 9px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-reading_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .question-hero {
+  margin-bottom: clamp(11px, 1.6vh, 16px);
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-sentence_structure_choice,
+      .question-type-reading_choice,
+      .question-type-situation_expression_choice
+    )
+    .question-hero {
+    margin-bottom: 10px;
+  }
+
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-sentence_structure_choice,
+      .question-type-reading_choice,
+      .question-type-situation_expression_choice
+    )
+    .feedback {
+    margin-top: 11px;
+  }
+}
+
+/* Reading dialogue: separate speakers from their lines and keep the passage
+   compact enough for the answer choices below. */
+.homework-shell .quiz-screen .question-type-reading_choice .reading-passage {
+  gap: clamp(8px, 1.2vh, 12px);
+  padding: clamp(14px, 2vh, 20px);
+  border-radius: 20px;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .passage-line {
+  min-height: 0;
+  padding: clamp(10px, 1.4vh, 14px) clamp(12px, 3cqw, 16px);
+  border: 0;
+  border-radius: 16px;
+  background: rgba(238, 241, 230, 0.58);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line {
+  grid-template-columns: clamp(30px, 7cqw, 38px) minmax(0, 1fr);
+  column-gap: clamp(8px, 2cqw, 12px);
+  align-items: start;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line.speaker-b {
+  background: rgba(255, 241, 228, 0.72);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-speaker {
+  width: clamp(30px, 7cqw, 38px);
+  height: clamp(30px, 7cqw, 38px);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--sage);
+  color: white;
+  font-size: clamp(14px, 3.5cqw, 18px);
+  line-height: 1;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .speaker-b .dialogue-speaker {
+  background: var(--orange);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line {
+  min-width: 0;
+  color: var(--navy);
+  font-size: clamp(17px, 4.6cqw, 23px);
+  font-weight: 850;
+  line-height: 1.34;
+  letter-spacing: -0.035em;
+  text-align: left;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line > small,
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line > span {
+  grid-column: 2;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-question-prompt {
+  margin: clamp(6px, 1vh, 10px) 0 0;
+  padding-top: clamp(10px, 1.4vh, 14px);
+  border-top: 1px solid #e7ded2;
+  font-size: clamp(15px, 4cqw, 19px);
+  line-height: 1.3;
+  text-align: center;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen .question-type-reading_choice .reading-passage {
+    gap: 7px;
+    padding: 11px;
+  }
+
+  .homework-shell .quiz-screen .question-type-reading_choice .passage-line {
+    padding: 8px 10px;
+  }
+
+  .homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line {
+    font-size: clamp(15px, 4.1cqw, 20px);
+    line-height: 1.28;
+  }
+}
+
+/* Reading answers stay compact so the dialogue and all four choices share
+   the viewport without pushing the action buttons down. */
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .choice-grid {
+  min-height: 0;
+  height: clamp(140px, 18.5vh, 170px);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(7px, 1vh, 10px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .choice {
+  min-height: 0;
+  height: 100%;
+  padding: 24px clamp(9px, 2.5cqw, 13px) 7px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .choice-number {
+  top: 6px;
+  left: 9px;
+  width: clamp(21px, 5.3cqw, 26px);
+  height: clamp(21px, 5.3cqw, 26px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .choice-text-short {
+  font-size: clamp(18px, 5cqw, 23px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .choice-text-medium {
+  font-size: clamp(15px, 4.3cqw, 20px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .choice-text-long {
+  font-size: clamp(13px, 3.7cqw, 17px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice.is-checked
+  .choice-grid {
+  height: clamp(132px, 17.5vh, 160px);
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-reading_choice
+    .choice-grid {
+    height: 136px;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-reading_choice.is-checked
+    .choice-grid {
+    height: 126px;
+  }
+}
+
+/* Short situation expressions such as "안녕히가세요." stay on one line. */
+.homework-shell .quiz-screen
+  .question-card.question-type-situation_expression_choice
+  .choice-text-medium {
+  display: block;
+  overflow: visible;
+  font-size: clamp(16px, 4.4cqw, 21px);
+  line-height: 1.14;
+  letter-spacing: -0.06em;
+  text-overflow: clip;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-situation_expression_choice
+  .choice-text-long {
+  font-size: clamp(14px, 3.8cqw, 18px);
+  line-height: 1.22;
+  letter-spacing: -0.055em;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-situation_expression_choice
+  .choice-text-sentence {
+  font-size: clamp(12px, 3.3cqw, 16px);
+  line-height: 1.24;
+  letter-spacing: -0.045em;
+}
+
+@media (max-width: 380px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-situation_expression_choice
+    .choice-text-medium {
+    font-size: clamp(14px, 4cqw, 18px);
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-situation_expression_choice
+    .choice-text-long {
+    font-size: clamp(13px, 3.6cqw, 16px);
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-situation_expression_choice
+    .choice-text-sentence {
+    font-size: clamp(11px, 3.1cqw, 14px);
+  }
+}
+
+/* Mistake review comparison values stay compact and on one line. */
+.homework-shell .revised-unit-one-review .mistake-content {
+  grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+  gap: clamp(10px, 2.6cqw, 14px);
+}
+
+.homework-shell .revised-unit-one-review .compare-grid {
+  min-width: 0;
+  padding-left: clamp(12px, 3cqw, 17px);
+}
+
+.homework-shell .revised-unit-one-review .compare-grid span {
+  font-size: clamp(11px, 2.9cqw, 14px);
+  line-height: 1.2;
+}
+
+.homework-shell .revised-unit-one-review .compare-grid strong {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(14px, 3.8cqw, 18px);
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  text-overflow: clip;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.homework-shell .revised-unit-one-review .compare-grid .compare-answer-long {
+  font-size: clamp(12px, 3.3cqw, 16px);
+  letter-spacing: -0.055em;
+}
+
+.homework-shell .revised-unit-one-review .compare-grid .compare-answer-xlong {
+  font-size: clamp(10px, 2.8cqw, 14px);
+  letter-spacing: -0.065em;
+}
+
+@media (max-width: 380px) {
+  .homework-shell .revised-unit-one-review .mistake-content {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+
+  .homework-shell .revised-unit-one-review .compare-grid {
+    padding-left: 10px;
+  }
+}
+
+/* Give checked sentence-structure questions clearer separation between the
+   prompt, answer grid, and feedback card. */
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_structure_choice.is-checked
+  .question-hero {
+  margin-bottom: clamp(16px, 2.2vh, 22px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_structure_choice.is-checked
+  .sentence-focus {
+  margin-bottom: clamp(4px, 0.7vh, 8px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_structure_choice.is-checked
+  .choice-grid {
+  margin-bottom: clamp(17px, 2.3vh, 23px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_structure_choice.is-checked
+  .feedback {
+  margin-top: 0;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_structure_choice.is-checked
+    .question-hero {
+    margin-bottom: 12px;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_structure_choice.is-checked
+    .choice-grid {
+    margin-bottom: 13px;
+  }
+}
+
+/* Apply the checked-state spacing rhythm to the other quiz types that share
+   the same prompt → answers → feedback structure. */
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .question-hero {
+  margin-bottom: clamp(15px, 2.1vh, 21px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .choice-grid {
+  margin-bottom: clamp(16px, 2.2vh, 22px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .feedback {
+  margin-top: 0;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice.is-checked
+  .reading-passage {
+  margin-bottom: clamp(13px, 1.8vh, 18px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice.is-checked
+  .choice-grid {
+  margin-bottom: clamp(14px, 2vh, 19px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice.is-checked
+  .feedback {
+  margin-top: 0;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-situation_expression_choice
+    ).is-checked
+    .question-hero {
+    margin-bottom: 11px;
+  }
+
+  .homework-shell .quiz-screen
+    :is(
+      .question-type-context_fill_choice,
+      .question-type-grammar_ending_choice,
+      .question-type-situation_expression_choice
+    ).is-checked
+    .choice-grid,
+  .homework-shell .quiz-screen
+    .question-card.question-type-reading_choice.is-checked
+    .choice-grid {
+    margin-bottom: 12px;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-reading_choice.is-checked
+    .reading-passage {
+    margin-bottom: 10px;
+  }
+}
+
+/* Nationality/job context-fill composition. */
+.homework-shell .quiz-screen
+  .question-card.question-type-context_fill_choice
+  .situation-copy {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  padding: clamp(9px, 1.3vh, 12px) clamp(10px, 2.6cqw, 14px);
+  font-size: clamp(12px, 3.25cqw, 16px);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-context_fill_choice
+  .situation-copy.situation-text-medium {
+  font-size: clamp(11px, 3cqw, 14px);
+  letter-spacing: -0.05em;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-context_fill_choice
+  .situation-copy.situation-text-long {
+  font-size: clamp(10px, 2.65cqw, 13px);
+  letter-spacing: -0.065em;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-context_fill_choice
+  .sentence-focus {
+  margin-top: clamp(12px, 1.7vh, 17px);
+  margin-bottom: clamp(10px, 1.4vh, 14px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-context_fill_choice
+  .sentence-focus
+  .sentence-korean-line {
+  font-size: clamp(21px, 5.8cqw, 29px) !important;
+  letter-spacing: -0.07em;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-context_fill_choice
+  .sentence-focus
+  .sentence-korean-line.sentence-text-long {
+  font-size: clamp(18px, 5cqw, 24px) !important;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-context_fill_choice
+  .sentence-focus
+  .sentence-korean-line.sentence-text-xlong {
+  font-size: clamp(15px, 4.2cqw, 20px) !important;
+  letter-spacing: -0.085em;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-context_fill_choice
+  .choice-grid {
+  height: clamp(172px, 23vh, 208px);
+  gap: clamp(9px, 1.25vh, 12px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-context_fill_choice
+  .choice {
+  padding-top: 28px;
+  padding-bottom: 8px;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-context_fill_choice
+    .situation-copy {
+    padding-block: 8px;
+    font-size: clamp(11px, 3cqw, 14px);
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-context_fill_choice
+    .situation-copy.situation-text-long {
+    font-size: clamp(9px, 2.5cqw, 12px);
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-context_fill_choice
+    .sentence-focus
+    .sentence-korean-line {
+    font-size: clamp(19px, 5.3cqw, 25px) !important;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-context_fill_choice
+    .sentence-focus
+    .sentence-korean-line.sentence-text-long {
+    font-size: clamp(17px, 4.7cqw, 22px) !important;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-context_fill_choice
+    .sentence-focus
+    .sentence-korean-line.sentence-text-xlong {
+    font-size: clamp(14px, 3.9cqw, 18px) !important;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-context_fill_choice
+    .choice-grid {
+    height: 164px;
+  }
+}
+
+/* Sentence-order screen: keep decorative art out of the title and compact
+   the four draggable blocks into a balanced 2x2 layout. */
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-hero {
+  position: relative;
+  min-height: clamp(118px, 15vh, 142px);
+  display: block;
+  margin: 0 0 clamp(9px, 1.2vh, 13px);
+  padding: clamp(13px, 1.8vh, 17px);
+  overflow: hidden;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-copy {
+  position: relative;
+  z-index: 2;
+  width: 62%;
+  max-width: 62%;
+  min-height: 0;
+  padding: 0;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-copy h2 {
+  max-width: 100%;
+  margin-bottom: clamp(6px, 0.8vh, 9px);
+  font-size: clamp(24px, 6.5cqw, 31px);
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-copy p {
+  max-width: 100%;
+  font-size: clamp(12px, 3.3cqw, 16px);
+  line-height: 1.18;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-art {
+  position: absolute;
+  right: -4%;
+  bottom: 0;
+  z-index: 1;
+  width: 46%;
+  height: 88%;
+  min-height: 0;
+  display: block;
+  overflow: hidden;
+  border-radius: 0;
+  background: transparent;
+  opacity: 0.54;
+  pointer-events: none;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent 0%, transparent 28%, rgba(0, 0, 0, 0.58) 52%, #000 72%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 18%, #000 86%, transparent 100%);
+  mask-image:
+    linear-gradient(90deg, transparent 0%, transparent 28%, rgba(0, 0, 0, 0.58) 52%, #000 72%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, #000 18%, #000 86%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right bottom;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .meaning-strip {
+  min-height: clamp(72px, 9.5vh, 86px);
+  grid-template-columns: clamp(38px, 9cqw, 46px) minmax(0, 1fr);
+  gap: clamp(9px, 2.3cqw, 13px);
+  padding: clamp(12px, 1.6vh, 16px) clamp(12px, 3cqw, 16px);
+  border-radius: 15px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .meaning-strip svg {
+  width: clamp(25px, 6cqw, 31px);
+  height: clamp(25px, 6cqw, 31px);
+  padding: 7px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .meaning-strip small {
+  margin-bottom: 3px;
+  font-size: clamp(10px, 2.7cqw, 13px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .meaning-strip strong {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(15px, 4cqw, 20px);
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+  text-overflow: clip;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .block-order {
+  gap: clamp(11px, 1.5vh, 15px);
+  margin: clamp(13px, 1.8vh, 18px) 0;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .answer-tray {
+  min-height: clamp(76px, 10vh, 92px);
+  padding: 10px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .placeholder {
+  gap: clamp(7px, 1.8cqw, 10px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .placeholder i {
+  min-height: clamp(46px, 6.2vh, 58px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .block-bank {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(9px, 1.3vh, 12px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .block-bank .pill {
+  min-height: clamp(56px, 7.5vh, 68px);
+  padding: 8px 10px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .block-bank .korean-line {
+  font-size: clamp(16px, 4.3cqw, 20px);
+  line-height: 1.15;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order
+    .question-hero {
+    min-height: 108px;
+    padding: 12px;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order
+    .question-copy h2 {
+    font-size: clamp(22px, 5.9cqw, 28px);
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order
+    .block-bank .pill {
+    min-height: 50px;
+  }
+}
+
+/* Reading screen header follows its content instead of reserving a tall,
+   vertically centered hero area. */
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .question-hero {
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  margin: 0 0 clamp(7px, 1vh, 10px);
+  overflow: visible;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .question-copy {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  justify-content: flex-start;
+  padding: 0 4px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .question-copy h2 {
+  margin-bottom: 0;
+  font-size: clamp(27px, 7.2cqw, 36px);
+  line-height: 1.08;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .question-copy p {
+  font-size: clamp(15px, 4cqw, 19px);
+  line-height: 1.3;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-reading_choice
+  .reading-passage {
+  margin-top: 0;
+  margin-bottom: clamp(12px, 1.7vh, 17px);
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-reading_choice
+    .question-hero {
+    margin-bottom: 7px;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-reading_choice
+    .question-copy h2 {
+    font-size: clamp(24px, 6.5cqw, 31px);
+  }
+}
+
+/* Compact reading dialogue rows and keep each utterance on one line. */
+.homework-shell .quiz-screen .question-type-reading_choice .reading-passage {
+  gap: clamp(6px, 0.9vh, 9px);
+  padding: clamp(10px, 1.4vh, 14px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .passage-line {
+  padding: clamp(7px, 1vh, 10px) clamp(9px, 2.3cqw, 12px);
+  border-radius: 13px;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line {
+  grid-template-columns: clamp(25px, 6cqw, 31px) minmax(0, 1fr);
+  column-gap: clamp(7px, 1.7cqw, 9px);
+  align-items: center;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-speaker {
+  width: clamp(25px, 6cqw, 31px);
+  height: clamp(25px, 6cqw, 31px);
+  font-size: clamp(12px, 3cqw, 15px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  line-height: 1.12;
+  letter-spacing: -0.065em;
+  text-overflow: clip;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-short {
+  font-size: clamp(14px, 3.8cqw, 18px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-medium {
+  font-size: clamp(12px, 3.35cqw, 16px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-long {
+  font-size: clamp(10px, 2.85cqw, 14px);
+  letter-spacing: -0.075em;
+}
+
+@media (max-width: 380px) {
+  .homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-short {
+    font-size: clamp(13px, 3.6cqw, 16px);
+  }
+
+  .homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-medium {
+    font-size: clamp(11px, 3.1cqw, 14px);
+  }
+
+  .homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-long {
+    font-size: clamp(9px, 2.65cqw, 12px);
+  }
+}
+
+/* Unit 01 Korean dialogue names need a wider speaker pill, and each line
+   should stay on one row by shrinking longer utterances instead of wrapping. */
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line {
+  grid-template-columns: clamp(48px, 11.5cqw, 58px) minmax(0, 1fr);
+  column-gap: clamp(7px, 1.7cqw, 10px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-speaker {
+  width: clamp(48px, 11.5cqw, 58px);
+  height: clamp(28px, 6.5cqw, 34px);
+  border-radius: 999px;
+  font-size: clamp(12px, 3cqw, 14px);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line {
+  letter-spacing: 0;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-short {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-medium {
+  font-size: clamp(11px, 3cqw, 14px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-long {
+  font-size: clamp(9px, 2.45cqw, 11px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-text-xlong {
+  font-size: clamp(7px, 1.95cqw, 9px);
+}
+
+/* Final lesson header layout: badge above, Korean title below. */
+.homework-shell .quiz-screen .lesson-progress-card {
+  grid-template-columns: clamp(72px, 18cqw, 90px) minmax(0, 1fr) clamp(58px, 14cqw, 70px);
+  gap: clamp(8px, 2cqw, 12px);
+}
+
+.homework-shell .quiz-screen .lesson-progress-copy {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 0.8vh, 9px);
+}
+
+.homework-shell .quiz-screen .lesson-progress-copy .lesson-pill {
+  width: auto;
+  min-width: 0;
+  min-height: clamp(34px, 4.5vh, 42px);
+  flex: 0 0 auto;
+  justify-content: center;
+  gap: clamp(6px, 1.5cqw, 8px);
+  padding: 0 clamp(10px, 2.5cqw, 14px);
+  white-space: nowrap;
+}
+
+.homework-shell .quiz-screen .lesson-progress-copy .lesson-pill svg {
+  width: clamp(19px, 4.6cqw, 24px);
+  height: clamp(19px, 4.6cqw, 24px);
+  color: #628b54;
+}
+
+.homework-shell .quiz-screen .lesson-progress-copy .lesson-pill strong {
+  font-size: clamp(12px, 3.1cqw, 16px);
+}
+
+.homework-shell .quiz-screen .lesson-progress-title {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  overflow: hidden;
+  color: #24282d;
+  font-size: clamp(14px, 3.8cqw, 19px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+  text-align: center;
+  text-overflow: clip;
+  white-space: nowrap;
+  word-break: normal;
+}
+
+@media (max-width: 380px) {
+  .homework-shell .quiz-screen .lesson-progress-card {
+    grid-template-columns: 68px minmax(0, 1fr) 56px;
+    gap: 7px;
+  }
+
+  .homework-shell .quiz-screen .lesson-progress-copy .lesson-pill {
+    padding-inline: 8px;
+  }
+
+  .homework-shell .quiz-screen .lesson-progress-title {
+    font-size: clamp(13px, 3.6cqw, 16px);
+  }
+}
+
+.homework-shell .quiz-screen .reading-label {
+  margin: 0 0 clamp(4px, 0.7vh, 7px);
+  color: var(--color-muted);
+  font-size: clamp(12px, 3.2cqw, 15px);
+  font-weight: 800;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-passage {
+  padding-top: clamp(9px, 1.2vh, 12px);
+}
+
+.homework-shell .quiz-screen .listening-question .question-hero {
+  margin-bottom: clamp(12px, 1.7vh, 17px);
+}
+
+.homework-shell .quiz-screen .listening-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  justify-items: center;
+  gap: clamp(12px, 2.8cqw, 16px);
+  margin-bottom: clamp(12px, 1.7vh, 17px);
+  padding: clamp(8px, 1.2vh, 12px) 0;
+  border: 0;
+  border-radius: 0;
+  background: #ffffff;
+}
+
+.homework-shell .quiz-screen .audio-player {
+  width: 100%;
+  min-height: clamp(56px, 7.4vh, 68px);
+  display: grid;
+  grid-template-columns: clamp(40px, 9.5cqw, 48px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(13px, 3.2cqw, 18px);
+  padding: clamp(9px, 1.2vh, 12px) clamp(16px, 4cqw, 22px);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(13, 58, 108, 0.08), 0 10px 24px rgba(13, 58, 108, 0.08);
+}
+
+.homework-shell .quiz-screen .speaker-button {
+  width: clamp(40px, 9.5cqw, 48px);
+  height: clamp(40px, 9.5cqw, 48px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  color: #ffffff;
+  background: #06386b;
+  box-shadow: 0 10px 18px rgba(6, 56, 107, 0.24);
+  cursor: pointer;
+}
+
+.homework-shell .quiz-screen .speaker-button svg {
+  flex: 0 0 auto;
+  width: clamp(18px, 4.4cqw, 22px);
+  height: clamp(18px, 4.4cqw, 22px);
+}
+
+.homework-shell .quiz-screen .audio-waveform {
+  min-width: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: clamp(2px, 0.55cqw, 4px);
+  overflow: hidden;
+}
+
+.homework-shell .quiz-screen .audio-waveform span {
+  width: 3px;
+  height: var(--wave-height);
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #cdd8e3;
+  transform-origin: center;
+}
+
+.homework-shell .quiz-screen .audio-waveform span:nth-child(-n + 13) {
+  background: #1178bf;
+}
+
+.homework-shell .quiz-screen .audio-waveform .wave-dot {
+  width: 10px;
+  height: 10px;
+  background: #1178bf;
+}
+
+.homework-shell .quiz-screen .audio-player.is-playing .audio-waveform span {
+  animation: audio-wave-pulse 0.95s ease-in-out infinite;
+  animation-delay: calc(var(--wave-height) * -0.012s);
+}
+
+.homework-shell .quiz-screen .audio-duration {
+  color: #6d7f92;
+  font-size: clamp(13px, 3.4cqw, 16px);
+  font-weight: 760;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@keyframes audio-wave-pulse {
+  0%, 100% {
+    transform: scaleY(0.72);
+    opacity: 0.72;
+  }
+
+  50% {
+    transform: scaleY(1.08);
+    opacity: 1;
+  }
+}
+
+.homework-shell .quiz-screen .listening-script {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--color-muted);
+  font-size: clamp(13px, 3.4cqw, 16px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.homework-shell .quiz-screen .listening-script small {
+  color: var(--color-primary);
+  font-size: clamp(11px, 2.9cqw, 13px);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.homework-shell .quiz-screen .listening-script strong {
+  color: var(--color-text);
+  font-size: clamp(15px, 4cqw, 19px);
+  font-weight: 900;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+.homework-shell .quiz-screen .listening-script .romanization {
+  color: #536273;
+  font-size: clamp(12px, 3.2cqw, 15px);
+  font-style: italic;
+}
+
+@media (max-width: 380px) {
+  .homework-shell .quiz-screen .listening-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .homework-shell .quiz-screen .listen-button {
+    width: 100%;
+  }
+}
+
+/* Gentler quiz typography: keep the mobile layout, but reduce the heavy,
+   oversized feeling on Unit 01 practice questions. */
+.homework-shell .quiz-screen .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-sentence_order .question-copy h2 {
+  font-size: clamp(21px, 5.4cqw, 26px);
+  font-weight: 680;
+  line-height: 1.16;
+}
+
+.homework-shell .quiz-screen .question-copy p,
+.homework-shell .quiz-screen .question-type-reading_choice .reading-question-prompt {
+  font-size: clamp(14px, 3.7cqw, 17px);
+  font-weight: 500;
+  line-height: 1.36;
+}
+
+.homework-shell .quiz-screen .korean-display,
+.homework-shell .quiz-screen .revised-unit-one-question .korean-display.support-removed {
+  font-size: clamp(32px, 8.8cqw, 40px);
+  font-weight: 680;
+  line-height: 1.12;
+}
+
+.homework-shell .quiz-screen .inline-focus {
+  font-size: clamp(16px, 4.2cqw, 20px);
+  font-weight: 640;
+}
+
+.homework-shell .quiz-screen .sentence-korean-line,
+.homework-shell .quiz-screen .question-card .sentence-focus .sentence-korean-line,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line {
+  font-weight: 660;
+  letter-spacing: 0;
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-short {
+  font-size: clamp(24px, 6.4cqw, 30px);
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-medium {
+  font-size: clamp(20px, 5.5cqw, 26px);
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-long {
+  font-size: clamp(17px, 4.7cqw, 22px);
+}
+
+.homework-shell .quiz-screen .sentence-korean-line.sentence-text-xlong {
+  font-size: clamp(14px, 3.9cqw, 18px);
+}
+
+.homework-shell .quiz-screen .choice-number,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice-number {
+  width: clamp(23px, 5.7cqw, 28px);
+  height: clamp(23px, 5.7cqw, 28px);
+  font-size: clamp(12px, 3.2cqw, 15px);
+  font-weight: 680;
+}
+
+.homework-shell .quiz-screen .choice strong,
+.homework-shell .quiz-screen .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice-text-short,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-sentence {
+  font-weight: 640;
+  letter-spacing: 0;
+}
+
+.homework-shell .choice .choice-text-short,
+.homework-shell .quiz-screen .choice-text-short {
+  font-size: clamp(18px, 4.8cqw, 22px);
+}
+
+.homework-shell .choice .choice-text-medium,
+.homework-shell .quiz-screen .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-medium {
+  font-size: clamp(15px, 4.1cqw, 19px);
+}
+
+.homework-shell .choice .choice-text-long,
+.homework-shell .quiz-screen .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-long {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .choice .choice-text-sentence,
+.homework-shell .quiz-screen .choice-text-sentence,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-sentence {
+  font-size: clamp(11px, 3cqw, 14px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line {
+  font-size: clamp(13px, 3.5cqw, 16px);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-speaker,
+.homework-shell .quiz-screen .reading-label {
+  font-weight: 700;
+}
+
+.homework-shell .quiz-screen .listen-button,
+.homework-shell .quiz-screen .listening-script small,
+.homework-shell .quiz-screen .listening-script strong {
+  font-weight: 640;
+}
+
+.homework-shell .quiz-screen .listening-script strong {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .quiz-screen .feedback,
+.homework-shell .quiz-screen .feedback-copy b {
+  font-weight: 700;
+}
+
+.homework-shell .quiz-screen .feedback-dialogue-line > b {
+  min-width: 42px;
+  color: #4f7f42;
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 850;
+}
+
+.homework-shell .quiz-screen .feedback-copy strong {
+  font-weight: 680;
+}
+
+/* Keep checked feedback screens from feeling cramped at the top. */
+.homework-shell .quiz-screen .question-card.is-checked.choice-question .question-copy {
+  padding-top: clamp(7px, 1vh, 10px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .mode-dot {
+  margin-bottom: clamp(9px, 1.3vh, 13px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .question-copy h2 {
+  margin-bottom: clamp(9px, 1.3vh, 13px);
+}
+
+.homework-shell .quiz-screen .question-card.is-checked .question-copy p {
+  margin-bottom: clamp(8px, 1.1vh, 12px);
+}
+
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice).is-checked
+  .korean-display,
+.homework-shell .quiz-screen
+  :is(.question-type-word_meaning_choice, .question-type-korean_word_choice).is-checked
+  .inline-focus {
+  margin-top: clamp(9px, 1.3vh, 13px);
+}
+
+/* Prevent vocabulary focus text from colliding with the answer grid and make
+   answer cards shorter. */
+.homework-shell .quiz-screen .question-type-word_meaning_choice .question-hero,
+.homework-shell .quiz-screen .question-type-korean_word_choice .question-hero {
+  margin-bottom: clamp(18px, 2.4vh, 26px);
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice .korean-display,
+.homework-shell .quiz-screen .question-type-korean_word_choice .inline-focus {
+  margin-top: clamp(5px, 0.8vh, 9px);
+  margin-bottom: clamp(16px, 2.2vh, 24px);
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-grid,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-grid {
+  height: clamp(172px, 22.5vh, 204px);
+  row-gap: clamp(9px, 1.2vh, 13px);
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice {
+  min-height: 0;
+  padding: clamp(25px, 3.2vh, 30px) clamp(8px, 2.1cqw, 12px) clamp(8px, 1.1vh, 12px);
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice.is-checked .choice-grid,
+.homework-shell .quiz-screen .question-type-korean_word_choice.is-checked .choice-grid {
+  height: clamp(166px, 21.5vh, 194px);
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-text-long,
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-text-sentence,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-text-long,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-text-sentence {
+  font-size: clamp(12px, 3.25cqw, 15px);
+  line-height: 1.15;
+  overflow: visible;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+/* Final reading dialogue fit pass: keep Korean dialogue on one line without
+   clipping, including longer Nana/Michael lines. */
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-line {
+  grid-template-columns: clamp(48px, 11.5cqw, 58px) minmax(0, 1fr);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .dialogue-speaker {
+  width: clamp(48px, 11.5cqw, 58px);
+  height: clamp(28px, 6.5cqw, 34px);
+  border-radius: 999px;
+  font-size: clamp(12px, 3cqw, 14px);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  letter-spacing: 0;
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line.dialogue-text-short {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line.dialogue-text-medium {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line.dialogue-text-long {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+.homework-shell .quiz-screen .question-type-reading_choice .reading-korean-line.dialogue-text-xlong {
+  font-size: clamp(13px, 3.5cqw, 16px);
+}
+
+/* Daily Practice layout safety net: every quiz type should preserve spacing
+   between prompt, choices, feedback, and fixed bottom actions. */
+.homework-shell .quiz-screen .question-card {
+  gap: clamp(7px, 1vh, 12px);
+  padding-bottom: clamp(104px, 12.5vh, 120px);
+  scroll-padding-bottom: clamp(104px, 12.5vh, 120px);
+}
+
+.homework-shell .quiz-screen .question-card > * {
+  flex-shrink: 0;
+}
+
+.homework-shell .quiz-screen .question-hero,
+.homework-shell .quiz-screen .question-card.is-checked .question-hero,
+.homework-shell .quiz-screen .question-card.is-checked.choice-question .question-hero {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.homework-shell .quiz-screen .question-copy,
+.homework-shell .quiz-screen .question-card.is-checked.choice-question .question-copy {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.homework-shell .quiz-screen .choice-grid,
+.homework-shell .quiz-screen .question-card.is-checked .choice-grid,
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-grid,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-grid,
+.homework-shell .quiz-screen .question-type-word_meaning_choice.is-checked .choice-grid,
+.homework-shell .quiz-screen .question-type-korean_word_choice.is-checked .choice-grid,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice-grid,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .choice-grid,
+.homework-shell .quiz-screen .listening-question .choice-grid {
+  height: auto !important;
+  min-height: 0;
+  grid-template-rows: repeat(2, minmax(clamp(58px, 7.7vh, 72px), auto));
+  align-items: stretch;
+  gap: clamp(8px, 1vh, 11px);
+  margin-top: 0;
+}
+
+.homework-shell .quiz-screen .choice,
+.homework-shell .quiz-screen .question-card.is-checked .choice,
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .choice {
+  height: auto;
+  min-height: clamp(58px, 7.7vh, 72px);
+  overflow: visible;
+  padding: clamp(10px, 1.4vh, 13px) clamp(9px, 2.3cqw, 13px);
+}
+
+.homework-shell .quiz-screen .choice .choice-text {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-text-long,
+.homework-shell .quiz-screen .question-type-word_meaning_choice .choice-text-sentence,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-text-long,
+.homework-shell .quiz-screen .question-type-korean_word_choice .choice-text-sentence,
+.homework-shell .quiz-screen .listening-question .choice-text-long,
+.homework-shell .quiz-screen .listening-question .choice-text-sentence {
+  font-size: clamp(11px, 3cqw, 14px);
+  line-height: 1.16;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+.homework-shell .quiz-screen .sentence-focus,
+.homework-shell .quiz-screen .reading-passage,
+.homework-shell .quiz-screen .listening-panel,
+.homework-shell .quiz-screen .meaning-strip,
+.homework-shell .quiz-screen .block-order,
+.homework-shell .quiz-screen .feedback {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.homework-shell .quiz-screen .feedback {
+  margin-bottom: clamp(3px, 0.5vh, 7px);
+}
+
+/* Keep pre-check and post-check choice screens visually consistent. */
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .question-hero,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .question-hero {
+  margin-bottom: clamp(13px, 1.8vh, 18px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .question-copy h2,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .question-copy h2 {
+  max-width: 285px;
+  margin-bottom: clamp(9px, 1.2vh, 12px);
+  font-size: clamp(30px, 8.2cqw, 38px);
+  line-height: 1.06;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .question-copy p,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .question-copy p {
+  margin-bottom: clamp(12px, 1.7vh, 16px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  ).is-checked
+  .sentence-focus {
+  margin-top: 0;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .choice-grid,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .choice-grid {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .choice-grid,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .choice-grid {
+  grid-template-rows: repeat(2, 64px);
+  gap: 9px;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .choice,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .choice {
+  height: 64px;
+  min-height: 64px;
+  padding-top: 25px;
+  padding-bottom: 8px;
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  )
+  .choice.active,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice,
+    .question-type-situation_expression_choice
+  ).is-checked
+  .choice.active {
+  transform: none;
+}
+
+/* Apply the same tab rhythm to every choice-based Daily Practice question,
+   not only the sentence-completion set. */
+.homework-shell .quiz-screen .question-card.choice-question .choice-grid,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .choice-grid {
+  grid-template-rows: repeat(2, 64px);
+  gap: 9px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .choice,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .choice {
+  height: 64px;
+  min-height: 64px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .choice {
+  justify-content: center;
+  align-items: center;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .choice.active,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .choice.active {
+  transform: none;
+}
+
+/* Sentence-order feedback should appear immediately after checking: show the
+   corrected order in the tray while keeping the word bank visible below. */
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .question-hero {
+  min-height: clamp(96px, 13vh, 124px);
+  margin-bottom: clamp(6px, 0.8vh, 9px);
+  padding: clamp(11px, 1.5vh, 15px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .question-copy h2 {
+  margin-bottom: 6px;
+  font-size: clamp(22px, 5.8cqw, 28px);
+  line-height: 1.04;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .question-copy p {
+  font-size: clamp(12px, 3.2cqw, 15px);
+  line-height: 1.18;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .meaning-strip {
+  min-height: clamp(62px, 8vh, 72px);
+  padding-block: clamp(10px, 1.3vh, 13px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .meaning-strip svg {
+  width: 24px;
+  height: 24px;
+  padding: 6px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .meaning-strip small {
+  margin-bottom: 1px;
+  font-size: clamp(9px, 2.4cqw, 11px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .meaning-strip strong {
+  font-size: clamp(13px, 3.5cqw, 17px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .block-order {
+  gap: 0;
+  margin: clamp(5px, 0.7vh, 8px) 0;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray {
+  min-height: clamp(46px, 6vh, 56px);
+  padding: 6px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray .pill {
+  min-height: clamp(34px, 4.6vh, 44px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-content: center;
+  gap: clamp(6px, 1.4cqw, 9px);
+  overflow: visible;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray .pill {
+  width: 100%;
+  min-width: clamp(64px, 16cqw, 96px);
+  padding-inline: clamp(7px, 1.8cqw, 10px);
+  white-space: normal;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray .korean-romanized {
+  width: 100%;
+  min-width: 0;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .answer-tray .korean-line {
+  overflow: hidden;
+  font-size: clamp(13px, 3.4cqw, 17px);
+  line-height: 1.1;
+  text-align: center;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .block-bank {
+  display: none;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .feedback {
+  margin-top: 0;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order:is(.is-incorrect, .is-dont-know)
+  .feedback {
+  margin-top: clamp(5px, 0.7vh, 8px);
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order.is-checked
+    .question-hero {
+    min-height: 92px;
+    padding: 10px;
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order.is-checked
+    .question-copy h2 {
+    font-size: clamp(23px, 6.1cqw, 29px);
+  }
+
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order.is-checked
+    .question-copy p {
+    font-size: clamp(13px, 3.4cqw, 16px);
+  }
+}
+
+/* Final compact height for every Arrange the sentence hero tab. */
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-hero {
+  min-height: clamp(98px, 12.5vh, 118px);
+  margin-bottom: clamp(8px, 1vh, 11px);
+  padding: clamp(8px, 1.1vh, 11px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .mode-dot {
+  width: 22px;
+  height: 22px;
+  margin-bottom: 2px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .mode-dot svg {
+  width: 17px;
+  height: 17px;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-copy h2 {
+  margin-bottom: 0;
+  font-size: clamp(20px, 5.3cqw, 25px);
+  line-height: 1;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-copy p {
+  font-size: clamp(11px, 2.9cqw, 14px);
+  line-height: 1.08;
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order
+  .question-art {
+  height: 84%;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order
+    .question-hero {
+    min-height: 96px;
+    padding: 8px;
+  }
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .question-hero {
+  min-height: clamp(98px, 12.5vh, 118px);
+  margin-bottom: clamp(8px, 1vh, 11px);
+  padding: clamp(8px, 1.1vh, 11px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.question-type-sentence_order.is-checked
+  .question-copy h2 {
+  margin-bottom: 0;
+  font-size: clamp(20px, 5.3cqw, 25px);
+  line-height: 1;
+}
+
+@media (max-height: 800px) {
+  .homework-shell .quiz-screen
+    .question-card.question-type-sentence_order.is-checked
+    .question-hero {
+    min-height: 96px;
+    padding: 8px;
+  }
+}
+
+/* Remove the gray instruction subtitles from quiz headers and let the
+   exercise body sit naturally under the title. */
+.homework-shell .quiz-screen
+  .question-card:not(.question-type-reading_choice):not(.question-type-sentence_order):not(.question-type-situation_expression_choice)
+  .question-copy h2,
+.homework-shell .quiz-screen
+  .question-card:not(.question-type-reading_choice):not(.question-type-sentence_order):not(.question-type-situation_expression_choice).is-checked
+  .question-copy h2 {
+  margin-bottom: clamp(6px, 0.8vh, 9px);
+}
+
+.homework-shell .quiz-screen
+  .question-card:not(.question-type-reading_choice):not(.question-type-sentence_order):not(.question-type-situation_expression_choice)
+  .question-hero,
+.homework-shell .quiz-screen
+  .question-card:not(.question-type-reading_choice):not(.question-type-sentence_order):not(.question-type-situation_expression_choice).is-checked
+  .question-hero {
+  margin-bottom: clamp(9px, 1.2vh, 13px);
+}
+
+.homework-shell .quiz-screen
+  .question-card.listening-question
+  .listening-panel {
+  margin-top: clamp(2px, 0.4vh, 5px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .question-copy h2 {
+  max-width: 260px;
+  margin-bottom: clamp(9px, 1.2vh, 13px);
+  line-height: 1.04;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .inline-focus,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .inline-focus {
+  display: block;
+  max-width: 100%;
+  margin-top: clamp(5px, 0.8vh, 9px);
+  margin-bottom: clamp(12px, 1.6vh, 17px);
+  color: var(--navy);
+  font-size: clamp(30px, 7.8cqw, 38px);
+  font-weight: 760;
+  line-height: 1.08;
+  text-align: left;
+  word-break: keep-all;
+}
+
+/* Final choice-card alignment pass: every answer option uses the same text
+   size, stays centered, and avoids the number badge. */
+.homework-shell .quiz-screen .question-card.choice-question .choice,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .choice {
+  display: grid;
+  place-items: center;
+  height: 64px;
+  min-height: 64px;
+  padding-block: 8px;
+  padding-inline: clamp(34px, 8.5cqw, 40px);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .choice-number {
+  top: 10px;
+  left: 12px;
+  z-index: 2;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .choice .choice-text,
+.homework-shell .quiz-screen .question-card.choice-question .choice-text-short,
+.homework-shell .quiz-screen .question-card.choice-question .choice-text-medium,
+.homework-shell .quiz-screen .question-card.choice-question .choice-text-long,
+.homework-shell .quiz-screen .question-card.choice-question .choice-text-sentence {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  display: block;
+  color: var(--navy);
+  font-size: clamp(14px, 3.6cqw, 17px);
+  font-weight: 680;
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice-grid,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice.is-checked .choice-grid {
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(4, minmax(62px, auto));
+  gap: clamp(8px, 1vh, 10px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice.is-checked .choice {
+  min-height: 62px;
+  height: auto;
+  padding-inline: clamp(46px, 11cqw, 56px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice.is-checked .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice-text-short,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-listening_card_choice .choice-text-sentence {
+  font-size: clamp(15px, 3.9cqw, 18px);
+  line-height: 1.12;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice-grid,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice.is-checked .choice-grid {
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(4, minmax(56px, auto));
+  gap: clamp(8px, 1vh, 10px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice.is-checked .choice {
+  min-height: 56px;
+  height: auto;
+  padding-inline: clamp(46px, 11cqw, 56px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice.is-checked .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice-text-short,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-listening_sentence_choice .choice-text-sentence {
+  font-size: clamp(15px, 3.9cqw, 18px);
+  line-height: 1.12;
+}
+
+/* Korean-word questions keep the same prominent header and prompt size before
+   and after checking, so the screen does not visually jump. */
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .question-copy h2 {
+  max-width: 320px;
+  margin-bottom: clamp(24px, 3.1vh, 32px);
+  color: var(--navy);
+  font-size: clamp(36px, 9.6cqw, 43px);
+  font-weight: 760;
+  line-height: 1.02;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .inline-focus,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .inline-focus {
+  margin-top: 0;
+  margin-bottom: clamp(18px, 2.4vh, 24px);
+  color: var(--navy);
+  font-size: clamp(29px, 7.5cqw, 34px);
+  font-weight: 720;
+  line-height: 1.02;
+}
+
+/* Keep a clear visual gap between the question-type title and the actual
+   prompt content across all Daily Practice question layouts. */
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.is-checked .question-copy h2 {
+  margin-bottom: clamp(22px, 2.8vh, 30px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice .korean-display,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.is-checked .korean-display {
+  margin-top: 0;
+  margin-bottom: clamp(18px, 2.4vh, 24px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .question-copy h2,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  ).is-checked
+  .question-copy h2 {
+  margin-bottom: clamp(20px, 2.5vh, 27px);
+}
+
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  ).is-checked
+  .sentence-focus {
+  margin-top: 0;
+  margin-bottom: clamp(16px, 2vh, 22px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice.is-checked .question-copy h2,
+.homework-shell .quiz-screen .question-card.listening-question .question-copy h2,
+.homework-shell .quiz-screen .question-card.listening-question.is-checked .question-copy h2 {
+  margin-bottom: clamp(18px, 2.3vh, 25px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .situation-copy,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice.is-checked .situation-copy {
+  margin-top: 0;
+  margin-bottom: clamp(14px, 1.8vh, 20px);
+}
+
+.homework-shell .quiz-screen .question-card.listening-question .listening-panel,
+.homework-shell .quiz-screen .question-card.listening-question.is-checked .listening-panel {
+  margin-top: 0;
+}
+
+/* Checked parity: the question title and actual prompt keep identical
+   typography and coordinates before and after answer checking. */
+.homework-shell .quiz-screen .question-card.choice-question .question-hero,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .question-hero {
+  height: auto;
+  min-height: 0;
+  margin-bottom: clamp(9px, 1.2vh, 13px);
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .question-copy,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .question-copy {
+  min-height: 0;
+  display: block;
+  padding: 0 4px;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .mode-dot,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .mode-dot {
+  width: 28px;
+  height: 28px;
+  margin-bottom: clamp(9px, 1.3vh, 13px);
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .mode-dot svg,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .mode-dot svg {
+  width: 22px;
+  height: 22px;
+}
+
+.homework-shell .quiz-screen .question-card.choice-question .question-copy h2,
+.homework-shell .quiz-screen .question-card.choice-question.is-checked .question-copy h2 {
+  font-size: clamp(21px, 5.4cqw, 26px);
+  font-weight: 680;
+  line-height: 1.16;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice.is-checked .question-copy h2 {
+  max-width: none;
+  font-size: clamp(20px, 5.1cqw, 24px);
+  white-space: nowrap;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.is-checked .question-copy h2 {
+  margin-bottom: clamp(22px, 2.8vh, 30px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice .korean-display,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.is-checked .korean-display,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.revised-unit-one-question .korean-display.support-removed,
+.homework-shell .quiz-screen .question-card.question-type-word_meaning_choice.revised-unit-one-question.is-checked .korean-display.support-removed {
+  margin-top: 0;
+  margin-bottom: clamp(18px, 2.4vh, 24px);
+  font-size: clamp(32px, 8.8cqw, 40px);
+  font-weight: 680;
+  line-height: 1.12;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .question-copy h2 {
+  max-width: 320px;
+  margin-bottom: clamp(24px, 3.1vh, 32px);
+  font-size: clamp(36px, 9.6cqw, 43px);
+  font-weight: 760;
+  line-height: 1.02;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .inline-focus,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .inline-focus {
+  margin-top: 0;
+  margin-bottom: clamp(18px, 2.4vh, 24px);
+  font-size: clamp(29px, 7.5cqw, 34px);
+  font-weight: 720;
+  line-height: 1.02;
+}
+
+/* Final before/after parity for prompt blocks that previously had checked-only
+   spacing tweaks. The title, actual question, and choices now keep the same
+   coordinates after checking; only feedback is appended below. */
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus,
+.homework-shell .quiz-screen
+  :is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  ).is-checked
+  .sentence-focus {
+  margin-top: 0;
+  margin-bottom: clamp(16px, 2vh, 22px);
+}
+
+.homework-shell .quiz-screen .question-card .sentence-korean-line.sentence-text-short,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-short {
+  font-size: clamp(24px, 6.4cqw, 30px);
+}
+
+.homework-shell .quiz-screen .question-card .sentence-korean-line.sentence-text-medium,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-medium {
+  font-size: clamp(20px, 5.5cqw, 26px);
+}
+
+.homework-shell .quiz-screen .question-card .sentence-korean-line.sentence-text-long,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-long {
+  font-size: clamp(17px, 4.7cqw, 22px);
+}
+
+.homework-shell .quiz-screen .question-card .sentence-korean-line.sentence-text-xlong,
+.homework-shell .quiz-screen .question-card.is-checked .sentence-korean-line.sentence-text-xlong {
+  font-size: clamp(15px, 4.1cqw, 19px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .question-hero,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .question-hero {
+  margin-bottom: clamp(7px, 1vh, 10px);
+}
+
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .reading-passage,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .reading-passage {
+  margin-top: 0;
+  margin-bottom: clamp(13px, 1.8vh, 18px);
+}
+
+.homework-shell .quiz-screen
+  .question-card:is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  )
+  .sentence-focus,
+.homework-shell .quiz-screen
+  .question-card:is(
+    .question-type-context_fill_choice,
+    .question-type-grammar_ending_choice,
+    .question-type-sentence_structure_choice
+  ).is-checked
+  .sentence-focus {
+  margin-top: clamp(12px, 1.7vh, 18px) !important;
+  margin-bottom: clamp(8px, 1.3vh, 12px) !important;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .question-hero,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .question-hero {
+  margin-bottom: clamp(7px, 1vh, 10px) !important;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .question-copy h2 {
+  margin-bottom: 0 !important;
+}
+
+/* Keep question-type labels on one line across quiz pages. The Korean-word
+   prompt intentionally keeps its two-line "Choose the / Korean word" layout. */
+.homework-shell .quiz-screen .question-card:not(.question-type-korean_word_choice) .question-copy h2,
+.homework-shell .quiz-screen .question-card:not(.question-type-korean_word_choice).is-checked .question-copy h2 {
+  max-width: none;
+  font-size: clamp(20px, 5.1cqw, 25px);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-sentence_order .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-sentence_order.is-checked .question-copy h2 {
+  transform: translateY(7px);
+}
+
+/* Q4/Q5 use the same visual hierarchy as the rest of the quiz: compact
+   question-type title first, then a slightly smaller green prompt. */
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .question-copy h2 {
+  max-width: 270px;
+  margin-bottom: clamp(14px, 1.9vh, 20px);
+  font-size: clamp(26px, 6.9cqw, 32px);
+  font-weight: 720;
+  line-height: 1.07;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice .inline-focus,
+.homework-shell .quiz-screen .question-card.question-type-korean_word_choice.is-checked .inline-focus {
+  margin-top: 0;
+  margin-bottom: clamp(14px, 1.9vh, 20px);
+  color: #4f7f42;
+  font-size: clamp(24px, 6.2cqw, 30px);
+  font-weight: 680;
+  line-height: 1.08;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice .question-copy h2,
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice.is-checked .question-copy h2 {
+  margin-bottom: clamp(14px, 1.9vh, 20px);
+  font-size: clamp(20px, 5.1cqw, 25px);
+  font-weight: 680;
+  line-height: 1.1;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice .sentence-focus,
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice.is-checked .sentence-focus {
+  margin-top: clamp(8px, 1.1vh, 12px) !important;
+  margin-bottom: clamp(12px, 1.6vh, 18px) !important;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice .sentence-korean-line,
+.homework-shell .quiz-screen .question-card.question-type-context_fill_choice.is-checked .sentence-korean-line {
+  color: #4f7f42;
+  font-size: clamp(22px, 5.8cqw, 28px);
+  font-weight: 680;
+  line-height: 1.12;
+}
+
+/* Visually separate the question type from the actual prompt content. */
+.homework-shell .quiz-screen .question-card .question-copy .korean-display,
+.homework-shell .quiz-screen .question-card.is-checked .question-copy .korean-display,
+.homework-shell .quiz-screen .question-card .question-copy .inline-focus,
+.homework-shell .quiz-screen .question-card.is-checked .question-copy .inline-focus,
+.homework-shell .quiz-screen .question-card .question-copy .sentence-korean-line,
+.homework-shell .quiz-screen .question-card.is-checked .question-copy .sentence-korean-line,
+.homework-shell .quiz-screen .question-card .question-copy .situation-copy,
+.homework-shell .quiz-screen .question-card.is-checked .question-copy .situation-copy,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice .reading-question-prompt,
+.homework-shell .quiz-screen .question-card.question-type-reading_choice.is-checked .reading-question-prompt {
+  color: #4f7f42;
+}
+
+/* Review Items should feel like a calm app summary, not a compressed report.
+   Unit 01 cards use a vertical rhythm so long Korean sentences can breathe. */
+.homework-shell .mistakes-screen .revised-unit-one-review {
+  padding: 14px 14px 15px;
+  border-radius: 22px;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-label {
+  gap: 9px;
+  padding: 7px 13px;
+  border-radius: 14px;
+  color: #4f7f42;
+  background: rgba(91, 132, 72, 0.12);
+  font-size: clamp(13px, 3.4cqw, 15px);
+  font-weight: 760;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-label strong {
+  font-size: clamp(19px, 4.9cqw, 23px);
+  font-weight: 820;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 11px;
+  min-height: 0;
+  margin-top: 13px;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-term {
+  min-height: 0;
+  padding-left: 12px;
+  gap: 5px;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-term h2 {
+  max-width: 100%;
+  color: var(--navy);
+  font-size: clamp(19px, 4.9cqw, 23px);
+  font-weight: 760;
+  line-height: 1.18;
+  word-break: keep-all;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .mistake-term .romanization {
+  max-width: 100%;
+  color: #667b9b;
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 560;
+  line-height: 1.25;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .compare-grid {
+  display: grid;
+  grid-template-columns: minmax(88px, 0.42fr) minmax(0, 1fr);
+  gap: 7px 10px;
+  align-items: baseline;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(250, 247, 240, 0.78);
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .compare-grid span {
+  color: #667b9b;
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 560;
+  line-height: 1.2;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .compare-grid strong {
+  color: var(--navy);
+  font-size: clamp(13px, 3.4cqw, 15px);
+  font-weight: 720;
+  line-height: 1.22;
+  overflow: visible;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .compare-grid .compare-answer-long,
+.homework-shell .mistakes-screen .revised-unit-one-review .compare-grid .compare-answer-xlong {
+  font-size: clamp(12px, 3.1cqw, 14px);
+  letter-spacing: 0;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .why-strip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 9px 12px;
+  border-radius: 13px;
+  color: #173f73;
+  background: rgba(255, 240, 238, 0.72);
+  font-size: clamp(12px, 3.1cqw, 14px);
+  line-height: 1.2;
+}
+
+.homework-shell .mistakes-screen .revised-unit-one-review .why-strip strong {
+  margin-right: 0;
+  color: #d94d42;
+  font-size: clamp(12px, 3.1cqw, 14px);
+  font-weight: 760;
+}
+
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice .choice-text,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-short,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-medium,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-long,
+.homework-shell .quiz-screen .question-card.question-type-situation_expression_choice .choice-text-sentence {
+  font-size: clamp(13px, 3.5cqw, 16px);
+  line-height: 1.12;
+}

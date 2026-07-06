@@ -1,15 +1,34 @@
 .game-page-shell {
-  background: linear-gradient(145deg, #fffdf9 0%, #fbf8f1 100%);
+  background: #ffffff;
 }
 
 .game-header {
-  padding-bottom: 24px;
+  padding: 20px 28px 22px;
+}
+
+.game-header .yici-logo {
+  width: 176px;
+}
+
+.game-header .header-actions {
+  gap: 12px;
+}
+
+.game-header .language-toggle {
+  min-width: 92px;
+  height: 34px;
+}
+
+.game-header .profile-button {
+  width: 42px;
+  height: 42px;
+  background: #d08a68;
 }
 
 .game-scroll {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: 0 28px 104px;
+  padding: 0 18px 108px;
   scrollbar-width: none;
 }
 
@@ -19,10 +38,10 @@
 
 .game-filter-strip {
   display: flex;
-  gap: 7px;
+  gap: 8px;
   overflow-x: auto;
-  padding: 0 0 12px;
-  margin: 0 -2px;
+  padding: 0 0 16px;
+  margin: 0 0 0 2px;
   scrollbar-width: none;
 }
 
@@ -32,32 +51,32 @@
 
 .game-filter-chip {
   flex: 0 0 auto;
-  min-width: 47px;
-  height: 32px;
+  min-width: 52px;
+  height: 42px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 0 12px;
-  border: 1px solid #d9e3ee;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.86);
-  color: #17305b;
-  font-size: 12px;
-  font-weight: 700;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid #d8e2ef;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #07183f;
+  font-size: 14px;
+  font-weight: 800;
   white-space: nowrap;
-  box-shadow: 0 5px 14px rgba(16, 34, 70, 0.05);
+  box-shadow: 0 5px 15px rgba(16, 34, 70, 0.04);
 }
 
 .game-filter-chip svg {
-  color: #4f6d91;
+  color: #34557e;
 }
 
 .game-filter-chip.is-active {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
+  border-color: #405b7d;
+  background: #405b7d;
   color: #ffffff;
-  box-shadow: 0 8px 18px rgba(51, 107, 142, 0.24);
+  box-shadow: 0 8px 20px rgba(64, 91, 125, 0.2);
 }
 
 .game-filter-chip.is-active svg {
@@ -67,7 +86,7 @@
 .roleplay-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px 16px;
 }
 
 .game-start-error {
@@ -84,58 +103,66 @@
 .roleplay-card {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: 1px solid #dfe6ef;
+  border-radius: 10px;
   background: var(--color-card);
-  box-shadow: 0 7px 18px rgba(45, 55, 72, 0.1);
+  box-shadow: 0 8px 18px rgba(20, 38, 68, 0.12);
 }
 
 .roleplay-image {
   width: 100%;
-  aspect-ratio: 355 / 244;
+  aspect-ratio: 1.55;
   object-fit: cover;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.55);
+  border-bottom: 1px solid rgba(220, 228, 238, 0.72);
 }
 
 .roleplay-body {
-  position: relative;
-  min-height: 116px;
-  padding: 9px 46px 12px 11px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  align-items: end;
+  gap: 9px;
+  min-height: 128px;
+  padding: 12px;
+}
+
+.roleplay-body > div:first-child {
+  grid-column: 1 / -1;
 }
 
 .roleplay-body h2 {
-  margin: 0 0 4px;
-  color: var(--color-navy);
-  font-size: 17px;
+  margin: 0 0 7px;
+  color: #07183f;
+  font-size: 22px;
   line-height: 1.08;
   font-weight: 900;
 }
 
 .roleplay-body p {
-  min-height: 42px;
+  min-height: 48px;
   margin: 0;
-  color: #284369;
-  font-size: 13px;
-  line-height: 1.35;
+  color: #102246;
+  font-size: 16px;
+  line-height: 1.3;
 }
 
 .roleplay-meta-row {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-top: 8px;
+  gap: 9px;
+  margin-top: 9px;
+  min-width: 0;
 }
 
 .difficulty-pill {
   display: inline-flex;
   align-items: center;
-  min-width: 44px;
-  height: 23px;
+  min-width: 50px;
+  height: 27px;
   justify-content: center;
-  padding: 0 7px;
+  padding: 0 10px;
   border: 1px solid transparent;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 800;
 }
 
@@ -160,10 +187,10 @@
 .duration-meta {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  color: #3d5a7e;
-  font-size: 11px;
-  font-weight: 700;
+  gap: 5px;
+  color: #102246;
+  font-size: 14px;
+  font-weight: 800;
   white-space: nowrap;
 }
 
@@ -172,81 +199,79 @@
 }
 
 .roleplay-start-button {
-  position: absolute;
-  right: 11px;
-  bottom: 12px;
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   display: grid;
   place-items: center;
-  border: 1.5px solid #5d89ef;
+  border: 1.7px solid #5471ff;
   border-radius: 50%;
   background: #ffffff;
-  color: #0d3472;
-  box-shadow: 0 5px 14px rgba(51, 107, 142, 0.08);
+  color: #07183f;
+  box-shadow: 0 5px 14px rgba(84, 113, 255, 0.1);
 }
 
 .roleplay-start-button:disabled {
   opacity: 0.58;
 }
 
-.roleplay-start-icon {
-  display: none;
-}
-
 .game-page-shell .nav-item.is-active svg {
-  color: #006bb3;
-  fill: #006bb3;
-  stroke: #006bb3;
+  color: #175ad7;
+  fill: #175ad7;
+  stroke: #175ad7;
 }
 
 @media (max-width: 460px) {
   .game-scroll {
-    padding-inline: 28px;
+    padding-inline: 18px;
+  }
+
+  .game-header {
+    padding-inline: 24px;
   }
 }
 
 @media (max-width: 390px) {
   .game-scroll {
-    padding-inline: 20px;
+    padding-inline: 14px;
   }
 
   .game-filter-chip {
-    height: 30px;
-    padding-inline: 10px;
-    font-size: 11px;
-  }
-
-  .roleplay-grid {
-    gap: 10px;
-  }
-
-  .roleplay-body {
-    min-height: 112px;
-    padding: 8px 42px 10px 10px;
-  }
-
-  .roleplay-body h2 {
-    font-size: 15px;
-  }
-
-  .roleplay-body p {
-    min-height: 40px;
+    height: 38px;
+    padding-inline: 11px;
     font-size: 12px;
   }
 
+  .roleplay-grid {
+    gap: 12px;
+  }
+
+  .roleplay-body {
+    min-height: 118px;
+    grid-template-columns: minmax(0, 1fr) 36px;
+    gap: 7px;
+    padding: 10px;
+  }
+
+  .roleplay-body h2 {
+    font-size: 18px;
+  }
+
+  .roleplay-body p {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
   .roleplay-meta-row {
-    gap: 6px;
+    gap: 5px;
   }
 
   .difficulty-pill,
   .duration-meta {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .roleplay-start-button {
-    right: 9px;
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
   }
 }

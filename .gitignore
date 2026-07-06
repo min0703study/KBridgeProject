@@ -65,10 +65,6 @@ frontend/.env.*
 storage/
 backend/storage/
 
-# samples / local-only
-sample_codes/
-sample/
-
 # frontend
 frontend/node_modules/
 frontend/dist/
@@ -78,3 +74,4 @@ frontend/dist/
 .vscode/
 .idea/
 copy_to_sample.bat
+.gstack/

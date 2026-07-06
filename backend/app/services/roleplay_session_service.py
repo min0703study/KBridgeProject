@@ -11,7 +11,10 @@ from backend.app.schemas.roleplay import (
     RoleplaySessionCreateRequest,
     RoleplaySessionCreateResponse,
 )
-from backend.app.services.roleplay_ingame_service import SCENARIO_VERSION_ID
+from backend.app.services.roleplay_ingame_service import (
+    RoleplayIngameNotFoundError,
+    get_default_scenario_version,
+)
 
 
 class RoleplaySessionCreateError(ValueError):
@@ -26,12 +29,18 @@ async def create_roleplay_session(
     session: AsyncSession,
     payload: RoleplaySessionCreateRequest,
 ) -> RoleplaySessionCreateResponse:
-    learner_id = _parse_uuid(payload.learner_id, "learner_id")
-    scenario_version_id = (
-        _parse_uuid(payload.scenario_version_id, "scenario_version_id")
-        if payload.scenario_version_id
-        else SCENARIO_VERSION_ID
+    learner_id = (
+        _parse_uuid(payload.learner_id, "learner_id")
+        if payload.learner_id
+        else await _get_default_active_learner_id(session)
     )
+    if payload.scenario_version_id:
+        scenario_version_id = _parse_uuid(payload.scenario_version_id, "scenario_version_id")
+    else:
+        try:
+            scenario_version_id = (await get_default_scenario_version(session)).scenario_version_id
+        except RoleplayIngameNotFoundError as exc:
+            raise RoleplaySessionNotFoundError(str(exc)) from exc
 
     learner = await _get_active_learner(session, learner_id)
     scenario_version = await _get_scenario_version(session, scenario_version_id)
@@ -87,6 +96,19 @@ async def _get_active_learner(session: AsyncSession, learner_id: UUID) -> User:
     if learner is None:
         raise RoleplaySessionNotFoundError("Active learner was not found.")
     return learner
+
+
+async def _get_default_active_learner_id(session: AsyncSession) -> UUID:
+    result = await session.execute(
+        select(User.user_id)
+        .where(User.role == "learner", User.status == "active")
+        .order_by(User.created_at.asc())
+        .limit(1)
+    )
+    learner_id = result.scalar_one_or_none()
+    if learner_id is None:
+        raise RoleplaySessionNotFoundError("Active learner was not found.")
+    return learner_id
 
 
 async def _get_scenario_version(

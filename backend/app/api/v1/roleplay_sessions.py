@@ -1,31 +1,20 @@
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
-from backend.app.db.session import get_db_session
 from backend.app.schemas.roleplay import (
     RoleplayDevPerfectAnswerRequest,
     RoleplaySessionCreateRequest,
     RoleplaySessionCreateResponse,
+    RoleplaySessionStatus,
     RoleplayTextTurnRequest,
 )
-from backend.app.services.roleplay_session_service import (
-    RoleplaySessionCreateError,
-    create_roleplay_session,
-)
 from backend.app.schemas.roleplay import RoleplayTurnResponse
-from backend.app.services.roleplay_session_turn_service import (
-    ContextBuilderError,
-    DomainPersistenceError,
-    EmptyTranscriptError,
-    GameRuleEngineError,
-    InvalidAudioError,
-    JudgeNodeError,
-    MissingProviderKeyError,
-    ResponsePackNodeError,
-    RoleplaySessionTurnError,
-    run_roleplay_session_dev_perfect_answer_turn,
-    run_roleplay_session_text_turn,
-    run_roleplay_session_turn,
+from backend.app.services.sample_roleplaying_adapter import (
+    SampleRoleplayingAdapterError,
+    abandon_sample_roleplay_session,
+    create_sample_roleplay_session,
+    run_sample_roleplay_session_dev_perfect_answer_turn,
+    run_sample_roleplay_session_text_turn,
+    run_sample_roleplay_session_turn,
 )
 
 
@@ -39,11 +28,10 @@ router = APIRouter(prefix="/roleplay-sessions", tags=["roleplay-sessions"])
 )
 async def create_session(
     payload: RoleplaySessionCreateRequest,
-    session: AsyncSession = Depends(get_db_session),
 ) -> RoleplaySessionCreateResponse:
     try:
-        return await create_roleplay_session(session, payload)
-    except RoleplaySessionCreateError as exc:
+        return create_sample_roleplay_session(payload)
+    except SampleRoleplayingAdapterError as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
 
@@ -52,32 +40,17 @@ async def create_session_turn(
     roleplay_session_id: str,
     audio_file: UploadFile = File(...),
     client_turn_id: str | None = Form(default=None),
-    session: AsyncSession = Depends(get_db_session),
 ) -> RoleplayTurnResponse:
     audio_bytes = await audio_file.read()
 
     try:
-        return await run_roleplay_session_turn(
-            session=session,
+        return await run_sample_roleplay_session_turn(
             roleplay_session_id=roleplay_session_id,
             audio_bytes=audio_bytes,
             filename=audio_file.filename,
             client_turn_id=client_turn_id,
         )
-    except InvalidAudioError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    except EmptyTranscriptError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
-    except (MissingProviderKeyError, TypeError) as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
-    except (
-        RoleplaySessionTurnError,
-        ContextBuilderError,
-        JudgeNodeError,
-        GameRuleEngineError,
-        ResponsePackNodeError,
-        DomainPersistenceError,
-    ) as exc:
+    except SampleRoleplayingAdapterError as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
 
@@ -85,27 +58,10 @@ async def create_session_turn(
 async def create_session_text_turn(
     roleplay_session_id: str,
     payload: RoleplayTextTurnRequest,
-    session: AsyncSession = Depends(get_db_session),
 ) -> RoleplayTurnResponse:
     try:
-        return await run_roleplay_session_text_turn(
-            session=session,
-            roleplay_session_id=roleplay_session_id,
-            text_content=payload.text_content,
-            client_turn_id=payload.client_turn_id,
-        )
-    except EmptyTranscriptError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
-    except (MissingProviderKeyError, TypeError) as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
-    except (
-        RoleplaySessionTurnError,
-        ContextBuilderError,
-        JudgeNodeError,
-        GameRuleEngineError,
-        ResponsePackNodeError,
-        DomainPersistenceError,
-    ) as exc:
+        return await run_sample_roleplay_session_text_turn(roleplay_session_id, payload)
+    except SampleRoleplayingAdapterError as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
 
@@ -113,20 +69,19 @@ async def create_session_text_turn(
 async def create_session_dev_perfect_answer_turn(
     roleplay_session_id: str,
     payload: RoleplayDevPerfectAnswerRequest | None = None,
-    session: AsyncSession = Depends(get_db_session),
 ) -> RoleplayTurnResponse:
     try:
-        return await run_roleplay_session_dev_perfect_answer_turn(
-            session=session,
-            roleplay_session_id=roleplay_session_id,
-            client_turn_id=payload.client_turn_id if payload else None,
+        return await run_sample_roleplay_session_dev_perfect_answer_turn(
+            roleplay_session_id, payload
         )
-    except EmptyTranscriptError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
-    except (
-        RoleplaySessionTurnError,
-        ContextBuilderError,
-        GameRuleEngineError,
-        DomainPersistenceError,
-    ) as exc:
+    except SampleRoleplayingAdapterError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+
+
+@router.patch("/{roleplay_session_id}/abandon", response_model=RoleplaySessionStatus)
+async def abandon_session(roleplay_session_id: str) -> RoleplaySessionStatus:
+    """학생이 세션을 중도 포기(뒤로가기/종료 버튼)했을 때 호출. 멱등 — 이미 terminal이면 그대로 반환."""
+    try:
+        return abandon_sample_roleplay_session(roleplay_session_id)
+    except SampleRoleplayingAdapterError as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc

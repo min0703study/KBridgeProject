@@ -1,0 +1,170 @@
+[
+  {
+    "file": "cover-greeting-students.png",
+    "source_screen": "1-1 표지.png",
+    "crop_box": [
+      302,
+      520,
+      828,
+      1068
+    ],
+    "role": "Main lesson card illustration: greeting students, window, sign, leaves, and plants.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "weather-lesson-hero.png",
+    "source_screen": "2-1 학습시작.png",
+    "crop_box": [
+      430,
+      430,
+      795,
+      805
+    ],
+    "role": "Weather and seasons hero illustration: sun, umbrella, cloud, raindrops, soft hills.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "weather-header-icon.png",
+    "source_screen": "3-1 단어.png",
+    "crop_box": [
+      58,
+      245,
+      230,
+      360
+    ],
+    "role": "Compact weather icon for quiz progress header.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "rainy-window-plant-umbrella.png",
+    "source_screen": "3-2 단어.png",
+    "crop_box": [
+      54,
+      520,
+      350,
+      1015
+    ],
+    "role": "Question hero illustration for weather vocabulary: rainy window, plant, umbrella.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "soft-hills-trees.png",
+    "source_screen": "4-2 문장흐름.png",
+    "crop_box": [
+      515,
+      455,
+      810,
+      710
+    ],
+    "role": "Soft landscape background decoration for sentence/dialogue cards.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "fan-plant-wind.png",
+    "source_screen": "4-1 문장.png",
+    "crop_box": [
+      560,
+      1458,
+      798,
+      1662
+    ],
+    "role": "Optional sentence practice decoration: fan, wind, and plant.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "mistake-clipboard-search.png",
+    "source_screen": "5-1 오답확인.png",
+    "crop_box": [
+      505,
+      125,
+      798,
+      438
+    ],
+    "role": "Review mistakes hero illustration: clipboard and magnifier.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "difficulty-tiger-student.png",
+    "source_screen": "6-1 난이도피드백.png",
+    "crop_box": [
+      50,
+      208,
+      285,
+      495
+    ],
+    "role": "Difficulty feedback hero character holding a book.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "lesson-book-pencil-plant.png",
+    "source_screen": "1-1 표지.png",
+    "crop_box": [
+      68,
+      1496,
+      236,
+      1612
+    ],
+    "role": "More lessons card icon: open book, pencil, plant.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "lesson-map-pin.png",
+    "source_screen": "1-1 표지.png",
+    "crop_box": [
+      298,
+      1490,
+      522,
+      1608
+    ],
+    "role": "More lessons card icon: map and location pin.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "lesson-bag-id.png",
+    "source_screen": "1-1 표지.png",
+    "crop_box": [
+      590,
+      1488,
+      790,
+      1608
+    ],
+    "role": "More lessons card icon: briefcase and ID card.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "mistake-rain-cloud.png",
+    "source_screen": "5-1 오답확인.png",
+    "crop_box": [
+      58,
+      998,
+      178,
+      1145
+    ],
+    "role": "Mistake card icon for rainy/cloudy weather.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "mistake-dialogue-bubbles.png",
+    "source_screen": "5-1 오답확인.png",
+    "crop_box": [
+      58,
+      1452,
+      220,
+      1588
+    ],
+    "role": "Mistake card icon for dialogue order.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  },
+  {
+    "file": "small-sun.png",
+    "source_screen": "1-1 표지.png",
+    "crop_box": [
+      46,
+      130,
+      112,
+      203
+    ],
+    "role": "Small decorative morning sun.",
+    "recommended_usage": "Use as an <img> illustration asset. Build text, cards, buttons, progress rings, and answer choices in React/CSS."
+  }
+]

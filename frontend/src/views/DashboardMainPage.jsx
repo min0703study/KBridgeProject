@@ -2,12 +2,11 @@ import {
   Battery,
   ChevronLeft,
   ChevronRight,
-  Gamepad2,
-  LayoutGrid,
   Signal,
   Sun,
   Wifi,
 } from 'lucide-react';
+import AppBottomNavigation from '../components/AppBottomNavigation.jsx';
 import { getMockDashboardData } from '../mock/mockDashboardData.js';
 
 const MOCK_EVENT_LABELS = {
@@ -190,35 +189,7 @@ function mockEventText(events = []) {
   return events.map((eventType) => MOCK_EVENT_LABELS[eventType]).join(', ');
 }
 
-function BottomNavigation({ items, onMockNavigate }) {
-  return (
-    <nav className="bottom-nav" aria-label="Mock app navigation">
-      {items.map((item) => (
-        <button
-          className={`nav-item ${item.active ? 'is-active' : ''}`}
-          type="button"
-          key={item.id}
-          onClick={() => {
-            if (item.tab === 'dashboard' || item.tab === 'game') {
-              onMockNavigate(item.tab);
-            }
-          }}
-        >
-          {item.iconSrc ? (
-            <img src={item.iconSrc} alt={item.iconAlt} />
-          ) : item.lucide === 'game' ? (
-            <Gamepad2 size={30} strokeWidth={1.9} aria-hidden="true" />
-          ) : (
-            <LayoutGrid size={30} strokeWidth={1.9} aria-hidden="true" />
-          )}
-          <span>{item.label}</span>
-        </button>
-      ))}
-    </nav>
-  );
-}
-
-export default function DashboardMainPage({ onMockNavigate }) {
+export default function DashboardMainPage({ activeTab, onMockNavigate }) {
   const mockDashboardData = getMockDashboardData();
 
   return (
@@ -239,7 +210,7 @@ export default function DashboardMainPage({ onMockNavigate }) {
             upcomingSchedule={mockDashboardData.upcomingSchedule}
           />
         </div>
-        <BottomNavigation items={mockDashboardData.bottomNavItems} onMockNavigate={onMockNavigate} />
+        <AppBottomNavigation activeTab={activeTab} onNavigate={onMockNavigate} />
       </div>
     </main>
   );

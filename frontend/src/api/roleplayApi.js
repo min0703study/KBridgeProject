@@ -1,15 +1,20 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://172.16.15.128:8000';
 
-export async function createRoleplaySession({ learnerId, scenarioVersionId }) {
+export async function createRoleplaySession({ learnerId, scenarioVersionId } = {}) {
+  const body = {};
+  if (learnerId) {
+    body.learner_id = learnerId;
+  }
+  if (scenarioVersionId) {
+    body.scenario_version_id = scenarioVersionId;
+  }
+
   const response = await fetch(`${API_BASE_URL}/api/v1/roleplay-sessions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      learner_id: learnerId,
-      scenario_version_id: scenarioVersionId,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
@@ -87,6 +92,26 @@ export async function sendRoleplaySessionTextTurn({ roleplaySessionId, textConte
 
   if (!response.ok) {
     let detail = 'Roleplay text turn failed.';
+    try {
+      const payload = await response.json();
+      detail = payload.detail || detail;
+    } catch {
+      detail = response.statusText || detail;
+    }
+    throw new Error(detail);
+  }
+
+  return response.json();
+}
+
+export async function abandonRoleplaySession({ roleplaySessionId }) {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/roleplay-sessions/${roleplaySessionId}/abandon`,
+    { method: 'PATCH' },
+  );
+
+  if (!response.ok) {
+    let detail = 'Roleplay session could not be abandoned.';
     try {
       const payload = await response.json();
       detail = payload.detail || detail;

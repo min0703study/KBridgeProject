@@ -944,6 +944,15 @@
   margin: 0 auto -2px;
 }
 
+/* 실패 종료 팝업 아이콘 — 트로피/컨페티 대신 중립 요약 아이콘, 크기는 트로피와 동일하게 맞춘다 */
+.final-summary-icon {
+  position: relative;
+  z-index: 1;
+  width: 72px;
+  height: 72px;
+  margin: 12px auto 8px;
+}
+
 .final-feedback-hero h2 {
   margin: 0;
   color: #20252d;

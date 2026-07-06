@@ -1,36 +1,27 @@
 import { useState } from 'react';
 import {
   Battery,
-  Bell,
+  BookOpen,
   ChevronRight,
   Clock3,
-  Coffee,
-  Factory,
-  Gamepad2,
-  Hotel,
-  LayoutGrid,
-  Settings,
+  Cloud,
+  GraduationCap,
+  Luggage,
   ShoppingBag,
   Signal,
-  Star,
-  Utensils,
-  Waves,
   Wifi,
 } from 'lucide-react';
-import { createRoleplaySession } from '../api/roleplayApi.js';
+import { createRoleplaySession, getConvenienceStoreIngame } from '../api/roleplayApi.js';
+import AppBottomNavigation from '../components/AppBottomNavigation.jsx';
 import { getMockGameData } from '../mock/mockGameData.js';
 import RoleplayIngamePage from './RoleplayIngamePage.jsx';
 
-const TEMP_LEARNER_ID = '23978a46-2c8e-4e2c-aa1d-4c37380b436e';
-const CONVENIENCE_STORE_SCENARIO_VERSION_ID = '44444444-4444-4444-8444-444444444444';
-
 const MOCK_FILTER_ICONS = {
-  retail: ShoppingBag,
-  dining: Utensils,
-  hospitality: Bell,
-  resort: Waves,
-  manufacturing: Settings,
-  beginner: Star,
+  campus: GraduationCap,
+  dailyLife: BookOpen,
+  travel: Luggage,
+  weather: Cloud,
+  shopping: ShoppingBag,
 };
 
 function MockPhoneStatusBar() {
@@ -98,16 +89,6 @@ function MockGameFilters({ filters }) {
 }
 
 function MockRoleplayCard({ game, onStart, isStarting }) {
-  const categoryIcon = {
-    'Convenience Store': ShoppingBag,
-    Restaurant: Utensils,
-    Hotel,
-    Resort: Waves,
-    'Factory Visit': Factory,
-    Cafe: Coffee,
-  }[game.title];
-  const CategoryIcon = categoryIcon || Gamepad2;
-
   return (
     <article className="roleplay-card">
       <img className="roleplay-image" src={game.imageSrc} alt={game.imageAlt} />
@@ -130,7 +111,6 @@ function MockRoleplayCard({ game, onStart, isStarting }) {
           disabled={isStarting}
           onClick={() => onStart(game)}
         >
-          <CategoryIcon className="roleplay-start-icon" size={18} strokeWidth={2} aria-hidden="true" />
           <ChevronRight size={23} strokeWidth={2.8} aria-hidden="true" />
         </button>
       </div>
@@ -138,42 +118,14 @@ function MockRoleplayCard({ game, onStart, isStarting }) {
   );
 }
 
-function MockGameBottomNavigation({ items, onMockNavigate }) {
-  return (
-    <nav className="bottom-nav" aria-label="Mock app navigation">
-      {items.map((item) => (
-        <button
-          className={`nav-item ${item.active ? 'is-active' : ''}`}
-          type="button"
-          key={item.id}
-          onClick={() => {
-            if (item.tab === 'dashboard' || item.tab === 'game') {
-              onMockNavigate(item.tab);
-            }
-          }}
-        >
-          {item.iconSrc ? (
-            <img src={item.iconSrc} alt={item.iconAlt} />
-          ) : item.lucide === 'game' ? (
-            <Gamepad2 size={30} strokeWidth={1.9} aria-hidden="true" />
-          ) : (
-            <LayoutGrid size={30} strokeWidth={1.9} aria-hidden="true" />
-          )}
-          <span>{item.label}</span>
-        </button>
-      ))}
-    </nav>
-  );
-}
-
-export default function GameMainPage({ onMockNavigate }) {
+export default function GameMainPage({ activeTab, onMockNavigate }) {
   const [activeRoleplay, setActiveRoleplay] = useState(null);
   const [startError, setStartError] = useState('');
   const [startingRoleplayId, setStartingRoleplayId] = useState(null);
   const mockGameData = getMockGameData();
 
   async function handleStartRoleplay(game) {
-    if (game.id !== 'mock-roleplay-convenience-store') {
+    if (game.id !== 'mock-roleplay-first-day-college') {
       setStartError('This roleplay is not connected yet.');
       return;
     }
@@ -182,11 +134,11 @@ export default function GameMainPage({ onMockNavigate }) {
     setStartingRoleplayId(game.id);
 
     try {
+      const ingameData = await getConvenienceStoreIngame();
       const session = await createRoleplaySession({
-        learnerId: TEMP_LEARNER_ID,
-        scenarioVersionId: CONVENIENCE_STORE_SCENARIO_VERSION_ID,
+        scenarioVersionId: ingameData.version.scenario_version_id,
       });
-      setActiveRoleplay({ game, session });
+      setActiveRoleplay({ game, session, ingameData });
     } catch (error) {
       setStartError(error.message || 'Roleplay session could not be created.');
     } finally {
@@ -194,10 +146,11 @@ export default function GameMainPage({ onMockNavigate }) {
     }
   }
 
-  if (activeRoleplay?.game?.id === 'mock-roleplay-convenience-store') {
+  if (activeRoleplay?.game?.id === 'mock-roleplay-first-day-college') {
     return (
       <RoleplayIngamePage
         roleplaySessionId={activeRoleplay.session.roleplay_session_id}
+        initialIngameData={activeRoleplay.ingameData}
         onBack={() => setActiveRoleplay(null)}
       />
     );
@@ -222,10 +175,7 @@ export default function GameMainPage({ onMockNavigate }) {
             ))}
           </section>
         </div>
-        <MockGameBottomNavigation
-          items={mockGameData.bottomNavItems}
-          onMockNavigate={onMockNavigate}
-        />
+        <AppBottomNavigation activeTab={activeTab} onNavigate={onMockNavigate} />
       </div>
     </main>
   );

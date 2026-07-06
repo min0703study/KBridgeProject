@@ -151,7 +151,7 @@ class RoleplayIngameResponse(BaseModel):
 
 
 class RoleplaySessionCreateRequest(BaseModel):
-    learner_id: str
+    learner_id: str | None = None
     scenario_version_id: str | None = None
 
 
