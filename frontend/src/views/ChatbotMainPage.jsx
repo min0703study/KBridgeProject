@@ -4,12 +4,14 @@ import {
   Briefcase,
   CheckCircle2,
   ChevronRight,
+  ClipboardList,
   HeartPulse,
   Info,
   MessageSquare,
   Mic,
   Phone,
   RefreshCw,
+  Search,
   Send,
   ShieldCheck,
   Signal,
@@ -85,7 +87,32 @@ const QUICK_MENU = [
   { key: 'sim', label: '유심/휴대폰', en: 'Phone & SIM', query: '휴대폰 유심 개통은 어떻게 하나요' },
   { key: 'bank', label: '은행계좌', en: 'Bank account', query: '은행 계좌는 어떻게 개설하나요' },
   { key: 'hospital', label: '병원/보험', en: 'Hospital & insurance', query: '병원 진료나 건강보험은 어떻게 하나요' },
+  { key: 'faqsearch', label: '전체 FAQ 검색', en: 'Search all FAQs', action: 'faqsearch' },
+  { key: 'status', label: '내 문의 상태 확인', en: 'Check my message status', action: 'status' },
   { key: 'message', label: '운영자에게 메시지', en: 'Leave a message', action: 'message' },
+];
+
+const FAQ_TOPICS = [
+  { key: 'arc', label: 'ARC 안내', en: 'Alien Registration', query: '외국인등록증 신청 방법 알려주세요' },
+  { key: 'sim', label: '유심/휴대폰', en: 'Phone & SIM', query: '휴대폰 유심 개통은 어떻게 하나요' },
+  { key: 'bank', label: '은행계좌', en: 'Bank account', query: '은행 계좌는 어떻게 개설하나요' },
+  { key: 'hospital', label: '병원/보험', en: 'Hospital & insurance', query: '병원 진료나 건강보험은 어떻게 하나요' },
+  { key: 'visa', label: '비자 문제', en: 'Visa questions', query: '체류 연장이나 비자 문제는 어떻게 하나요' },
+  { key: 'school', label: '학교 문제', en: 'School life', query: '학교 출석이나 학사 문제는 어떻게 하나요' },
+  { key: 'housing', label: '기숙사·집 문제', en: 'Dorm & housing', query: '기숙사나 자취방 문제는 어떻게 하나요' },
+  { key: 'job', label: '아르바이트 허가·근로시간', en: 'Part-time work rules', query: '아르바이트 허가나 근로시간 제한이 궁금해요' },
+  { key: 'tax', label: '아르바이트 소득·세금', en: 'Part-time income & tax', query: '아르바이트 소득 세금 신고는 어떻게 하나요' },
+  { key: 'tuition', label: '학비 분할납부·장학금', en: 'Tuition & scholarships', query: '학비 분할납부나 장학금은 어떻게 신청하나요' },
+  { key: 'pension', label: '국민연금 반환일시금', en: 'Pension refund on departure', query: '출국할 때 국민연금 반환일시금은 어떻게 받나요' },
+  { key: 'translate', label: '번역·통역 지원', en: 'Translation & interpretation', query: '번역이나 통역 지원을 받을 수 있나요' },
+  { key: 'korean', label: '한국어 수업·오리엔테이션', en: 'Korean class & orientation', query: '한국어 수업이나 오리엔테이션 일정이 궁금해요' },
+  { key: 'lostitem', label: '여권·등록증 분실', en: 'Lost passport or ARC', query: '여권이나 외국인등록증을 분실했어요' },
+];
+
+const STATUS_LABELS = [
+  { en: 'Received', ko: '접수됨' },
+  { en: 'In review', ko: '확인 중' },
+  { en: 'Answered', ko: '답변 완료' },
 ];
 
 const DEFAULT_COUNSELOR = '김서연 매니저';
@@ -167,7 +194,7 @@ function ChatbotHeader({
             <span>K-Bridge</span>
             <span className="chatbot-ai-badge">AI</span>
           </div>
-          <div className="chatbot-identity-sub">학생 지원 도우미 · Student support assistant</div>
+          <div className="chatbot-identity-sub">Arrival Care · 입국 후 케어 · Replies in ~1 min</div>
         </div>
       </div>
       <div className="chatbot-session-row">
@@ -321,6 +348,7 @@ function SafetyCard({ card }) {
         </div>
       </div>
 
+      <div className="safety-grid-label">More lines · 더 많은 연락처</div>
       <div className="safety-action-grid">
         {quickActions.map((action) => (
           <a className="safety-action-card" href={`tel:${action.tel}`} key={action.tel}>
@@ -441,7 +469,108 @@ function ConfirmCard({ message }) {
   );
 }
 
-function ChatMessage({ message, onSelectChip, chipsDisabled, onComposeInput, onComposeSubmit }) {
+function FaqSearchCard({ message, onQueryChange, onSelectTopic, disabled }) {
+  const query = message.query || '';
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? FAQ_TOPICS.filter(
+        (topic) => topic.label.toLowerCase().includes(q) || topic.en.toLowerCase().includes(q),
+      )
+    : FAQ_TOPICS;
+  const results = filtered.slice(0, 8);
+
+  return (
+    <section className="chat-faq-card">
+      <div className="chat-compose-header">
+        <span className="chat-compose-icon" aria-hidden="true">
+          <Search size={18} strokeWidth={2.2} />
+        </span>
+        <div>
+          <div className="chat-compose-title">Search all FAQs</div>
+          <div className="chat-compose-subtitle">전체 FAQ 검색</div>
+        </div>
+      </div>
+      <input
+        type="text"
+        className="chat-faq-input"
+        placeholder="검색어를 입력하세요 · Search topics..."
+        value={query}
+        disabled={disabled}
+        onChange={(event) => onQueryChange(message.id, event.target.value)}
+      />
+      {results.length ? (
+        <div className="chat-faq-results">
+          {results.map((topic) => (
+            <button
+              key={topic.key}
+              type="button"
+              className="chat-faq-row"
+              disabled={disabled}
+              onClick={() => onSelectTopic(topic)}
+            >
+              <span className="chat-faq-row-ko">{topic.label}</span>
+              <span className="chat-faq-row-en">{topic.en}</span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="chat-faq-empty">검색 결과가 없어요 · No matching topics</p>
+      )}
+    </section>
+  );
+}
+
+function StatusChecklistCard({ items, onCheck, disabled }) {
+  return (
+    <section className="chat-status-card">
+      <div className="chat-compose-header">
+        <span className="chat-compose-icon" aria-hidden="true">
+          <ClipboardList size={18} strokeWidth={2.2} />
+        </span>
+        <div>
+          <div className="chat-compose-title">Check my message status</div>
+          <div className="chat-compose-subtitle">내 문의 상태 확인</div>
+        </div>
+      </div>
+      {items.length ? (
+        <div className="chat-status-list">
+          {items.map((item) => {
+            const label = STATUS_LABELS[item.checks];
+            const canAdvance = item.checks < 2;
+            return (
+              <div className="chat-status-row" key={item.id}>
+                <span className="chat-status-text">{item.text}</span>
+                <button
+                  type="button"
+                  className={`chat-status-badge${item.checks === 2 ? ' is-done' : ''}`}
+                  disabled={disabled || !canAdvance}
+                  onClick={() => onCheck(item.id)}
+                  title={canAdvance ? '데모: 클릭하면 다음 단계로 진행돼요' : undefined}
+                >
+                  {label.en} · {label.ko}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="chat-faq-empty">아직 남긴 메시지가 없어요 · No messages sent yet</p>
+      )}
+    </section>
+  );
+}
+
+function ChatMessage({
+  message,
+  onSelectChip,
+  chipsDisabled,
+  onComposeInput,
+  onComposeSubmit,
+  onFaqQueryChange,
+  onFaqSelectTopic,
+  sentMessages,
+  onCheckStatus,
+}) {
   if (message.kind === 'chips') {
     return (
       <div className="chat-message is-menu">
@@ -467,6 +596,27 @@ function ChatMessage({ message, onSelectChip, chipsDisabled, onComposeInput, onC
     return (
       <div className="chat-message is-menu">
         <ConfirmCard message={message} />
+      </div>
+    );
+  }
+
+  if (message.kind === 'faq') {
+    return (
+      <div className="chat-message is-menu">
+        <FaqSearchCard
+          message={message}
+          onQueryChange={onFaqQueryChange}
+          onSelectTopic={onFaqSelectTopic}
+          disabled={chipsDisabled}
+        />
+      </div>
+    );
+  }
+
+  if (message.kind === 'status') {
+    return (
+      <div className="chat-message is-menu">
+        <StatusChecklistCard items={sentMessages} onCheck={onCheckStatus} disabled={chipsDisabled} />
       </div>
     );
   }
@@ -565,6 +715,7 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
   const [error, setError] = useState('');
   const [lastDebugData, setLastDebugData] = useState(null);
   const [showDebug, setShowDebug] = useState(false);
+  const [sentMessages, setSentMessages] = useState([]);
   const conversationRef = useRef(null);
 
   const selectedStudent = students.find((student) => student.id === selectedStudentId) || null;
@@ -608,6 +759,7 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
     setInput('');
     setError('');
     setLastDebugData(null);
+    setSentMessages([]);
   }
 
   function handleStudentChange(studentId) {
@@ -621,6 +773,7 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
     setInput('');
     setError('');
     setLastDebugData(null);
+    setSentMessages([]);
   }
 
   function handleChipSelect(chip) {
@@ -629,6 +782,17 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
         ...currentMessages,
         { id: makeId('compose'), kind: 'compose', text: '', sent: false, sentText: '' },
       ]);
+      return;
+    }
+    if (chip.action === 'faqsearch') {
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        { id: makeId('faq'), kind: 'faq', query: '' },
+      ]);
+      return;
+    }
+    if (chip.action === 'status') {
+      setMessages((currentMessages) => [...currentMessages, { id: makeId('status'), kind: 'status' }]);
       return;
     }
     handleSubmit(chip.query);
@@ -652,6 +816,7 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
         message.id === msgId ? { ...message, sent: true, sentText: text } : message,
       ),
     );
+    setSentMessages((currentSent) => [...currentSent, { id: makeId('ticket'), text, checks: 0 }]);
     setBusy(true);
 
     window.setTimeout(() => {
@@ -673,6 +838,24 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
       ]);
       setBusy(false);
     }, 700);
+  }
+
+  function handleFaqQueryChange(msgId, query) {
+    setMessages((currentMessages) =>
+      currentMessages.map((message) => (message.id === msgId ? { ...message, query } : message)),
+    );
+  }
+
+  function handleFaqSelectTopic(topic) {
+    handleSubmit(topic.query);
+  }
+
+  function handleCheckStatus(ticketId) {
+    setSentMessages((currentSent) =>
+      currentSent.map((ticket) =>
+        ticket.id === ticketId ? { ...ticket, checks: Math.min(ticket.checks + 1, 2) } : ticket,
+      ),
+    );
   }
 
   async function handleSubmit(overrideText) {
@@ -748,6 +931,10 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
               chipsDisabled={busy || loadingStudents || !selectedStudentId}
               onComposeInput={handleComposeInput}
               onComposeSubmit={handleComposeSubmit}
+              onFaqQueryChange={handleFaqQueryChange}
+              onFaqSelectTopic={handleFaqSelectTopic}
+              sentMessages={sentMessages}
+              onCheckStatus={handleCheckStatus}
               key={message.id}
             />
           ))}
