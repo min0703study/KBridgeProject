@@ -18,7 +18,7 @@ import {
   Siren,
   Wifi,
 } from 'lucide-react';
-import { getChatStudents, sendChatMessage } from '../api/chatApi.js';
+import { getChatStudents, sendChatMessage, sendManagerMessage } from '../api/chatApi.js';
 import AppBottomNavigation from '../components/AppBottomNavigation.jsx';
 import ChatDebugPanel from '../components/ChatDebugPanel.jsx';
 
@@ -717,6 +717,8 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
   const [showDebug, setShowDebug] = useState(false);
   const [sentMessages, setSentMessages] = useState([]);
   const conversationRef = useRef(null);
+  const activeConversationRef = useRef({ studentId: '', conversationId });
+  const managerRequestRef = useRef(0);
 
   const selectedStudent = students.find((student) => student.id === selectedStudentId) || null;
 
@@ -753,7 +755,12 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
     });
   }, [messages, busy, error]);
 
+  useEffect(() => {
+    activeConversationRef.current = { studentId: selectedStudentId, conversationId };
+  }, [selectedStudentId, conversationId]);
+
   function handleReset() {
+    managerRequestRef.current += 1;
     setConversationId(makeId('conversation'));
     setMessages([DEFAULT_GREETING, { id: makeId('chips'), kind: 'chips', chips: QUICK_MENU }]);
     setInput('');
@@ -767,6 +774,7 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
       return;
     }
 
+    managerRequestRef.current += 1;
     setSelectedStudentId(studentId);
     setConversationId(makeId('conversation'));
     setMessages([DEFAULT_GREETING, { id: makeId('chips'), kind: 'chips', chips: QUICK_MENU }]);
@@ -804,22 +812,44 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
     );
   }
 
-  function handleComposeSubmit(msgId) {
+  async function handleComposeSubmit(msgId) {
     const target = messages.find((message) => message.id === msgId);
     const text = (target?.text || '').trim();
     if (!text || busy) {
       return;
     }
+    if (!selectedStudentId) {
+      setError('A student profile is required before sending manager messages.');
+      return;
+    }
 
-    setMessages((currentMessages) =>
-      currentMessages.map((message) =>
-        message.id === msgId ? { ...message, sent: true, sentText: text } : message,
-      ),
-    );
-    setSentMessages((currentSent) => [...currentSent, { id: makeId('ticket'), text, checks: 0 }]);
+    const requestId = managerRequestRef.current + 1;
+    const requestContext = { studentId: selectedStudentId, conversationId };
+    managerRequestRef.current = requestId;
+    setError('');
     setBusy(true);
 
-    window.setTimeout(() => {
+    try {
+      const response = await sendManagerMessage({
+        studentId: requestContext.studentId,
+        conversationId: requestContext.conversationId,
+        text,
+      });
+      const activeContext = activeConversationRef.current;
+      if (
+        managerRequestRef.current !== requestId ||
+        activeContext.studentId !== requestContext.studentId ||
+        activeContext.conversationId !== requestContext.conversationId
+      ) {
+        return;
+      }
+
+      setMessages((currentMessages) =>
+        currentMessages.map((message) =>
+          message.id === msgId ? { ...message, sent: true, sentText: text } : message,
+        ),
+      );
+      setSentMessages((currentSent) => [...currentSent, { id: makeId('ticket'), text, checks: 0 }]);
       setMessages((currentMessages) => [
         ...currentMessages,
         {
@@ -831,13 +861,21 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
         {
           id: makeId('assistant'),
           role: 'assistant',
-          text: '감사해요. 담당 매니저가 영업일 기준 1일 이내에 카카오톡 또는 전화로 연락드릴게요.',
+          text: 'Your manager handoff was recorded. The care team can review this conversation and follow up within 1 business day.',
           time: formatChatTime(),
         },
         { id: makeId('chips'), kind: 'chips', chips: QUICK_MENU },
       ]);
-      setBusy(false);
-    }, 700);
+      setLastDebugData(response);
+    } catch (requestError) {
+      if (managerRequestRef.current === requestId) {
+        setError(requestError instanceof Error ? requestError.message : 'Failed to send manager message.');
+      }
+    } finally {
+      if (managerRequestRef.current === requestId) {
+        setBusy(false);
+      }
+    }
   }
 
   function handleFaqQueryChange(msgId, query) {

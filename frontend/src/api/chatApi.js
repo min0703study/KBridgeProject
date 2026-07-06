@@ -15,13 +15,20 @@ async function unwrapChatResponse(response) {
   return payload;
 }
 
+const CHAT_API_BASE_URL = (import.meta.env?.VITE_CHAT_API_BASE_URL || '/api').replace(/\/$/, '');
+
+function chatUrl(path) {
+  const safePath = path.startsWith('/') ? path : `/${path}`;
+  return `${CHAT_API_BASE_URL}${safePath}`;
+}
+
 export async function getChatStudents() {
-  const response = await fetch('/api/chat/students');
+  const response = await fetch(chatUrl('/chat/students'));
   return unwrapChatResponse(response);
 }
 
 export async function sendChatMessage({ studentId, conversationId, text }) {
-  const response = await fetch('/api/chat/message', {
+  const response = await fetch(chatUrl('/chat/message'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -32,4 +39,12 @@ export async function sendChatMessage({ studentId, conversationId, text }) {
   });
 
   return unwrapChatResponse(response);
+}
+
+export async function sendManagerMessage({ studentId, conversationId, text }) {
+  return sendChatMessage({
+    studentId,
+    conversationId,
+    text: `Manager handoff request:\n${text}`,
+  });
 }
