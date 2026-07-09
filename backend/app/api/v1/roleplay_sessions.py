@@ -4,11 +4,13 @@ from backend.app.schemas.roleplay import (
     RoleplayDevPerfectAnswerRequest,
     RoleplaySessionCreateRequest,
     RoleplaySessionCreateResponse,
+    RoleplaySessionStatus,
     RoleplayTextTurnRequest,
 )
 from backend.app.schemas.roleplay import RoleplayTurnResponse
 from backend.app.services.sample_roleplaying_adapter import (
     SampleRoleplayingAdapterError,
+    abandon_sample_roleplay_session,
     create_sample_roleplay_session,
     run_sample_roleplay_session_dev_perfect_answer_turn,
     run_sample_roleplay_session_text_turn,
@@ -72,5 +74,14 @@ async def create_session_dev_perfect_answer_turn(
         return await run_sample_roleplay_session_dev_perfect_answer_turn(
             roleplay_session_id, payload
         )
+    except SampleRoleplayingAdapterError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+
+
+@router.patch("/{roleplay_session_id}/abandon", response_model=RoleplaySessionStatus)
+async def abandon_session(roleplay_session_id: str) -> RoleplaySessionStatus:
+    """학생이 세션을 중도 포기(뒤로가기/종료 버튼)했을 때 호출. 멱등 — 이미 terminal이면 그대로 반환."""
+    try:
+        return abandon_sample_roleplay_session(roleplay_session_id)
     except SampleRoleplayingAdapterError as exc:
         raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc

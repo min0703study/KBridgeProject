@@ -104,6 +104,26 @@ export async function sendRoleplaySessionTextTurn({ roleplaySessionId, textConte
   return response.json();
 }
 
+export async function abandonRoleplaySession({ roleplaySessionId }) {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/roleplay-sessions/${roleplaySessionId}/abandon`,
+    { method: 'PATCH' },
+  );
+
+  if (!response.ok) {
+    let detail = 'Roleplay session could not be abandoned.';
+    try {
+      const payload = await response.json();
+      detail = payload.detail || detail;
+    } catch {
+      detail = response.statusText || detail;
+    }
+    throw new Error(detail);
+  }
+
+  return response.json();
+}
+
 export async function sendRoleplaySessionDevPerfectAnswerTurn({ roleplaySessionId, clientTurnId }) {
   const response = await fetch(
     `${API_BASE_URL}/api/v1/roleplay-sessions/${roleplaySessionId}/turns/dev-perfect-answer`,

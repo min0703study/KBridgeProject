@@ -4,6 +4,7 @@ import {
   Briefcase,
   ChevronRight,
   HeartPulse,
+  Info,
   Mic,
   Phone,
   RefreshCw,
@@ -15,6 +16,11 @@ import {
 } from 'lucide-react';
 import { getChatStudents, sendChatMessage } from '../api/chatApi.js';
 import AppBottomNavigation from '../components/AppBottomNavigation.jsx';
+import ChatDebugPanel from '../components/ChatDebugPanel.jsx';
+
+// chat_dev.html(k_bridge_admin) 이관 디버그 패널 — ?debug=1 로 열었을 때만 노출.
+const DEBUG_ENABLED =
+  typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug');
 
 const DEFAULT_GREETING = {
   id: 'bot-greeting',
@@ -71,6 +77,13 @@ const SAFETY_QUICK_ACTIONS_BY_SUBTYPE = {
     { label: '운영자', tel: '010-9876-5432', icon: 'heart' },
   ],
 };
+
+const QUICK_MENU = [
+  { key: 'arc', label: 'ARC 안내', query: '외국인등록증 신청 방법 알려주세요' },
+  { key: 'sim', label: '유심/휴대폰', query: '휴대폰 유심 개통은 어떻게 하나요' },
+  { key: 'bank', label: '은행계좌', query: '은행 계좌는 어떻게 개설하나요' },
+  { key: 'hospital', label: '병원/보험', query: '병원 진료나 건강보험은 어떻게 하나요' },
+];
 
 function makeId(prefix) {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -137,6 +150,19 @@ function ChatbotHeader({
         <button className="profile-button" type="button" aria-label="Mock profile">
           {profileInitial}
         </button>
+      </div>
+      <div className="chatbot-identity-row">
+        <div className="chatbot-avatar">
+          <img src="/ai_icon.png" alt="" aria-hidden="true" />
+          <span className="chatbot-avatar-status" aria-hidden="true" />
+        </div>
+        <div className="chatbot-identity-text">
+          <div className="chatbot-identity-title">
+            <span>K-Bridge</span>
+            <span className="chatbot-ai-badge">AI</span>
+          </div>
+          <div className="chatbot-identity-sub">학생 지원 도우미 · Student support assistant</div>
+        </div>
       </div>
       <div className="chatbot-session-row">
         <label className="chatbot-student-select-label" htmlFor="chatbot-student-select">
@@ -210,15 +236,23 @@ function GenericChatCard({ card }) {
 
   return (
     <section className={`chat-response-card tone-${String(card.type || 'default').toLowerCase()}`}>
-      <div className="chat-card-title">
-        <span>[{card.type}]</span>
-        {card.title}
+      <div className="chat-card-header">
+        <span className="chat-card-icon" aria-hidden="true">
+          <Info size={16} strokeWidth={2.3} />
+        </span>
+        <div className="chat-card-title">
+          <span>[{card.type}]</span>
+          {card.title}
+        </div>
       </div>
       {card.answer ? <p className="chat-card-answer">{card.answer}</p> : null}
       {card.steps?.length ? (
         <ol className="chat-card-steps">
           {card.steps.map((step, index) => (
-            <li key={`${step}-${index}`}>{step}</li>
+            <li key={`${step}-${index}`}>
+              <span className="chat-card-step-number">{index + 1}</span>
+              <span>{step}</span>
+            </li>
           ))}
         </ol>
       ) : null}
@@ -289,7 +323,7 @@ function SafetyCard({ card }) {
             </span>
             <span>{action.label}</span>
             <strong>{action.tel}</strong>
-            <ChevronRight size={22} strokeWidth={2.2} aria-hidden="true" />
+            <ChevronRight size={14} strokeWidth={2.4} className="safety-action-chevron" aria-hidden="true" />
           </a>
         ))}
       </div>
@@ -329,17 +363,39 @@ function BubbleText({ text }) {
   );
 }
 
-function ChatMessage({ message }) {
+function ChatMessage({ message, onSelectChip, chipsDisabled }) {
+  if (message.kind === 'chips') {
+    return (
+      <div className="chat-message is-menu">
+        <QuickReplyChips chips={message.chips} onSelect={onSelectChip} disabled={chipsDisabled} />
+      </div>
+    );
+  }
+
   const isStudent = message.role === 'student';
 
-  return (
-    <article className={`chat-message is-${isStudent ? 'student' : 'bot'}`}>
-      {isStudent || !message.response ? (
+  if (isStudent) {
+    return (
+      <article className="chat-message is-student">
         <BubbleText text={message.text} />
-      ) : (
-        <AssistantResponse response={message.response} />
-      )}
-      <time>{message.time}</time>
+        <time>{message.time}</time>
+      </article>
+    );
+  }
+
+  return (
+    <article className="chat-message is-bot">
+      <div className="chat-bot-avatar" aria-hidden="true">
+        <img src="/ai_icon.png" alt="" />
+      </div>
+      <div className="chat-bot-content">
+        {message.response ? (
+          <AssistantResponse response={message.response} />
+        ) : (
+          <BubbleText text={message.text} />
+        )}
+        <time>{message.time}</time>
+      </div>
     </article>
   );
 }
@@ -377,15 +433,38 @@ function ChatInput({ value, busy, disabled, onChange, onSubmit }) {
   );
 }
 
+function QuickReplyChips({ chips, onSelect, disabled }) {
+  return (
+    <div className="chat-quick-menu" role="group" aria-label="Quick reply options">
+      {chips.map((chip) => (
+        <button
+          key={chip.key}
+          type="button"
+          className="chat-quick-chip"
+          disabled={disabled}
+          onClick={() => onSelect(chip.query)}
+        >
+          {chip.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
   const [students, setStudents] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [conversationId, setConversationId] = useState(() => makeId('conversation'));
-  const [messages, setMessages] = useState([DEFAULT_GREETING]);
+  const [messages, setMessages] = useState([
+    DEFAULT_GREETING,
+    { id: 'chips-initial', kind: 'chips', chips: QUICK_MENU },
+  ]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [loadingStudents, setLoadingStudents] = useState(true);
   const [error, setError] = useState('');
+  const [lastDebugData, setLastDebugData] = useState(null);
+  const [showDebug, setShowDebug] = useState(false);
   const conversationRef = useRef(null);
 
   const selectedStudent = students.find((student) => student.id === selectedStudentId) || null;
@@ -425,9 +504,10 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
 
   function handleReset() {
     setConversationId(makeId('conversation'));
-    setMessages([DEFAULT_GREETING]);
+    setMessages([DEFAULT_GREETING, { id: makeId('chips'), kind: 'chips', chips: QUICK_MENU }]);
     setInput('');
     setError('');
+    setLastDebugData(null);
   }
 
   function handleStudentChange(studentId) {
@@ -437,13 +517,14 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
 
     setSelectedStudentId(studentId);
     setConversationId(makeId('conversation'));
-    setMessages([DEFAULT_GREETING]);
+    setMessages([DEFAULT_GREETING, { id: makeId('chips'), kind: 'chips', chips: QUICK_MENU }]);
     setInput('');
     setError('');
+    setLastDebugData(null);
   }
 
-  async function handleSubmit() {
-    const text = input.trim();
+  async function handleSubmit(overrideText) {
+    const text = (typeof overrideText === 'string' ? overrideText : input).trim();
     if (!text || busy || !selectedStudentId) {
       if (!selectedStudentId && !loadingStudents) {
         setError('A student profile is required before sending chat messages.');
@@ -479,7 +560,9 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
           response,
           time: formatChatTime(),
         },
+        { id: makeId('chips'), kind: 'chips', chips: QUICK_MENU },
       ]);
+      setLastDebugData(response);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Failed to send message.');
     } finally {
@@ -507,12 +590,26 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
         >
           <div className="chat-spacer" aria-hidden="true" />
           {messages.map((message) => (
-            <ChatMessage message={message} key={message.id} />
+            <ChatMessage
+              message={message}
+              onSelectChip={handleSubmit}
+              chipsDisabled={busy || loadingStudents || !selectedStudentId}
+              key={message.id}
+            />
           ))}
           {busy ? (
             <article className="chat-message is-bot">
-              <div className="chat-bubble chat-bubble-status">
-                <span>응답을 준비하고 있어요...</span>
+              <div className="chat-bot-avatar" aria-hidden="true">
+                <img src="/ai_icon.png" alt="" />
+              </div>
+              <div
+                className="chat-bubble chat-typing-dots"
+                role="status"
+                aria-label="응답을 준비하고 있어요"
+              >
+                <span aria-hidden="true" />
+                <span aria-hidden="true" />
+                <span aria-hidden="true" />
               </div>
             </article>
           ) : null}
@@ -526,6 +623,19 @@ export default function ChatbotMainPage({ activeTab, onMockNavigate }) {
           onSubmit={handleSubmit}
         />
         <AppBottomNavigation activeTab={activeTab} onNavigate={onMockNavigate} />
+        {DEBUG_ENABLED && !showDebug ? (
+          <button
+            className="chat-debug-toggle"
+            type="button"
+            onClick={() => setShowDebug(true)}
+            aria-label="Open debug panel"
+          >
+            DEV
+          </button>
+        ) : null}
+        {DEBUG_ENABLED && showDebug ? (
+          <ChatDebugPanel data={lastDebugData} onClose={() => setShowDebug(false)} />
+        ) : null}
       </div>
     </main>
   );
