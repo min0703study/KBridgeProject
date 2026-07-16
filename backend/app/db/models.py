@@ -7,28 +7,40 @@ from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Integer, Strin
 from sqlalchemy.dialects.postgresql import ENUM, JSONB, UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.app.db.base import Base
+from backend.app.db.base import ROLEPLAY_SCHEMA, Base
 
 
-UserRoleEnum = ENUM("learner", "teacher", "admin", name="user_role_enum", create_type=False)
-UserStatusEnum = ENUM("active", "inactive", "deleted", name="user_status_enum", create_type=False)
-LanguageCodeEnum = ENUM("en", "ko", name="language_code_enum", create_type=False)
-ScenarioStatusEnum = ENUM("draft", "published", "archived", name="scenario_status_enum", create_type=False)
-DifficultyEnum = ENUM("beginner", "intermediate", "advanced", name="difficulty_enum", create_type=False)
+UserRoleEnum = ENUM(
+    "learner", "teacher", "admin", name="user_role_enum", schema=ROLEPLAY_SCHEMA, create_type=False
+)
+UserStatusEnum = ENUM(
+    "active", "inactive", "deleted", name="user_status_enum", schema=ROLEPLAY_SCHEMA, create_type=False
+)
+LanguageCodeEnum = ENUM("en", "ko", name="language_code_enum", schema=ROLEPLAY_SCHEMA, create_type=False)
+ScenarioStatusEnum = ENUM(
+    "draft", "published", "archived", name="scenario_status_enum", schema=ROLEPLAY_SCHEMA, create_type=False
+)
+DifficultyEnum = ENUM(
+    "beginner", "intermediate", "advanced", name="difficulty_enum", schema=ROLEPLAY_SCHEMA, create_type=False
+)
 SessionEndStatusEnum = ENUM(
     "in_progress",
     "completed",
     "failed",
     "abandoned",
     name="session_end_status_enum",
+    schema=ROLEPLAY_SCHEMA,
     create_type=False,
 )
-InputMethodEnum = ENUM("voice", "text", name="input_method_enum", create_type=False)
+InputMethodEnum = ENUM(
+    "voice", "text", name="input_method_enum", schema=ROLEPLAY_SCHEMA, create_type=False
+)
 SenderTypeEnum = ENUM(
     "system",
     "roleplay_character",
     "learner",
     name="sender_type_enum",
+    schema=ROLEPLAY_SCHEMA,
     create_type=False,
 )
 MessageGeneratedByEnum = ENUM(
@@ -36,6 +48,7 @@ MessageGeneratedByEnum = ENUM(
     "ai_agent",
     "admin",
     name="message_generated_by_enum",
+    schema=ROLEPLAY_SCHEMA,
     create_type=False,
 )
 MessageTypeEnum = ENUM(
@@ -46,6 +59,7 @@ MessageTypeEnum = ENUM(
     "hint",
     "correction_feedback",
     name="message_type_enum",
+    schema=ROLEPLAY_SCHEMA,
     create_type=False,
 )
 EvaluationResultEnum = ENUM(
@@ -53,6 +67,7 @@ EvaluationResultEnum = ENUM(
     "soft_pass",
     "fail",
     name="evaluation_result_enum",
+    schema=ROLEPLAY_SCHEMA,
     create_type=False,
 )
 
